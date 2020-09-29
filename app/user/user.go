@@ -26,26 +26,26 @@ func NewUserRepo() *UserRepo {
 	}
 }
 
-func (repo *UserRepo) Get(nickname string) (*User, bool) {
-	repo.mu.Lock()
-	defer repo.mu.Unlock()
-	user, ok := repo.data[nickname]
-	return user, ok
+func (r *UserRepo) Get(email string) (*User, bool) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	user, has := r.data[email]
+	return user, has
 }
 
-func (repo *UserRepo) exists(user *User) bool {
-	_, ok := repo.data[user.Nickname]
-	return ok
+func (r *UserRepo) exists(user *User) bool {
+	_, has := r.data[user.Email]
+	return has
 }
 
-func (repo *UserRepo) Register(user *User) error {
-	repo.mu.Lock()
-	defer repo.mu.Unlock()
-	if repo.exists(user) {
-		return errors.New("User with this nickname already exists")
+func (r *UserRepo) Register(user *User) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.exists(user) {
+		return errors.New("User with this Email already exists")
 	}
-	user.ID = repo.count
-	repo.data[user.Nickname] = user
-	repo.count++
+	user.ID = r.count
+	r.data[user.Email] = user
+	r.count++
 	return nil
 }
