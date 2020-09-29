@@ -10,7 +10,6 @@ import (
 
 func main() {
 	router := mux.NewRouter()
-
 	UserHandler := handlers.NewUserHandler()
 
 	router.HandleFunc("/api/v1/user/register", UserHandler.Register).Methods("POST")
