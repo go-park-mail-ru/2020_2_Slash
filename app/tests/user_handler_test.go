@@ -6,8 +6,10 @@ import (
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"testing"
 
@@ -24,6 +26,11 @@ type TestCase struct {
 }
 
 var url string = "/api/v1"
+
+func TestMain(m *testing.M) {
+	log.SetOutput(ioutil.Discard)
+	os.Exit(m.Run())
+}
 
 func TestRegisterHandler(t *testing.T) {
 	t.Parallel()
