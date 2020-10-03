@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/app/session"
@@ -38,6 +39,14 @@ type Result struct {
 	Message string `json:"result"`
 }
 
+func isValidEmail(e string) bool {
+	if len(e) < 3 && len(e) > 254 {
+		return false
+	}
+	emailRegex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	return emailRegex.MatchString(e)
+}
+
 func WriteResponse(w http.ResponseWriter, body interface{}, status int) {
 	res, err := json.Marshal(body)
 	if err != nil {
@@ -51,10 +60,13 @@ func WriteResponse(w http.ResponseWriter, body interface{}, status int) {
 
 func CreateUser(userInput *UserInput) (*user.User, error) {
 	if userInput.Email == "" || userInput.Password == "" || userInput.RepeatedPassword == "" {
-		return nil, errors.New("Not enough input data")
+		return nil, errors.New("not enough input data")
+	}
+	if !isValidEmail(userInput.Email) {
+		return nil, errors.New("email is invalid")
 	}
 	if userInput.Password != userInput.RepeatedPassword {
-		return nil, errors.New("Passwords don't match")
+		return nil, errors.New("passwords don't match")
 	}
 	if userInput.Nickname == "" {
 		// If nickname wasn't sent, use email before @
@@ -69,7 +81,7 @@ func CreateUser(userInput *UserInput) (*user.User, error) {
 	return user, nil
 }
 
-func createCookie(session *session.Session) *http.Cookie {
+func CreateCookie(session *session.Session) *http.Cookie {
 	return &http.Cookie{
 		Name:     "session_id",
 		Value:    session.ID,
@@ -78,7 +90,7 @@ func createCookie(session *session.Session) *http.Cookie {
 	}
 }
 
-func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
+func (uh *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	decoder := json.NewDecoder(r.Body)
 	userInput := &UserInput{}
@@ -98,7 +110,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.UserRepo.Register(user)
+	err = uh.UserRepo.Register(user)
 	if err != nil {
 		log.Println("Error:", err)
 		data := Error{Message: err.Error()}
@@ -107,9 +119,40 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("Registred user: ", user)
 
-	session := h.SessionManager.Create(user)
-	cookie := createCookie(session)
+	session := uh.SessionManager.Create(user)
+	cookie := CreateCookie(session)
 	http.SetCookie(w, cookie)
 	data := Result{Message: "ok"}
 	WriteResponse(w, data, http.StatusCreated)
+}
+
+func (uh *UserHandler) GetValidSession(cookieVal string) (*session.Session, bool) {
+	session, has := uh.SessionManager.Get(cookieVal)
+	if !has || !uh.SessionManager.IsValid(session) || !uh.UserRepo.Exists(session.UserID) {
+		return nil, false
+	}
+	return session, true
+}
+
+func (uh *UserHandler) GetUserProfile(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		log.Println("Error in getting cookie: ", err)
+		data := Error{Message: "user isn't authorized"}
+		WriteResponse(w, data, http.StatusUnauthorized)
+		return
+	}
+
+	session, valid := uh.GetValidSession(cookie.Value)
+	if !valid {
+		log.Println("Session is invalid")
+		data := Error{Message: "session is invalid"}
+		WriteResponse(w, data, http.StatusUnauthorized)
+		return
+	}
+
+	curUser, _ := uh.UserRepo.Get(session.UserID)
+	userProfile := curUser.GetProfile()
+	WriteResponse(w, userProfile, http.StatusOK)
 }
