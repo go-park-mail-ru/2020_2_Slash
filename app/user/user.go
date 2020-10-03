@@ -50,16 +50,20 @@ func (ur *UserRepo) Delete(userID uint64) (*User, error) {
 }
 
 func (ur *UserRepo) UpdateEmail(userID uint64, email string) error {
+	user, has := ur.Get(userID)
+	if !has {
+		return errors.New("There is no such user")
+	}
+	if user.Email == email {
+		return nil
+	}
 	if !ur.IsUniqEmail(email) {
 		return errors.New("User with this Email already exists")
 	}
-	user, err := ur.Delete(userID)
-	if err != nil {
-		return err
-	}
-	user.Email = email
 	ur.mu.Lock()
 	defer ur.mu.Unlock()
+	delete(ur.data, user.Email)
+	user.Email = email
 	ur.data[user.Email] = user
 	return nil
 }
