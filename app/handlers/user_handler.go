@@ -3,13 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"log"
-	"net/http"
-	"strings"
-
 	"github.com/go-park-mail-ru/2020_2_Slash/app/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/app/session"
 	"github.com/go-park-mail-ru/2020_2_Slash/app/user"
+	"log"
+	"net/http"
+	"strings"
 )
 
 type UserHandler struct {
@@ -194,4 +193,95 @@ func (uh *UserHandler) ChangeUserProfile(w http.ResponseWriter, r *http.Request)
 
 	data := Result{Message: "ok"}
 	WriteResponse(w, data, http.StatusOK)
+}
+
+func createCookie(session *session.Session) *http.Cookie {
+	return &http.Cookie{
+		Name:     "session_id",
+		Value:    session.ID,
+		Expires:  session.ExpiresAt,
+		HttpOnly: true,
+	}
+}
+
+func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	newUser, err := getUserFromRequest(r)
+	if err != nil {
+		log.Println("Error in decoding user data: ", err)
+		data := Error{Message: err.Error()}
+		WriteResponse(w, data, http.StatusBadRequest)
+		return
+	}
+
+	if err, ok := isUserDataValid(newUser); !ok {
+		WriteResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	dbUser, ok := h.UserRepo.GetByEmail(newUser.Email)
+	if !ok {
+		data := Error{Message: WrongEmailMsg}
+		WriteResponse(w, data, http.StatusBadRequest)
+		return
+	}
+	if err, ok := isPasswordRight(dbUser, newUser); !ok {
+		WriteResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	// save session to db
+	session := h.SessionManager.Create(newUser)
+	// set cookie in browser
+	cookie := createCookie(session)
+	http.SetCookie(w, cookie)
+
+	data := NewLoginResponse(dbUser.ID, dbUser.Nickname, dbUser.Avatar)
+	WriteResponse(w, data, http.StatusOK)
+}
+
+type LoginResponse struct {
+	ID       uint64 `json:"id"`
+	Nickname string `json:"nickname"`
+	Avatar	string `json:"avatar"`
+}
+
+func NewLoginResponse(id uint64, nickname string, avatar string) *LoginResponse {
+	return &LoginResponse{
+		ID:       id,
+		Nickname: nickname,
+		Avatar: avatar,
+	}
+}
+
+func getUserFromRequest(r *http.Request) (*user.User, error) {
+	decoder := json.NewDecoder(r.Body)
+	newUser := &user.User{}
+	err := decoder.Decode(newUser)
+	return newUser, err
+}
+
+func isPasswordRight(dbUser *user.User, newUser *user.User) (Error, bool) {
+	if newUser.Password != dbUser.Password {
+		data := Error{Message: WrongPasswordMsg}
+		return data, false
+	}
+	return Error{}, true
+}
+
+func isUserDataValid(newUser *user.User) (Error, bool) {
+	if newUser.Email == "" {
+		data := Error{Message: EmptyEmailMsg}
+		return data, false
+	}
+	if !isEmailValid(newUser.Email) {
+		data := Error{Message: InvalidEmailMsg}
+		return data, false
+	}
+	if newUser.Password == "" {
+		data := Error{Message: EmptyPasswordMsg}
+		return data, false
+	}
+	return Error{}, true
 }
