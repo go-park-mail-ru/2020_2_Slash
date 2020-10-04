@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 type LoginTestCase struct {
@@ -144,4 +145,65 @@ func TestLogin(t *testing.T) {
 		bytes, _ := ioutil.ReadAll(w.Body)
 		assert.JSONEq(t, expResBody.String(), string(bytes), "bodies doesn't match")
 	}
+}
+
+func registerTestUser(h *handlers.UserHandler) user.User {
+	testUser := user.User{
+		ID:       TestUserID,
+		Nickname: TestUserNick,
+		Email:    TestUserEmail,
+		Password: TestUserPassword,
+	}
+	h.UserRepo.Register(&testUser)
+	return testUser
+}
+
+func TestLogout(t *testing.T) {
+	h := handlers.NewUserHandler()
+	testUser := registerTestUser(h)
+	testCase := buildOkTestCase()
+
+	reqBody, err := bodyToBytesBuffer(testCase.reqBody)
+	if err != nil {
+		t.Error(err)
+	}
+
+	r := httptest.NewRequest("POST", "/api/v1/user/login", reqBody)
+	w := httptest.NewRecorder()
+	h.Login(w, r)
+	assert.NotEmpty(t, w.Result().Cookies())
+
+	r = httptest.NewRequest("DELETE", "/api/v1/user/logout", reqBody)
+	r.AddCookie(w.Result().Cookies()[0])
+	w = httptest.NewRecorder()
+
+	h.Logout(w, r)
+
+	if w.Result().Cookies()[0].Expires.After(time.Now()) {
+		t.Error("Session must expire in past")
+	}
+	ok := h.SessionManager.IsAuthorized(&testUser)
+	if ok == true {
+		t.Error("User should be unauthorized")
+	}
+
+	r = httptest.NewRequest("DELETE", "/api/v1/user/logout", reqBody)
+	w = httptest.NewRecorder()
+
+	h.Logout(w, r)
+
+	assert.Equal(t, uint64(http.StatusUnauthorized), uint64(w.Code))
+	if err != nil {
+		t.Error(err)
+	}
+
+	resBody := map[string]interface{}{
+		"error": handlers.UserUnauthorizedMsg,
+	}
+	expResBody, err := bodyToBytesBuffer(resBody)
+	if err != nil {
+		t.Error(err)
+	}
+	bytes, _ := ioutil.ReadAll(w.Body)
+	assert.JSONEq(t, expResBody.String(), string(bytes), "bodies doesn't match")
 }
