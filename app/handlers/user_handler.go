@@ -275,7 +275,7 @@ func isUserDataValid(newUser *user.User) (Error, bool) {
 		data := Error{Message: EmptyEmailMsg}
 		return data, false
 	}
-	if !isEmailValid(newUser.Email) {
+	if !helpers.IsValidEmail(newUser.Email) {
 		data := Error{Message: InvalidEmailMsg}
 		return data, false
 	}
