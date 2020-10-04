@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type UserHandler struct {
@@ -284,4 +285,25 @@ func isUserDataValid(newUser *user.User) (Error, bool) {
 		return data, false
 	}
 	return Error{}, true
+}
+
+func SetOverdueCookie(w http.ResponseWriter, session *http.Cookie) {
+	session.Expires = time.Now().AddDate(0, 0, -2)
+	http.SetCookie(w, session)
+}
+
+func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	session, err := r.Cookie("session_id")
+	if err == http.ErrNoCookie {
+		data := Error{Message: UserUnauthorizedMsg}
+		WriteResponse(w, data, http.StatusUnauthorized)
+		return
+	}
+
+	h.SessionManager.Delete(session.Value)
+
+	SetOverdueCookie(w, session)
+
+	data := Result{"ok"}
+	WriteResponse(w, data, http.StatusOK)
 }

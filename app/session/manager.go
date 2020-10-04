@@ -74,3 +74,7 @@ func (sm *SessionManager) IsAuthorized(user *user.User) bool {
 
 	return false
 }
+
+func (sm *SessionManager) Delete(cookieValue string) {
+	delete(sm.data, cookieValue)
+}
