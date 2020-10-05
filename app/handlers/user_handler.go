@@ -3,13 +3,16 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/app/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/app/session"
 	"github.com/go-park-mail-ru/2020_2_Slash/app/user"
-	"log"
-	"net/http"
-	"strings"
-	"time"
 )
 
 type UserHandler struct {
@@ -51,6 +54,13 @@ func WriteResponse(w http.ResponseWriter, body interface{}, status int) {
 	w.Write(res)
 }
 
+func WriteErrorResponse(w http.ResponseWriter, msg string, status int) {
+	log.Println(msg)
+	data := Error{Message: msg}
+	WriteResponse(w, data, status)
+	return
+}
+
 func CreateUser(userInput *UserInput) (*user.User, error) {
 	if userInput.Email == "" || userInput.Password == "" || userInput.RepeatedPassword == "" {
 		return nil, errors.New("not enough input data")
@@ -90,25 +100,19 @@ func (uh *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	userInput := &UserInput{}
 	err := decoder.Decode(userInput)
 	if err != nil {
-		log.Println("Error in decoding user data: ", err)
-		data := Error{Message: err.Error()}
-		WriteResponse(w, data, http.StatusBadRequest)
+		WriteErrorResponse(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	user, err := CreateUser(userInput)
 	if err != nil {
-		log.Println("Error in creating user: ", err)
-		data := Error{Message: err.Error()}
-		WriteResponse(w, data, http.StatusBadRequest)
+		WriteErrorResponse(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	err = uh.UserRepo.Register(user)
 	if err != nil {
-		log.Println("Error:", err)
-		data := Error{Message: err.Error()}
-		WriteResponse(w, data, http.StatusConflict)
+		WriteErrorResponse(w, err.Error(), http.StatusConflict)
 		return
 	}
 	log.Println("Registred user: ", user)
@@ -132,17 +136,12 @@ func (uh *UserHandler) GetUserProfile(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	cookie, err := r.Cookie("session_id")
 	if err != nil {
-		log.Println("Error in getting cookie: ", err)
-		data := Error{Message: "user isn't authorized"}
-		WriteResponse(w, data, http.StatusUnauthorized)
+		WriteErrorResponse(w, "user isn't authorized", http.StatusUnauthorized)
 		return
 	}
-
 	session, valid := uh.GetValidSession(cookie.Value)
 	if !valid {
-		log.Println("Session is invalid")
-		data := Error{Message: "session is invalid"}
-		WriteResponse(w, data, http.StatusUnauthorized)
+		WriteErrorResponse(w, "session is invalid", http.StatusUnauthorized)
 		return
 	}
 
@@ -155,17 +154,12 @@ func (uh *UserHandler) ChangeUserProfile(w http.ResponseWriter, r *http.Request)
 	defer r.Body.Close()
 	cookie, err := r.Cookie("session_id")
 	if err != nil {
-		log.Println("Error in getting cookie: ", err)
-		data := Error{Message: "user isn't authorized"}
-		WriteResponse(w, data, http.StatusUnauthorized)
+		WriteErrorResponse(w, "user isn't authorized", http.StatusUnauthorized)
 		return
 	}
-
 	session, valid := uh.GetValidSession(cookie.Value)
 	if !valid {
-		log.Println("Session is invalid")
-		data := Error{Message: "session is invalid"}
-		WriteResponse(w, data, http.StatusUnauthorized)
+		WriteErrorResponse(w, "session is invalid", http.StatusUnauthorized)
 		return
 	}
 
@@ -329,4 +323,92 @@ func (h *UserHandler) CheckSession(w http.ResponseWriter, r *http.Request) {
 	data := SessionResponse{Status: "authorized"}
 	WriteResponse(w, data, http.StatusOK)
 	return
+}
+
+func WriteErrorResponce(w http.ResponseWriter, msg string, status int) {
+	log.Println(msg)
+	data := Error{Message: msg}
+	WriteResponse(w, data, status)
+	return
+}
+
+func (uh *UserHandler) SetAvatar(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		WriteErrorResponse(w, "user isn't authorized", http.StatusUnauthorized)
+		return
+	}
+	session, valid := uh.GetValidSession(cookie.Value)
+	if !valid {
+		WriteErrorResponse(w, "session is invalid", http.StatusUnauthorized)
+		return
+	}
+
+	// Get form
+	var maxMemory int64 = 10 << 20 // 10Mb
+	r.Body = http.MaxBytesReader(w, r.Body, maxMemory+1024)
+	err = r.ParseMultipartForm(maxMemory)
+	if err != nil {
+		if err.Error() == "http: request body too large" {
+			WriteErrorResponse(w, "image too large", http.StatusRequestEntityTooLarge)
+			return
+		}
+		WriteErrorResponse(w, "avatar field is expected", http.StatusBadRequest)
+		return
+	}
+
+	// Get image
+	imageFile, _, err := r.FormFile("avatar")
+	if err != nil {
+		WriteErrorResponse(w, "avatar field is expected", http.StatusBadRequest)
+		return
+	}
+	defer imageFile.Close()
+
+	// Check content type of image
+	fileHeader := make([]byte, 512)
+	if _, err := imageFile.Read(fileHeader); err != nil {
+		WriteErrorResponse(w, "error reading image file", http.StatusBadRequest)
+		return
+	}
+	fileExtension, allowed := helpers.IsAllowedImageContentType(fileHeader)
+	if !allowed {
+		WriteErrorResponse(w, "this content type is prohibited", http.StatusBadRequest)
+		return
+	}
+	imageFile.Seek(0, 0)
+
+	curUser, _ := uh.UserRepo.Get(session.UserID)
+	fileName := helpers.GetUniqFileName(curUser, fileExtension)
+	newImageFilePath := "./avatars/" + fileName // TODO: Make it via config
+	mode := int(0777)
+
+	// Save image to storage
+	fileInStorage, err := os.OpenFile(newImageFilePath, os.O_WRONLY|os.O_CREATE, os.FileMode(mode))
+	if err != nil {
+		log.Println("error in creating image file: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer fileInStorage.Close()
+
+	if _, err := io.Copy(fileInStorage, imageFile); err != nil {
+		log.Println("error in copying image file: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Update user avatar
+	prevAvatarPath := curUser.Avatar
+	if prevAvatarPath != "" {
+		_ = os.Remove(prevAvatarPath)
+	}
+	curUser.Avatar = newImageFilePath
+
+	type ImagePath struct {
+		Avatar string `json:"avatar"`
+	}
+	data := ImagePath{Avatar: fileName}
+	WriteResponse(w, data, http.StatusOK)
 }
