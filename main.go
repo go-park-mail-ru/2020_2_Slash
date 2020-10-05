@@ -12,6 +12,7 @@ func main() {
 	router := mux.NewRouter()
 	UserHandler := handlers.NewUserHandler()
 
+	router.HandleFunc("/api/v1/session", UserHandler.CheckSession).Methods("GET")
 	router.HandleFunc("/api/v1/user/register", UserHandler.Register).Methods("POST")
 	router.HandleFunc("/api/v1/user/profile", UserHandler.GetUserProfile).Methods("GET")
 	router.HandleFunc("/api/v1/user/profile", UserHandler.ChangeUserProfile).Methods("PUT")

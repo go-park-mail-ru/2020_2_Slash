@@ -78,6 +78,7 @@ func CreateCookie(session *session.Session) *http.Cookie {
 	return &http.Cookie{
 		Name:     "session_id",
 		Value:    session.ID,
+		Path:     "/",
 		Expires:  session.ExpiresAt,
 		HttpOnly: true,
 	}
@@ -196,15 +197,6 @@ func (uh *UserHandler) ChangeUserProfile(w http.ResponseWriter, r *http.Request)
 	WriteResponse(w, data, http.StatusOK)
 }
 
-func createCookie(session *session.Session) *http.Cookie {
-	return &http.Cookie{
-		Name:     "session_id",
-		Value:    session.ID,
-		Expires:  session.ExpiresAt,
-		HttpOnly: true,
-	}
-}
-
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -235,7 +227,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// save session to db
 	session := h.SessionManager.Create(newUser)
 	// set cookie in browser
-	cookie := createCookie(session)
+	cookie := CreateCookie(session)
 	http.SetCookie(w, cookie)
 
 	data := NewLoginResponse(dbUser.ID, dbUser.Nickname, dbUser.Avatar)
@@ -245,14 +237,14 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 type LoginResponse struct {
 	ID       uint64 `json:"id"`
 	Nickname string `json:"nickname"`
-	Avatar	string `json:"avatar"`
+	Avatar   string `json:"avatar"`
 }
 
 func NewLoginResponse(id uint64, nickname string, avatar string) *LoginResponse {
 	return &LoginResponse{
 		ID:       id,
 		Nickname: nickname,
-		Avatar: avatar,
+		Avatar:   avatar,
 	}
 }
 
@@ -288,6 +280,7 @@ func isUserDataValid(newUser *user.User) (Error, bool) {
 }
 
 func SetOverdueCookie(w http.ResponseWriter, session *http.Cookie) {
+	session.Path = "/"
 	session.Expires = time.Now().AddDate(0, 0, -2)
 	http.SetCookie(w, session)
 }
@@ -306,4 +299,34 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	data := Result{"ok"}
 	WriteResponse(w, data, http.StatusOK)
+}
+
+type SessionResponse struct {
+	Status string `json:"status"`
+}
+
+func (h *UserHandler) CheckSession(w http.ResponseWriter, r *http.Request) {
+	session, err := r.Cookie("session_id")
+	if err == http.ErrNoCookie {
+		data := SessionResponse{Status: "unauthorized"}
+		WriteResponse(w, data, http.StatusUnauthorized)
+		return
+	}
+
+	cookie, has := h.SessionManager.Get(session.Value)
+	if !has {
+		data := SessionResponse{Status: "unauthorized"}
+		WriteResponse(w, data, http.StatusUnauthorized)
+		return
+	}
+	isValid := h.SessionManager.IsValid(cookie)
+	if !isValid {
+		data := SessionResponse{Status: "unauthorized"}
+		WriteResponse(w, data, http.StatusUnauthorized)
+		return
+	}
+
+	data := SessionResponse{Status: "authorized"}
+	WriteResponse(w, data, http.StatusOK)
+	return
 }
