@@ -3,13 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"log"
-	"net/http"
-	"strings"
-
 	"github.com/go-park-mail-ru/2020_2_Slash/app/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/app/session"
 	"github.com/go-park-mail-ru/2020_2_Slash/app/user"
+	"log"
+	"net/http"
+	"strings"
+	"time"
 )
 
 type UserHandler struct {
@@ -78,6 +78,7 @@ func CreateCookie(session *session.Session) *http.Cookie {
 	return &http.Cookie{
 		Name:     "session_id",
 		Value:    session.ID,
+		Path:     "/",
 		Expires:  session.ExpiresAt,
 		HttpOnly: true,
 	}
@@ -194,4 +195,138 @@ func (uh *UserHandler) ChangeUserProfile(w http.ResponseWriter, r *http.Request)
 
 	data := Result{Message: "ok"}
 	WriteResponse(w, data, http.StatusOK)
+}
+
+func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	newUser, err := getUserFromRequest(r)
+	if err != nil {
+		log.Println("Error in decoding user data: ", err)
+		data := Error{Message: err.Error()}
+		WriteResponse(w, data, http.StatusBadRequest)
+		return
+	}
+
+	if err, ok := isUserDataValid(newUser); !ok {
+		WriteResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	dbUser, ok := h.UserRepo.GetByEmail(newUser.Email)
+	if !ok {
+		data := Error{Message: WrongEmailMsg}
+		WriteResponse(w, data, http.StatusBadRequest)
+		return
+	}
+	if err, ok := isPasswordRight(dbUser, newUser); !ok {
+		WriteResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	// save session to db
+	session := h.SessionManager.Create(newUser)
+	// set cookie in browser
+	cookie := CreateCookie(session)
+	http.SetCookie(w, cookie)
+
+	data := NewLoginResponse(dbUser.ID, dbUser.Nickname, dbUser.Avatar)
+	WriteResponse(w, data, http.StatusOK)
+}
+
+type LoginResponse struct {
+	ID       uint64 `json:"id"`
+	Nickname string `json:"nickname"`
+	Avatar   string `json:"avatar"`
+}
+
+func NewLoginResponse(id uint64, nickname string, avatar string) *LoginResponse {
+	return &LoginResponse{
+		ID:       id,
+		Nickname: nickname,
+		Avatar:   avatar,
+	}
+}
+
+func getUserFromRequest(r *http.Request) (*user.User, error) {
+	decoder := json.NewDecoder(r.Body)
+	newUser := &user.User{}
+	err := decoder.Decode(newUser)
+	return newUser, err
+}
+
+func isPasswordRight(dbUser *user.User, newUser *user.User) (Error, bool) {
+	if newUser.Password != dbUser.Password {
+		data := Error{Message: WrongPasswordMsg}
+		return data, false
+	}
+	return Error{}, true
+}
+
+func isUserDataValid(newUser *user.User) (Error, bool) {
+	if newUser.Email == "" {
+		data := Error{Message: EmptyEmailMsg}
+		return data, false
+	}
+	if !helpers.IsValidEmail(newUser.Email) {
+		data := Error{Message: InvalidEmailMsg}
+		return data, false
+	}
+	if newUser.Password == "" {
+		data := Error{Message: EmptyPasswordMsg}
+		return data, false
+	}
+	return Error{}, true
+}
+
+func SetOverdueCookie(w http.ResponseWriter, session *http.Cookie) {
+	session.Path = "/"
+	session.Expires = time.Now().AddDate(0, 0, -2)
+	http.SetCookie(w, session)
+}
+
+func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	session, err := r.Cookie("session_id")
+	if err == http.ErrNoCookie {
+		data := Error{Message: UserUnauthorizedMsg}
+		WriteResponse(w, data, http.StatusUnauthorized)
+		return
+	}
+
+	h.SessionManager.Delete(session.Value)
+
+	SetOverdueCookie(w, session)
+
+	data := Result{"ok"}
+	WriteResponse(w, data, http.StatusOK)
+}
+
+type SessionResponse struct {
+	Status string `json:"status"`
+}
+
+func (h *UserHandler) CheckSession(w http.ResponseWriter, r *http.Request) {
+	session, err := r.Cookie("session_id")
+	if err == http.ErrNoCookie {
+		data := SessionResponse{Status: "unauthorized"}
+		WriteResponse(w, data, http.StatusUnauthorized)
+		return
+	}
+
+	cookie, has := h.SessionManager.Get(session.Value)
+	if !has {
+		data := SessionResponse{Status: "unauthorized"}
+		WriteResponse(w, data, http.StatusUnauthorized)
+		return
+	}
+	isValid := h.SessionManager.IsValid(cookie)
+	if !isValid {
+		data := SessionResponse{Status: "unauthorized"}
+		WriteResponse(w, data, http.StatusUnauthorized)
+		return
+	}
+
+	data := SessionResponse{Status: "authorized"}
+	WriteResponse(w, data, http.StatusOK)
+	return
 }

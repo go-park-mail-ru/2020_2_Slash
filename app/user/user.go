@@ -91,3 +91,10 @@ func (ur *UserRepo) Register(user *User) error {
 	ur.count++
 	return nil
 }
+
+func (ur *UserRepo) GetByEmail(userEmail string) (*User, bool) {
+	ur.mu.Lock()
+	defer ur.mu.Unlock()
+	user, has := ur.data[userEmail]
+	return user, has
+}

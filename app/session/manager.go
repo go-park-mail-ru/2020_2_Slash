@@ -64,3 +64,17 @@ func (sm *SessionManager) IsValid(session *Session) bool {
 	}
 	return true
 }
+
+func (sm *SessionManager) IsAuthorized(user *user.User) bool {
+	for _, value := range sm.data {
+		if value.UserID == user.ID {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (sm *SessionManager) Delete(cookieValue string) {
+	delete(sm.data, cookieValue)
+}

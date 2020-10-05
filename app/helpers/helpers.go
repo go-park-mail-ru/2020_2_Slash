@@ -1,14 +1,27 @@
 package helpers
 
 import (
+	"net"
 	"regexp"
+	"strings"
 )
 
-var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\" +
+	"/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?" +
+	"(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
-func IsValidEmail(e string) bool {
-	if len(e) < 3 && len(e) > 254 {
+func IsValidEmail(email string) bool {
+	if len(email) < 3 || len(email) > 254 {
 		return false
 	}
-	return emailRegex.MatchString(e)
+	if !emailRegex.MatchString(email) {
+		return false
+	}
+
+	parts := strings.Split(email, "@")
+	mx, err := net.LookupMX(parts[1])
+	if err != nil || len(mx) == 0 {
+		return false
+	}
+	return true
 }

@@ -63,7 +63,7 @@ func TestRegisterHandler(t *testing.T) {
 			name: "Empty Password",
 			reqBody: map[string]interface{}{
 				"nickname": "Oleg",
-				"email":    "o@o.ru",
+				"email":    "o.gibadulin@yandex.ru",
 			},
 			resBody: map[string]interface{}{
 				"error": "not enough input data",
@@ -71,7 +71,7 @@ func TestRegisterHandler(t *testing.T) {
 			status: http.StatusBadRequest,
 		},
 		TestCase{
-			name: "Passwords that don't match",
+			name: "Invalid email",
 			reqBody: map[string]interface{}{
 				"nickname":          "Oleg",
 				"email":             "o",
@@ -87,7 +87,7 @@ func TestRegisterHandler(t *testing.T) {
 			name: "Passwords that don't match",
 			reqBody: map[string]interface{}{
 				"nickname":          "Oleg",
-				"email":             "o@o.ru",
+				"email":             "o.gibadulin@yandex.ru",
 				"password":          "hardpassword",
 				"repeated_password": "otherpassword",
 			},
@@ -100,7 +100,7 @@ func TestRegisterHandler(t *testing.T) {
 			name: "Correct request body",
 			reqBody: map[string]interface{}{
 				"nickname":          "Oleg",
-				"email":             "o@o.ru",
+				"email":             "o.gibadulin@yandex.ru",
 				"password":          "hardpassword",
 				"repeated_password": "hardpassword",
 			},
@@ -111,14 +111,14 @@ func TestRegisterHandler(t *testing.T) {
 			user: &user.User{
 				ID:       0,
 				Nickname: "Oleg",
-				Email:    "o@o.ru",
+				Email:    "o.gibadulin@yandex.ru",
 				Password: "hardpassword",
 			},
 		},
 		TestCase{
 			name: "Correct request body with empty nickname",
 			reqBody: map[string]interface{}{
-				"email":             "oo@o.ru",
+				"email":             "oo.gibadulin@yandex.ru",
 				"password":          "hardpassword",
 				"repeated_password": "hardpassword",
 			},
@@ -128,8 +128,8 @@ func TestRegisterHandler(t *testing.T) {
 			status: http.StatusCreated,
 			user: &user.User{
 				ID:       1,
-				Nickname: "oo",
-				Email:    "oo@o.ru",
+				Nickname: "oo.gibadulin",
+				Email:    "oo.gibadulin@yandex.ru",
 				Password: "hardpassword",
 			},
 		},
@@ -137,7 +137,7 @@ func TestRegisterHandler(t *testing.T) {
 			name: "User already exists",
 			reqBody: map[string]interface{}{
 				"nickname":          "Oleg",
-				"email":             "o@o.ru",
+				"email":             "o.gibadulin@yandex.ru",
 				"password":          "hardpassword",
 				"repeated_password": "hardpassword",
 			},
@@ -210,7 +210,7 @@ func TestCreateUser(t *testing.T) {
 			name: "Empty Password",
 			userInput: &handlers.UserInput{
 				Nickname: "Oleg",
-				Email:    "o@o.ru",
+				Email:    "o.gibadulin@yandex.ru",
 			},
 			err: errors.New("not enough input data"),
 		},
@@ -218,7 +218,7 @@ func TestCreateUser(t *testing.T) {
 			name: "Passwords that don't match",
 			userInput: &handlers.UserInput{
 				Nickname:         "Oleg",
-				Email:            "o@o.ru",
+				Email:            "o.gibadulin@yandex.ru",
 				Password:         "hardpassword",
 				RepeatedPassword: "otherpassword",
 			},
@@ -228,28 +228,28 @@ func TestCreateUser(t *testing.T) {
 			name: "Correct data",
 			userInput: &handlers.UserInput{
 				Nickname:         "Oleg",
-				Email:            "o@o.ru",
+				Email:            "o.gibadulin@yandex.ru",
 				Password:         "hardpassword",
 				RepeatedPassword: "hardpassword",
 			},
 			user: &user.User{
 				ID:       0,
 				Nickname: "Oleg",
-				Email:    "o@o.ru",
+				Email:    "o.gibadulin@yandex.ru",
 				Password: "hardpassword",
 			},
 		},
 		CreateUserTestCase{
 			name: "Correct data with empty nickname",
 			userInput: &handlers.UserInput{
-				Email:            "o@o.ru",
+				Email:            "o.gibadulin@yandex.ru",
 				Password:         "hardpassword",
 				RepeatedPassword: "hardpassword",
 			},
 			user: &user.User{
 				ID:       0,
-				Nickname: "o",
-				Email:    "o@o.ru",
+				Nickname: "o.gibadulin",
+				Email:    "o.gibadulin@yandex.ru",
 				Password: "hardpassword",
 			},
 		},
@@ -358,7 +358,7 @@ func TestChangeProfileHandler(t *testing.T) {
 	UserHandler := handlers.NewUserHandler()
 	newUser := &user.User{
 		Nickname: "Oleg",
-		Email:    "o@o.ru",
+		Email:    "o.gibadulin@yandex.ru",
 		Password: "hardpassword",
 	}
 	UserHandler.UserRepo.Register(newUser)
@@ -367,7 +367,7 @@ func TestChangeProfileHandler(t *testing.T) {
 
 	anotherUser := &user.User{
 		Nickname: "Oleg",
-		Email:    "ooo@oooo.ru",
+		Email:    "oo.gibadulin@yandex.ru",
 		Password: "hardpassword",
 	}
 	UserHandler.UserRepo.Register(anotherUser)
@@ -375,7 +375,7 @@ func TestChangeProfileHandler(t *testing.T) {
 	userToCompare := &user.User{
 		ID:       0,
 		Nickname: "Oleg",
-		Email:    "o@o.ru",
+		Email:    "o.gibadulin@yandex.ru",
 		Password: "hardpassword",
 	}
 
@@ -392,7 +392,7 @@ func TestChangeProfileHandler(t *testing.T) {
 		ChangeProfileTestCase{
 			name: "Try to change with already existed email",
 			reqBody: map[string]interface{}{
-				"email": "ooo@oooo.ru",
+				"email": "oo.gibadulin@yandex.ru",
 			},
 			resBody: map[string]interface{}{
 				"error": "email already exists",
@@ -404,7 +404,7 @@ func TestChangeProfileHandler(t *testing.T) {
 		ChangeProfileTestCase{
 			name: "Try to change with the same email",
 			reqBody: map[string]interface{}{
-				"email": "o@o.ru",
+				"email": "o.gibadulin@yandex.ru",
 			},
 			resBody: map[string]interface{}{
 				"result": "ok",
@@ -427,7 +427,7 @@ func TestChangeProfileHandler(t *testing.T) {
 			name: "Request with another keys",
 			reqBody: map[string]interface{}{
 				"nickname 1":  "Alex",
-				"email other": "a@a.ru",
+				"email other": "alex.alex@yandex.ru",
 			},
 			resBody: map[string]interface{}{
 				"result": "ok",
@@ -461,14 +461,14 @@ func TestChangeProfileHandler(t *testing.T) {
 			user: &user.User{
 				ID:       0,
 				Nickname: "Alex",
-				Email:    "o@o.ru",
+				Email:    "o.gibadulin@yandex.ru",
 				Password: "hardpassword",
 			},
 		},
 		ChangeProfileTestCase{
 			name: "Change correct email",
 			reqBody: map[string]interface{}{
-				"email": "a@a.ru",
+				"email": "alex.alex@yandex.ru",
 			},
 			resBody: map[string]interface{}{
 				"result": "ok",
@@ -478,14 +478,14 @@ func TestChangeProfileHandler(t *testing.T) {
 			user: &user.User{
 				ID:       0,
 				Nickname: "Alex",
-				Email:    "a@a.ru",
+				Email:    "alex.alex@yandex.ru",
 				Password: "hardpassword",
 			},
 		},
 		ChangeProfileTestCase{
 			name: "Check if UserRepo store user correctly after prev test",
 			reqBody: map[string]interface{}{
-				"email": "o@o.ru",
+				"email": "o.gibadulin@yandex.ru",
 			},
 			resBody: map[string]interface{}{
 				"result": "ok",
@@ -495,7 +495,7 @@ func TestChangeProfileHandler(t *testing.T) {
 			user: &user.User{
 				ID:       0,
 				Nickname: "Alex",
-				Email:    "o@o.ru",
+				Email:    "o.gibadulin@yandex.ru",
 				Password: "hardpassword",
 				Avatar:   "",
 			},
@@ -504,7 +504,7 @@ func TestChangeProfileHandler(t *testing.T) {
 			name: "Change all fields",
 			reqBody: map[string]interface{}{
 				"nickname": "Oleg",
-				"email":    "oo@oo.ru",
+				"email":    "oooo.gibadulin@yandex.ru",
 			},
 			resBody: map[string]interface{}{
 				"result": "ok",
@@ -514,7 +514,7 @@ func TestChangeProfileHandler(t *testing.T) {
 			user: &user.User{
 				ID:       0,
 				Nickname: "Oleg",
-				Email:    "oo@oo.ru",
+				Email:    "oooo.gibadulin@yandex.ru",
 				Password: "hardpassword",
 			},
 		},
