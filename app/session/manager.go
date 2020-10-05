@@ -48,13 +48,19 @@ func (sm *SessionManager) Create(user *user.User) *Session {
 	return session
 }
 
-func (sm *SessionManager) Check(cookieValue string) (*Session, error) {
+func (sm *SessionManager) Get(sessID string) (*Session, bool) {
 	sm.mu.Lock()
-	sess, has := sm.data[cookieValue]
-	sm.mu.Unlock()
-	if !has || sess.ExpiresAt.After(time.Now()) {
-		// Doesn't exist or expired
-		return nil, ErrNoAuth
+	defer sm.mu.Unlock()
+	sess, has := sm.data[sessID]
+	return sess, has
+}
+
+func (sm *SessionManager) IsValid(session *Session) bool {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+	hasExpired := session.ExpiresAt.Before(time.Now())
+	if hasExpired {
+		return false
 	}
-	return sess, nil
+	return true
 }

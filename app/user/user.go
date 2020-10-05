@@ -10,6 +10,7 @@ type User struct {
 	Nickname string `json:"nickname"`
 	Email    string `json:"email"`
 	Password string `json:"password,omitempty"`
+	Avatar   string `json:"avatar"`
 }
 
 type UserRepo struct {
@@ -26,26 +27,67 @@ func NewUserRepo() *UserRepo {
 	}
 }
 
-func (r *UserRepo) Get(email string) (*User, bool) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	user, has := r.data[email]
-	return user, has
+func (ur *UserRepo) Get(userID uint64) (*User, bool) {
+	ur.mu.Lock()
+	defer ur.mu.Unlock()
+	for _, user := range ur.data {
+		if user.ID == userID {
+			return user, true
+		}
+	}
+	return nil, false
 }
 
-func (r *UserRepo) exists(user *User) bool {
-	_, has := r.data[user.Email]
+func (ur *UserRepo) Delete(userID uint64) (*User, error) {
+	user, has := ur.Get(userID)
+	if has {
+		ur.mu.Lock()
+		defer ur.mu.Unlock()
+		delete(ur.data, user.Email)
+		return user, nil
+	}
+	return nil, errors.New("There is no such user")
+}
+
+func (ur *UserRepo) UpdateEmail(userID uint64, email string) error {
+	user, has := ur.Get(userID)
+	if !has {
+		return errors.New("There is no such user")
+	}
+	if user.Email == email {
+		return nil
+	}
+	if !ur.IsUniqEmail(email) {
+		return errors.New("User with this Email already exists")
+	}
+	ur.mu.Lock()
+	defer ur.mu.Unlock()
+	delete(ur.data, user.Email)
+	user.Email = email
+	ur.data[user.Email] = user
+	return nil
+}
+
+func (ur *UserRepo) Exists(userID uint64) bool {
+	_, has := ur.Get(userID)
 	return has
 }
 
-func (r *UserRepo) Register(user *User) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	if r.exists(user) {
+func (ur *UserRepo) IsUniqEmail(email string) bool {
+	ur.mu.Lock()
+	defer ur.mu.Unlock()
+	_, has := ur.data[email]
+	return !has
+}
+
+func (ur *UserRepo) Register(user *User) error {
+	if !ur.IsUniqEmail(user.Email) {
 		return errors.New("User with this Email already exists")
 	}
-	user.ID = r.count
-	r.data[user.Email] = user
-	r.count++
+	ur.mu.Lock()
+	ur.mu.Unlock()
+	user.ID = ur.count
+	ur.data[user.Email] = user
+	ur.count++
 	return nil
 }
