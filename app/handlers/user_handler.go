@@ -219,7 +219,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// save session to db
-	session := h.SessionManager.Create(newUser)
+	session := h.SessionManager.Create(dbUser)
 	// set cookie in browser
 	cookie := CreateCookie(session)
 	http.SetCookie(w, cookie)
