@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-const origin = "http://flicksbox.ru"
+const origin = "http://www.flicksbox.ru"
 
 func EnableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

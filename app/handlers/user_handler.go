@@ -89,6 +89,7 @@ func CreateCookie(session *session.Session) *http.Cookie {
 		Name:     "session_id",
 		Value:    session.ID,
 		Path:     "/",
+		SameSite: http.SameSiteStrictMode,
 		Expires:  session.ExpiresAt,
 		HttpOnly: true,
 	}
@@ -322,13 +323,6 @@ func (h *UserHandler) CheckSession(w http.ResponseWriter, r *http.Request) {
 
 	data := SessionResponse{Status: "authorized"}
 	WriteResponse(w, data, http.StatusOK)
-	return
-}
-
-func WriteErrorResponce(w http.ResponseWriter, msg string, status int) {
-	log.Println(msg)
-	data := Error{Message: msg}
-	WriteResponse(w, data, status)
 	return
 }
 
