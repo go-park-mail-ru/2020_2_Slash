@@ -381,11 +381,11 @@ func (uh *UserHandler) SetAvatar(w http.ResponseWriter, r *http.Request) {
 
 	curUser, _ := uh.UserRepo.Get(session.UserID)
 	fileName := helpers.GetUniqFileName(curUser, fileExtension)
-	newImageFilePath := "./avatars/" + fileName // TODO: Make it via config
+	newImageFilePath := "/avatars/" + fileName // TODO: Make it via config
 	mode := int(0777)
 
 	// Save image to storage
-	fileInStorage, err := os.OpenFile(newImageFilePath, os.O_WRONLY|os.O_CREATE, os.FileMode(mode))
+	fileInStorage, err := os.OpenFile("."+newImageFilePath, os.O_WRONLY|os.O_CREATE, os.FileMode(mode))
 	if err != nil {
 		log.Println("error in creating image file: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
