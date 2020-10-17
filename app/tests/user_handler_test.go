@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"io/ioutil"
@@ -13,19 +14,12 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/app/handlers"
 	"github.com/go-park-mail-ru/2020_2_Slash/app/user"
 )
-
-type TestCase struct {
-	name    string
-	reqBody map[string]interface{}
-	resBody interface{}
-	status  int
-	user    *user.User
-}
 
 var url string = "/api/v1"
 
@@ -34,14 +28,22 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+type TestRegisterCase struct {
+	name    string
+	reqBody map[string]interface{}
+	resBody interface{}
+	status  int
+	user    *user.User
+}
+
 func TestRegisterHandler(t *testing.T) {
 	t.Parallel()
 
 	method := "POST"
 	target := url + "/user/register"
 
-	cases := []TestCase{
-		TestCase{
+	cases := []TestRegisterCase{
+		TestRegisterCase{
 			name:    "Empty request body",
 			reqBody: map[string]interface{}{},
 			resBody: map[string]interface{}{
@@ -49,7 +51,7 @@ func TestRegisterHandler(t *testing.T) {
 			},
 			status: http.StatusBadRequest,
 		},
-		TestCase{
+		TestRegisterCase{
 			name: "Empty Email",
 			reqBody: map[string]interface{}{
 				"nickname":          "Oleg",
@@ -61,7 +63,7 @@ func TestRegisterHandler(t *testing.T) {
 			},
 			status: http.StatusBadRequest,
 		},
-		TestCase{
+		TestRegisterCase{
 			name: "Empty Password",
 			reqBody: map[string]interface{}{
 				"nickname": "Oleg",
@@ -72,7 +74,7 @@ func TestRegisterHandler(t *testing.T) {
 			},
 			status: http.StatusBadRequest,
 		},
-		TestCase{
+		TestRegisterCase{
 			name: "Invalid email",
 			reqBody: map[string]interface{}{
 				"nickname":          "Oleg",
@@ -85,7 +87,7 @@ func TestRegisterHandler(t *testing.T) {
 			},
 			status: http.StatusBadRequest,
 		},
-		TestCase{
+		TestRegisterCase{
 			name: "Passwords that don't match",
 			reqBody: map[string]interface{}{
 				"nickname":          "Oleg",
@@ -98,7 +100,7 @@ func TestRegisterHandler(t *testing.T) {
 			},
 			status: http.StatusBadRequest,
 		},
-		TestCase{
+		TestRegisterCase{
 			name: "Correct request body",
 			reqBody: map[string]interface{}{
 				"nickname":          "Oleg",
@@ -117,7 +119,7 @@ func TestRegisterHandler(t *testing.T) {
 				Password: "hardpassword",
 			},
 		},
-		TestCase{
+		TestRegisterCase{
 			name: "Correct request body with empty nickname",
 			reqBody: map[string]interface{}{
 				"email":             "oo.gibadulin@yandex.ru",
@@ -135,7 +137,7 @@ func TestRegisterHandler(t *testing.T) {
 				Password: "hardpassword",
 			},
 		},
-		TestCase{
+		TestRegisterCase{
 			name: "User already exists",
 			reqBody: map[string]interface{}{
 				"nickname":          "Oleg",
@@ -152,37 +154,31 @@ func TestRegisterHandler(t *testing.T) {
 
 	UserHandler := handlers.NewUserHandler()
 	for _, tc := range cases {
-		reqBody := new(bytes.Buffer)
-		err := json.NewEncoder(reqBody).Encode(tc.reqBody)
+		reqBody, err := json.Marshal(tc.reqBody)
 		if err != nil {
 			t.Error(err)
 		}
 
-		w := httptest.NewRecorder()
-		r := httptest.NewRequest(method, target, reqBody)
-		UserHandler.Register(w, r)
-
-		// Check status
-		assert := assert.New(t)
-		assert.Equal(tc.status, w.Code, tc.name+": wrong status code")
-
-		expResBody := new(bytes.Buffer)
-		err = json.NewEncoder(expResBody).Encode(tc.resBody)
+		expResBody, err := json.Marshal(tc.resBody)
 		if err != nil {
 			t.Error(err)
 		}
 
-		// Check responce body
-		res := w.Result()
-		defer res.Body.Close()
-		actResBody, _ := ioutil.ReadAll(res.Body)
-		assert.Equal(expResBody.String(), string(actResBody)+"\n", tc.name+": exp and act resp bodies don't match")
+		router := echo.New()
+		req := httptest.NewRequest(method, target, strings.NewReader(string(reqBody)))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		cntx := router.NewContext(req, rec)
 
-		// Check user
-		if tc.user != nil {
-			createdUser, _ := UserHandler.UserRepo.Get(tc.user.ID)
-			if !reflect.DeepEqual(tc.user, createdUser) {
-				t.Errorf(tc.name + ": exp and act users don't match")
+		if assert.NoError(t, UserHandler.Register(cntx)) {
+			assert.Equal(t, tc.status, rec.Code, tc.name+": wrong status code")
+			assert.Equal(t, string(expResBody)+"\n", rec.Body.String(), tc.name+": exp and act resp bodies don't match")
+
+			// Check user
+			if tc.user != nil {
+				savedUser, _ := UserHandler.UserRepo.Get(tc.user.ID)
+				isEqualUsers := reflect.DeepEqual(tc.user, savedUser)
+				assert.True(t, isEqualUsers, tc.name+": exp and act users don't match")
 			}
 		}
 	}
@@ -350,13 +346,14 @@ type ChangeProfileTestCase struct {
 	user    *user.User
 }
 
+// TODO: don't pass form values
 func TestChangeProfileHandler(t *testing.T) {
 	t.Parallel()
 
 	method := "GET"
 	target := url + "/user/profile"
 
-	// Register user, create session and cookie
+	// Register users, create session and cookie
 	UserHandler := handlers.NewUserHandler()
 	newUser := &user.User{
 		Nickname: "Oleg",
@@ -523,40 +520,34 @@ func TestChangeProfileHandler(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		reqBody := new(bytes.Buffer)
-		err := json.NewEncoder(reqBody).Encode(tc.reqBody)
+		reqBody, err := json.Marshal(tc.reqBody)
 		if err != nil {
 			t.Error(err)
 		}
 
-		w := httptest.NewRecorder()
-		r := httptest.NewRequest(method, target, reqBody)
+		expResBody, err := json.Marshal(tc.resBody)
+		if err != nil {
+			t.Error(err)
+		}
+
+		router := echo.New()
+		req := httptest.NewRequest(method, target, strings.NewReader(string(reqBody)))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		if tc.cookie != nil {
-			r.AddCookie(tc.cookie)
+			req.AddCookie(tc.cookie)
 		}
-		UserHandler.ChangeUserProfile(w, r)
+		rec := httptest.NewRecorder()
+		cntx := router.NewContext(req, rec)
 
-		// Check status
-		assert := assert.New(t)
-		assert.Equal(tc.status, w.Code, tc.name+": wrong status code")
+		if assert.NoError(t, UserHandler.ChangeUserProfile(cntx)) {
+			assert.Equal(t, tc.status, rec.Code, tc.name+": wrong status code")
+			assert.Equal(t, string(expResBody)+"\n", rec.Body.String(), tc.name+": exp and act resp bodies don't match")
 
-		expResBody := new(bytes.Buffer)
-		err = json.NewEncoder(expResBody).Encode(tc.resBody)
-		if err != nil {
-			t.Error(err)
-		}
-
-		// Check responce body
-		res := w.Result()
-		defer res.Body.Close()
-		actResBody, _ := ioutil.ReadAll(res.Body)
-		assert.Equal(expResBody.String(), string(actResBody)+"\n", tc.name+": exp and act resp bodies don't match")
-
-		// Check user
-		if tc.user != nil {
-			changedUser, _ := UserHandler.UserRepo.Get(tc.user.ID)
-			if !reflect.DeepEqual(tc.user, changedUser) {
-				t.Errorf(tc.name + ": exp and act users don't match")
+			// Check user
+			if tc.user != nil {
+				savedUser, _ := UserHandler.UserRepo.Get(tc.user.ID)
+				isEqualUsers := reflect.DeepEqual(tc.user, savedUser)
+				assert.True(t, isEqualUsers, tc.name+": exp and act users don't match")
 			}
 		}
 	}
