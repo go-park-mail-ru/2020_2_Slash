@@ -1,8 +1,9 @@
 package user
 
 import (
+	"context"
+	"database/sql"
 	"errors"
-	"sync"
 )
 
 type User struct {
@@ -14,39 +15,52 @@ type User struct {
 }
 
 type UserRepo struct {
-	data  map[string]*User
-	count uint64
-	mu    *sync.Mutex
+	db *sql.DB
 }
 
-func NewUserRepo() *UserRepo {
+func NewUserRepo(newDb *sql.DB) *UserRepo {
 	return &UserRepo{
-		data:  make(map[string]*User),
-		count: 0,
-		mu:    &sync.Mutex{},
+		db: newDb,
 	}
 }
 
 func (ur *UserRepo) Get(userID uint64) (*User, bool) {
-	ur.mu.Lock()
-	defer ur.mu.Unlock()
-	for _, user := range ur.data {
-		if user.ID == userID {
-			return user, true
-		}
+	user := &User{}
+	row := ur.db.QueryRow(
+		`SELECT id, nickname, email, password, avatar
+		FROM profile
+		WHERE id=$1`, userID)
+	has := row.Scan(&user.ID, &user.Nickname,
+		&user.Email, &user.Password, &user.Avatar)
+	if has != nil {
+		return nil, false
 	}
-	return nil, false
+	return user, true
 }
 
-func (ur *UserRepo) Delete(userID uint64) (*User, error) {
-	user, has := ur.Get(userID)
-	if has {
-		ur.mu.Lock()
-		defer ur.mu.Unlock()
-		delete(ur.data, user.Email)
-		return user, nil
+func (ur *UserRepo) Delete(userID uint64) error {
+	_, has := ur.Get(userID)
+	if !has {
+		return errors.New("There is no such user")
 	}
-	return nil, errors.New("There is no such user")
+
+	tx, err := ur.db.BeginTx(context.Background(), &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+
+	_, err = ur.db.Exec(
+		`DELETE FROM profile
+		WHERE id=$1`, userID)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (ur *UserRepo) UpdateEmail(userID uint64, email string) error {
@@ -60,11 +74,23 @@ func (ur *UserRepo) UpdateEmail(userID uint64, email string) error {
 	if !ur.IsUniqEmail(email) {
 		return errors.New("User with this Email already exists")
 	}
-	ur.mu.Lock()
-	defer ur.mu.Unlock()
-	delete(ur.data, user.Email)
-	user.Email = email
-	ur.data[user.Email] = user
+
+	tx, err := ur.db.BeginTx(context.Background(), &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+
+	if _, err = ur.db.Exec(
+		`UPDATE profile
+		SET email=$1
+		WHERE id=$2`, email, userID); err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -74,9 +100,7 @@ func (ur *UserRepo) Exists(userID uint64) bool {
 }
 
 func (ur *UserRepo) IsUniqEmail(email string) bool {
-	ur.mu.Lock()
-	defer ur.mu.Unlock()
-	_, has := ur.data[email]
+	_, has := ur.GetByEmail(email)
 	return !has
 }
 
@@ -84,17 +108,39 @@ func (ur *UserRepo) Register(user *User) error {
 	if !ur.IsUniqEmail(user.Email) {
 		return errors.New("User with this Email already exists")
 	}
-	ur.mu.Lock()
-	ur.mu.Unlock()
-	user.ID = ur.count
-	ur.data[user.Email] = user
-	ur.count++
+
+	tx, err := ur.db.BeginTx(context.Background(), &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+
+	row := ur.db.QueryRow(
+		`INSERT INTO profile(nickname, email, password, avatar)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id`,
+		user.Nickname, user.Email, user.Password, user.Avatar)
+	err = row.Scan(&user.ID)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
 	return nil
 }
 
 func (ur *UserRepo) GetByEmail(userEmail string) (*User, bool) {
-	ur.mu.Lock()
-	defer ur.mu.Unlock()
-	user, has := ur.data[userEmail]
-	return user, has
+	user := &User{}
+	row := ur.db.QueryRow(
+		`SELECT id, nickname, email, password, avatar
+		FROM profile
+		WHERE email=$1`, userEmail)
+	has := row.Scan(&user.ID, &user.Nickname,
+		&user.Email, &user.Password, &user.Avatar)
+	if has != nil {
+		return nil, false
+	}
+	return user, true
 }
