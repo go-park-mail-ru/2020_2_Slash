@@ -1,18 +1,47 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"github.com/go-park-mail-ru/2020_2_Slash/app/handlers"
 	"github.com/go-park-mail-ru/2020_2_Slash/app/helpers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	_ "github.com/lib/pq"
+	"log"
 	"net/http"
 )
 
 const origin = "http://www.flicksbox.ru"
 
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "slash"
+	password = "slashpassword"
+	dbname   = "slash"
+)
+
+func getDatabaseConnectionString() string {
+	return fmt.Sprintf("host=%s port=%d "+
+		"user=%s password=%s dbname=%s sslmode=disable", host,
+		port, user, password, dbname)
+}
+
 func main() {
 	helpers.InitAvatarStorage()
-	UserHandler := handlers.NewUserHandler()
+
+	db, err := sql.Open("postgres", getDatabaseConnectionString())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	if err := db.Ping(); err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Successfully connected to database!")
+	UserHandler := handlers.NewUserHandler(db)
 
 	router := echo.New()
 

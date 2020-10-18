@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"github.com/labstack/echo/v4"
@@ -21,10 +22,10 @@ type UserHandler struct {
 	SessionManager *session.SessionManager
 }
 
-func NewUserHandler() *UserHandler {
+func NewUserHandler(db *sql.DB) *UserHandler {
 	return &UserHandler{
-		UserRepo:       user.NewUserRepo(),
-		SessionManager: session.NewSessionManager(),
+		UserRepo:       user.NewUserRepo(db),
+		SessionManager: session.NewSessionManager(db),
 	}
 }
 
@@ -69,7 +70,7 @@ func CreateUser(userInput *UserInput) (*user.User, error) {
 func CreateCookie(session *session.Session) *http.Cookie {
 	return &http.Cookie{
 		Name:     "session_id",
-		Value:    session.ID,
+		Value:    session.Value,
 		Path:     "/",
 		SameSite: http.SameSiteStrictMode,
 		Expires:  session.ExpiresAt,
@@ -97,7 +98,12 @@ func (uh *UserHandler) Register(cntx echo.Context) error {
 	}
 	log.Println("Registred user: ", user)
 
-	session := uh.SessionManager.Create(user)
+	session, err := uh.SessionManager.Create(user)
+	if err != nil {
+		data := Error{Message: err.Error()}
+		return cntx.JSON(http.StatusInternalServerError, data)
+	}
+
 	cookie := CreateCookie(session)
 	cntx.SetCookie(cookie)
 	data := Result{Message: "ok"}
@@ -180,7 +186,12 @@ func (h *UserHandler) Login(cntx echo.Context) error {
 	}
 
 	// save session to db
-	session := h.SessionManager.Create(dbUser)
+	session, err := h.SessionManager.Create(dbUser)
+	if err != nil {
+		log.Println(err)
+		data := Error{Message: err.Error()}
+		return cntx.JSON(http.StatusBadRequest, data)
+	}
 	// set cookie in browser
 	cookie := CreateCookie(session)
 	cntx.SetCookie(cookie)
@@ -247,8 +258,11 @@ func (h *UserHandler) Logout(cntx echo.Context) error {
 		return cntx.JSON(http.StatusUnauthorized, data)
 	}
 
-	h.SessionManager.Delete(session.Value)
-
+	err = h.SessionManager.Delete(session.Value)
+	if err != nil {
+		data := Error{Message: err.Error()}
+		return cntx.JSON(http.StatusInternalServerError, data)
+	}
 	SetOverdueCookie(cntx, session)
 
 	data := Result{"ok"}
