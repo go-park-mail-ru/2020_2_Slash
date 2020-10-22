@@ -36,7 +36,7 @@ func buildOkTestCase() LoginTestCase {
 		resBody: map[string]interface{}{
 			"id":       TestUserID,
 			"nickname": TestUserNick,
-			"avatar": TestUserAvatar,
+			"avatar":   TestUserAvatar,
 		},
 		status: http.StatusOK,
 	}
