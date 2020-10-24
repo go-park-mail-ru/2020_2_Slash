@@ -2,7 +2,9 @@ package tests
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2020_2_Slash/app/handlers"
 	"github.com/go-park-mail-ru/2020_2_Slash/app/user"
 	"github.com/stretchr/testify/assert"
@@ -111,21 +113,30 @@ func TestLogin(t *testing.T) {
 		},
 	}
 
-	t.Parallel()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	sqlmock.MonitorPingsOption(true)
+	mock.ExpectPing()
 
-	h := handlers.NewUserHandler()
-	h.UserRepo.Register(&user.User{
-		ID:       TestUserID,
-		Nickname: TestUserNick,
-		Email:    TestUserEmail,
-		Password: TestUserPassword,
-	})
+	h := handlers.NewUserHandler(db)
+
+	// for positive test
+	mockUserRepoSelectByEmailReturnRows(mock, TestUserID, TestUserNick, TestUserEmail, TestUserPassword, TestUserAvatar)
+	mockInsertSessionReturnRows(mock, 1, TestUserID)
+	// for wrong email test
+	mockUserRepoSelectByEmailReturnErrNoRows(mock, TestUserID, TestUserNick, TestUserEmail[1:], TestUserPassword, TestUserAvatar)
+	// for wrong password test
+	mockUserRepoSelectByEmailReturnRows(mock, TestUserID, TestUserNick, TestUserEmail, TestUserPassword, TestUserAvatar)
 
 	for _, testCase := range testCases {
 		reqBody := new(bytes.Buffer)
 		err := json.NewEncoder(reqBody).Encode(testCase.reqBody)
 		if err != nil {
 			t.Error(err)
+			return
 		}
 
 		r := httptest.NewRequest("POST", "/api/v1/user/login", reqBody)
@@ -141,40 +152,54 @@ func TestLogin(t *testing.T) {
 		expResBody, err := bodyToBytesBuffer(testCase.resBody)
 		if err != nil {
 			t.Error(err)
+			return
 		}
 		bytes, _ := ioutil.ReadAll(w.Body)
 		assert.JSONEq(t, expResBody.String(), string(bytes), "bodies doesn't match")
 	}
 }
 
-func registerTestUser(h *handlers.UserHandler) user.User {
+func TestLogout(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	sqlmock.MonitorPingsOption(true)
+	mock.ExpectPing()
+
 	testUser := user.User{
 		ID:       TestUserID,
 		Nickname: TestUserNick,
 		Email:    TestUserEmail,
 		Password: TestUserPassword,
+		Avatar:   TestUserAvatar,
 	}
-	h.UserRepo.Register(&testUser)
-	return testUser
-}
-
-func TestLogout(t *testing.T) {
-	h := handlers.NewUserHandler()
-	testUser := registerTestUser(h)
 	testCase := buildOkTestCase()
-
 	reqBody, err := bodyToBytesBuffer(testCase.reqBody)
 	if err != nil {
 		t.Error(err)
 	}
 
+	h := handlers.NewUserHandler(db)
 	r := httptest.NewRequest("POST", "/api/v1/user/login", reqBody)
 	w := httptest.NewRecorder()
-	h.Login(w, r)
-	assert.NotEmpty(t, w.Result().Cookies())
 
-	r = httptest.NewRequest("DELETE", "/api/v1/user/logout", reqBody)
-	r.AddCookie(w.Result().Cookies()[0])
+	mockUserRepoSelectByEmailReturnRows(mock, TestUserID, TestUserNick, TestUserEmail, TestUserPassword, TestUserAvatar)
+	mockInsertSessionReturnRows(mock, 1, TestUserID)
+
+	h.Login(w, r)
+
+	assert.NotEmpty(t, w.Result().Cookies())
+	sess := w.Result().Cookies()[0]
+	mockGetUserSessionReturnRows(mock, sess.Value, 1, sess.Expires, 1)
+
+	mock.ExpectBegin()
+	mock.ExpectExec("DELETE FROM session").WithArgs(sess.Value).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	r = httptest.NewRequest("DELETE", "/api/v1/user/logout", http.NoBody)
+	r.AddCookie(sess)
 	w = httptest.NewRecorder()
 
 	h.Logout(w, r)
@@ -182,28 +207,13 @@ func TestLogout(t *testing.T) {
 	if w.Result().Cookies()[0].Expires.After(time.Now()) {
 		t.Error("Session must expire in past")
 	}
-	ok := h.SessionManager.IsAuthorized(&testUser)
+	mock.ExpectQuery("SELECT id, value, expires, profile_id " +
+		"FROM session").WithArgs(sess).WillReturnError(sql.ErrNoRows)
+	ok, err := h.SessionManager.IsAuthorized(&testUser)
+	if err != nil {
+		t.Error(err)
+	}
 	if ok == true {
 		t.Error("User should be unauthorized")
 	}
-
-	r = httptest.NewRequest("DELETE", "/api/v1/user/logout", reqBody)
-	w = httptest.NewRecorder()
-
-	h.Logout(w, r)
-
-	assert.Equal(t, uint64(http.StatusUnauthorized), uint64(w.Code))
-	if err != nil {
-		t.Error(err)
-	}
-
-	resBody := map[string]interface{}{
-		"error": handlers.UserUnauthorizedMsg,
-	}
-	expResBody, err := bodyToBytesBuffer(resBody)
-	if err != nil {
-		t.Error(err)
-	}
-	bytes, _ := ioutil.ReadAll(w.Body)
-	assert.JSONEq(t, expResBody.String(), string(bytes), "bodies doesn't match")
 }
