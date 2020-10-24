@@ -3,13 +3,11 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"github.com/labstack/echo/v4"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/app/helpers"
@@ -29,42 +27,12 @@ func NewUserHandler(db *sql.DB) *UserHandler {
 	}
 }
 
-type UserInput struct {
-	Nickname         string `json:"nickname"`
-	Email            string `json:"email"`
-	Password         string `json:"password,omitempty"`
-	RepeatedPassword string `json:"repeated_password,omitempty"`
-}
-
 type Error struct {
 	Message string `json:"error"`
 }
 
 type Result struct {
 	Message string `json:"result"`
-}
-
-func CreateUser(userInput *UserInput) (*user.User, error) {
-	if userInput.Email == "" || userInput.Password == "" || userInput.RepeatedPassword == "" {
-		return nil, errors.New("not enough input data")
-	}
-	if !helpers.IsValidEmail(userInput.Email) {
-		return nil, errors.New("email is invalid")
-	}
-	if userInput.Password != userInput.RepeatedPassword {
-		return nil, errors.New("passwords don't match")
-	}
-	if userInput.Nickname == "" {
-		// If nickname wasn't sent, use email before @
-		nickname := strings.Split(userInput.Email, "@")[0]
-		userInput.Nickname = nickname
-	}
-	user := &user.User{
-		Nickname: userInput.Nickname,
-		Email:    userInput.Email,
-		Password: userInput.Password,
-	}
-	return user, nil
 }
 
 func CreateCookie(session *session.Session) *http.Cookie {
@@ -76,38 +44,6 @@ func CreateCookie(session *session.Session) *http.Cookie {
 		Expires:  session.ExpiresAt,
 		HttpOnly: true,
 	}
-}
-
-func (uh *UserHandler) Register(cntx echo.Context) error {
-	userInput := &UserInput{}
-	if err := cntx.Bind(userInput); err != nil {
-		data := Error{Message: err.Error()}
-		return cntx.JSON(http.StatusBadRequest, data)
-	}
-
-	user, err := CreateUser(userInput)
-	if err != nil {
-		data := Error{Message: err.Error()}
-		return cntx.JSON(http.StatusBadRequest, data)
-	}
-
-	err = uh.UserRepo.Register(user)
-	if err != nil {
-		data := Error{Message: err.Error()}
-		return cntx.JSON(http.StatusConflict, data)
-	}
-	log.Println("Registred user: ", user)
-
-	session, err := uh.SessionManager.Create(user)
-	if err != nil {
-		data := Error{Message: err.Error()}
-		return cntx.JSON(http.StatusInternalServerError, data)
-	}
-
-	cookie := CreateCookie(session)
-	cntx.SetCookie(cookie)
-	data := Result{Message: "ok"}
-	return cntx.JSON(http.StatusCreated, data)
 }
 
 func (uh *UserHandler) GetValidSession(cookieVal string) (*session.Session, bool) {

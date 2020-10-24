@@ -1,6 +1,8 @@
 package usecases
 
 import (
+	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
 )
@@ -15,11 +17,9 @@ func NewSessionUsecase(repo session.SessionRepository) session.SessionUsecase {
 	}
 }
 
-func (su *SessionUsecase) Create(userID uint64) (*models.Session, error) {
-	sess := models.NewSession(userID)
-	err := su.sessRepo.Insert(sess)
-	if err != nil {
-		return nil, err
+func (su *SessionUsecase) Create(sess *models.Session) *errors.Error {
+	if err := su.sessRepo.Insert(sess); err != nil {
+		return errors.New(CodeInternalError, err)
 	}
-	return sess, nil
+	return nil
 }
