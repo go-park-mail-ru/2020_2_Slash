@@ -1,0 +1,14 @@
+{
+  "database": {
+    "user": "postgres",
+    "password": "postgres",
+    "name": "slash",
+    "host": "localhost",
+    "port": 5432
+  },
+  "server": {
+    "host": "localhost",
+    "port": 8000
+  },
+  "avatars": "avatars"
+}
