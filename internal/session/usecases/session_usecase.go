@@ -26,7 +26,7 @@ func (su *SessionUsecase) Create(sess *models.Session) *errors.Error {
 }
 
 func (su *SessionUsecase) Get(sessValue string) (*models.Session, *errors.Error) {
-	sess, err := su.sessRepo.SelectByID(sessValue)
+	sess, err := su.sessRepo.SelectByValue(sessValue)
 	switch {
 	case err == sql.ErrNoRows:
 		return nil, errors.Get(CodeUserUnauthorized)

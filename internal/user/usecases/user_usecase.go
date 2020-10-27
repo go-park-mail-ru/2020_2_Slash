@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 	"golang.org/x/crypto/bcrypt"
+	"os"
 	"strings"
 )
 
@@ -95,6 +96,28 @@ func (uu *UserUsecase) UpdateProfile(userID uint64, newUserData *models.User) (*
 
 	if err := uu.userRepo.Update(user); err != nil {
 		return nil, errors.New(CodeInternalError, err)
+	}
+	return user, nil
+}
+
+func (uu *UserUsecase) UpdateAvatar(userID uint64, newAvatar string) (*models.User, *errors.Error) {
+	user, customErr := uu.GetByID(userID)
+	if customErr != nil {
+		return nil, customErr
+	}
+
+	// Update user avatar
+	prevAvatar := user.Avatar
+	user.Avatar = newAvatar
+	if err := uu.userRepo.Update(user); err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+
+	// Delete prev avatar image
+	if prevAvatar != "" {
+		if err := os.Remove("." + prevAvatar); err != nil {
+			return nil, errors.New(CodeInternalError, err)
+		}
 	}
 	return user, nil
 }

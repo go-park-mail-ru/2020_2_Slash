@@ -66,4 +66,10 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "user does not exist",
 		UserMessage: "Такого пользователя не существует",
 	},
+	CodeWrongImgExtension: {
+		Code:        CodeWrongImgExtension,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "file with this extension is prohibited",
+		UserMessage: "Файлы с данным расширением запрещены",
+	},
 }

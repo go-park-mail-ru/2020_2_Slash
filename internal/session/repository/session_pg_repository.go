@@ -38,7 +38,7 @@ func (sr *SessionPgRepository) Insert(session *models.Session) error {
 	return nil
 }
 
-func (sr *SessionPgRepository) SelectByID(sessValue string) (*models.Session, error) {
+func (sr *SessionPgRepository) SelectByValue(sessValue string) (*models.Session, error) {
 	sess := &models.Session{}
 
 	row := sr.dbConn.QueryRow(

@@ -1,6 +1,9 @@
 package delivery
 
 import (
+	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
@@ -8,8 +11,11 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/tools"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
+	"io"
 	"net/http"
+	"os"
 )
 
 type UserHandler struct {
@@ -28,6 +34,7 @@ func (uh *UserHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/user/register", uh.registerUserHandler())
 	e.GET("/api/v1/user/profile", uh.getUserProfileHandler(), mw.CheckAuth)
 	e.PUT("/api/v1/user/profile", uh.updateUserProfileHandler(), mw.CheckAuth)
+	e.POST("/api/v1/user/avatar", uh.updateAvatarHandler(), mw.CheckAuth, middleware.BodyLimit("10M"))
 }
 
 func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
@@ -107,5 +114,66 @@ func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, err)
 		}
 		return cntx.JSON(http.StatusOK, user.Sanitize())
+	}
+}
+
+func (uh *UserHandler) updateAvatarHandler() echo.HandlerFunc {
+	type Responce struct {
+		Avatar string `json:"avatar"`
+	}
+	const avatarsDir = "/avatars/"
+
+	return func(cntx echo.Context) error {
+		image, customErr := reader.NewRequestReader(cntx).ReadImage("avatar")
+		if customErr != nil {
+			logrus.Info(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, customErr)
+		}
+
+		imageFile, err := image.Open()
+		if err != nil {
+			logrus.Info(err)
+			customErr := errors.New(CodeBadRequest, err)
+			return cntx.JSON(customErr.HTTPCode, customErr)
+		}
+		defer imageFile.Close()
+
+		fileExtension, err := helpers.GetImageExtension(image)
+		if err != nil {
+			logrus.Info(err)
+			customErr := errors.New(CodeBadRequest, err)
+			return cntx.JSON(customErr.HTTPCode, customErr)
+		}
+
+		userID := cntx.Get("userID").(uint64)
+		newAvatarFileName := helpers.GetUniqFileName(userID, fileExtension)
+		rltNewAvatarFilePath := avatarsDir + newAvatarFileName
+		absNewAvatarFilePath := "." + rltNewAvatarFilePath
+		fileMode := int(0777)
+
+		// Save image to storage
+		newAvatarFile, err := os.OpenFile(absNewAvatarFilePath, os.O_WRONLY|os.O_CREATE, os.FileMode(fileMode))
+		if err != nil {
+			logrus.Info(err)
+			customErr := errors.New(CodeInternalError, err)
+			return cntx.JSON(customErr.HTTPCode, customErr)
+		}
+		defer newAvatarFile.Close()
+
+		if _, err := io.Copy(newAvatarFile, imageFile); err != nil {
+			_ = os.Remove(absNewAvatarFilePath)
+			logrus.Info(err)
+			customErr := errors.New(CodeInternalError, err)
+			return cntx.JSON(customErr.HTTPCode, customErr)
+		}
+
+		_, customErr = uh.userUcase.UpdateAvatar(userID, rltNewAvatarFilePath)
+		if customErr != nil {
+			logrus.Info(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, customErr)
+		}
+
+		res := Responce{Avatar: newAvatarFileName}
+		return cntx.JSON(http.StatusOK, res)
 	}
 }
