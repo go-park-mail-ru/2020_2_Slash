@@ -126,3 +126,11 @@ func (uu *UserUsecase) checkByEmail(email string) *errors.Error {
 	_, err := uu.GetByEmail(email)
 	return err
 }
+
+func (uu *UserUsecase) CheckPassword(user *models.User, password string) *errors.Error {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password),
+		[]byte(password)); err != nil {
+		return errors.Get(CodeWrongPassword)
+	}
+	return nil
+}
