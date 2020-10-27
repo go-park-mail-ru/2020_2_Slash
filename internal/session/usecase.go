@@ -8,4 +8,6 @@ import (
 type SessionUsecase interface {
 	Create(sess *models.Session) *errors.Error
 	Get(sessValue string) (*models.Session, *errors.Error)
+	IsExist(sessionValue string) bool
+	Delete(sessionValue string) *errors.Error
 }
