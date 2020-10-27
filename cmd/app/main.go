@@ -13,6 +13,7 @@ import (
 	sessionRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/session/repository"
 	sessionUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/session/usecases"
 
+	sessionHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/session/delivery"
 	userHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery"
 	userRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/user/repository"
 	userUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/user/usecases"
@@ -56,7 +57,9 @@ func main() {
 
 	// Delivery
 	userHandler := userHandler.NewUserHandler(userUcase, sessUcase)
+	sessionHandler := sessionHandler.NewSessionHandler(sessUcase, userUcase)
 	userHandler.Configure(e, mw)
+	sessionHandler.Configure(e, mw)
 
 	log.Fatal(e.Start(config.GetServerConnString()))
 }
