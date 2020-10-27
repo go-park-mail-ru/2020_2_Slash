@@ -1,6 +1,8 @@
 package delivery
 
 import (
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
@@ -10,6 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"time"
 )
 
 type SessionHandler struct {
@@ -27,6 +30,7 @@ func NewSessionHandler(sessUcase session.SessionUsecase,
 
 func (sh *SessionHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/session", sh.loginHandler())
+	e.DELETE("/api/v1/session", sh.logoutHandler())
 }
 
 func (sh *SessionHandler) loginHandler() echo.HandlerFunc {
@@ -63,4 +67,35 @@ func (sh *SessionHandler) loginHandler() echo.HandlerFunc {
 		cntx.SetCookie(cookie)
 		return cntx.JSON(http.StatusOK, dbUser.Sanitize())
 	}
+}
+
+func (sh *SessionHandler) logoutHandler() echo.HandlerFunc {
+	type Response struct {
+		Message string `json:"message"`
+	}
+
+	return func(cntx echo.Context) error {
+		session, hasCookie := cntx.Cookie(consts.SessionName)
+
+		if hasCookie == http.ErrNoCookie {
+			err := errors.Get(consts.CodeUserUnauthorized)
+			logrus.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, err)
+		}
+
+		err := sh.sessUcase.Delete(session.Value)
+		if err != nil {
+			logrus.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, err)
+		}
+		SetOverdueCookie(cntx, session)
+
+		return cntx.JSON(http.StatusOK, Response{"ok"})
+	}
+}
+
+func SetOverdueCookie(cntx echo.Context, cookie *http.Cookie) {
+	cookie.Path = "/"
+	cookie.Expires = time.Now().AddDate(0, 0, -2)
+	cntx.SetCookie(cookie)
 }
