@@ -7,4 +7,5 @@ import (
 
 type SessionUsecase interface {
 	Create(sess *models.Session) *errors.Error
+	Get(sessValue string) (*models.Session, *errors.Error)
 }

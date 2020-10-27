@@ -37,3 +37,17 @@ func (sr *SessionPgRepository) Insert(session *models.Session) error {
 	}
 	return nil
 }
+
+func (sr *SessionPgRepository) SelectByID(sessValue string) (*models.Session, error) {
+	sess := &models.Session{}
+
+	row := sr.dbConn.QueryRow(
+		`SELECT id, value, expires, profile_id
+		FROM session WHERE value=$1`, sessValue)
+
+	err := row.Scan(&sess.ID, &sess.Value, &sess.ExpiresAt, &sess.UserID)
+	if err != nil {
+		return nil, err
+	}
+	return sess, nil
+}

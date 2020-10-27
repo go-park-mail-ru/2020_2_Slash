@@ -1,6 +1,8 @@
 package mwares
 
 import (
+	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
@@ -74,6 +76,27 @@ func (mw *MiddlewareManager) CORS(next echo.HandlerFunc) echo.HandlerFunc {
 		if cntx.Request().Method == http.MethodOptions {
 			return cntx.NoContent(http.StatusNoContent)
 		}
+		return next(cntx)
+	}
+}
+
+func (mw *MiddlewareManager) CheckAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(cntx echo.Context) error {
+		cookie, err := cntx.Cookie(SessionName)
+		if err != nil {
+			logrus.Info(err)
+			err := errors.New(CodeUserUnauthorized, err)
+			return cntx.JSON(err.HTTPCode, err)
+		}
+
+		sess, customErr := mw.sessUcase.Get(cookie.Value)
+		if err != nil {
+			logrus.Info(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, customErr)
+		}
+
+		cntx.Set("sessValue", sess.Value)
+		cntx.Set("userID", sess.UserID)
 		return next(cntx)
 	}
 }

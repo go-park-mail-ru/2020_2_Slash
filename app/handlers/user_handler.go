@@ -54,52 +54,6 @@ func (uh *UserHandler) GetValidSession(cookieVal string) (*session.Session, bool
 	return session, true
 }
 
-func (uh *UserHandler) GetUserProfile(cntx echo.Context) error {
-	cookie, err := cntx.Cookie("session_id")
-	if err != nil {
-		data := Error{Message: "user isn't authorized"}
-		return cntx.JSON(http.StatusUnauthorized, data)
-	}
-	session, valid := uh.GetValidSession(cookie.Value)
-	if !valid {
-		data := Error{Message: "session is invalid"}
-		return cntx.JSON(http.StatusUnauthorized, data)
-	}
-
-	curUser, _ := uh.UserRepo.Get(session.UserID)
-	userProfile := curUser.GetProfile()
-	return cntx.JSON(http.StatusOK, userProfile)
-}
-
-func (uh *UserHandler) ChangeUserProfile(cntx echo.Context) error {
-	cookie, err := cntx.Cookie("session_id")
-	if err != nil {
-		data := Error{Message: "user isn't authorized"}
-		return cntx.JSON(http.StatusUnauthorized, data)
-	}
-	session, valid := uh.GetValidSession(cookie.Value)
-	if !valid {
-		data := Error{Message: "session is invalid"}
-		return cntx.JSON(http.StatusUnauthorized, data)
-	}
-
-	curUser, _ := uh.UserRepo.Get(session.UserID)
-
-	if nickname := cntx.FormValue("nickname"); nickname != "" {
-		curUser.Nickname = nickname
-	}
-	if email := cntx.FormValue("email"); email != "" && helpers.IsValidEmail(email) {
-		err := uh.UserRepo.UpdateEmail(curUser.ID, email)
-		if err != nil {
-			data := Error{Message: "email already exists"}
-			return cntx.JSON(http.StatusBadRequest, data)
-		}
-	}
-
-	data := Result{Message: "ok"}
-	return cntx.JSON(http.StatusOK, data)
-}
-
 func (h *UserHandler) Login(cntx echo.Context) error {
 	newUser := &user.User{}
 	if err := cntx.Bind(newUser); err != nil {

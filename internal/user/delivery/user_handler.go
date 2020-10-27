@@ -26,6 +26,8 @@ func NewUserHandler(userUcase user.UserUsecase, sessUcase session.SessionUsecase
 
 func (uh *UserHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/user/register", uh.registerUserHandler())
+	e.GET("/api/v1/user/profile", uh.getUserProfileHandler(), mw.CheckAuth)
+	e.PUT("/api/v1/user/profile", uh.updateUserProfileHandler(), mw.CheckAuth)
 }
 
 func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
@@ -62,6 +64,48 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 
 		cookie := tools.CreateCookie(sess)
 		cntx.SetCookie(cookie)
+		return cntx.JSON(http.StatusOK, user.Sanitize())
+	}
+}
+
+func (uh *UserHandler) getUserProfileHandler() echo.HandlerFunc {
+	return func(cntx echo.Context) error {
+		userID := cntx.Get("userID").(uint64)
+		user, err := uh.userUcase.GetByID(userID)
+		if err != nil {
+			logrus.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, err)
+		}
+		return cntx.JSON(http.StatusOK, user.Sanitize())
+	}
+}
+
+func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
+	type Request struct {
+		Nickname string `json:"nickname"`
+		Email    string `json:"email" validate:"omitempty,email"`
+		Password string `json:"password" validate:"omitempty,gte=6"`
+	}
+
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
+			logrus.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, err)
+		}
+
+		userData := &models.User{
+			Nickname: req.Nickname,
+			Email:    req.Email,
+			Password: req.Password,
+		}
+
+		userID := cntx.Get("userID").(uint64)
+		user, err := uh.userUcase.UpdateProfile(userID, userData)
+		if err != nil {
+			logrus.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, err)
+		}
 		return cntx.JSON(http.StatusOK, user.Sanitize())
 	}
 }
