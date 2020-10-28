@@ -35,3 +35,20 @@ func (su *SessionUsecase) Get(sessValue string) (*models.Session, *errors.Error)
 	}
 	return sess, nil
 }
+
+func (su *SessionUsecase) IsExist(sessValue string) bool {
+	_, err := su.Get(sessValue)
+	return err == nil
+}
+
+func (su *SessionUsecase) Delete(sessValue string) *errors.Error {
+	if !su.IsExist(sessValue) {
+		return errors.Get(CodeSessionDoesNotExist)
+	}
+
+	if err := su.sessRepo.DeleteByValue(sessValue); err != nil {
+		return errors.New(CodeInternalError, err)
+	}
+
+	return nil
+}

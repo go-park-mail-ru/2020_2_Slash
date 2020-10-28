@@ -72,4 +72,16 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "file with this extension is prohibited",
 		UserMessage: "Файлы с данным расширением запрещены",
 	},
+	CodeWrongPassword: {
+		Code:        CodeWrongPassword,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "entered password don't match with saved password",
+		UserMessage: "Неверный пароль",
+	},
+	CodeSessionDoesNotExist: {
+		Code:        CodeSessionDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "user session doesn't exist in db",
+		UserMessage: "Сессия невалидна",
+	},
 }

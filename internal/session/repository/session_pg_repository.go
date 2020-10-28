@@ -51,3 +51,23 @@ func (sr *SessionPgRepository) SelectByValue(sessValue string) (*models.Session,
 	}
 	return sess, nil
 }
+
+func (sr *SessionPgRepository) DeleteByValue(sessionValue string) error {
+	tx, err := sr.dbConn.BeginTx(context.Background(), &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(
+		`DELETE FROM session
+		WHERE value=$1`, sessionValue)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
