@@ -31,7 +31,7 @@ func (c *Config) GetServerConnString() string {
 }
 
 func (c *Config) GetAvatarsPath() string {
-	return fmt.Sprintf(".%s", c.AvatarsDir)
+	return fmt.Sprintf("./%s", c.AvatarsDir)
 }
 
 func LoadConfig(name string) (*Config, error) {

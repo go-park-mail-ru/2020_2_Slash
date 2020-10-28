@@ -55,3 +55,39 @@ func (ur *UserPgRepository) SelectByEmail(email string) (*models.User, error) {
 	}
 	return user, nil
 }
+
+func (ur *UserPgRepository) SelectByID(userID uint64) (*models.User, error) {
+	user := &models.User{}
+	row := ur.dbConn.QueryRow(
+		`SELECT id, nickname, email, password, avatar
+		FROM profile
+		WHERE id=$1`, userID)
+
+	err := row.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.Avatar)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (ur *UserPgRepository) Update(user *models.User) error {
+	tx, err := ur.dbConn.BeginTx(context.Background(), &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+
+	_, err = ur.dbConn.Exec(
+		`UPDATE profile
+		SET nickname = $2, email = $3, password = $4, avatar = $5
+		WHERE id = $1;`,
+		user.ID, user.Nickname, user.Email, user.Password, user.Avatar)
+	if err != nil {
+		_ = tx.Rollback()
+		return nil
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}

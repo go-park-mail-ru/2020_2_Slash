@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"database/sql"
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
@@ -22,4 +23,15 @@ func (su *SessionUsecase) Create(sess *models.Session) *errors.Error {
 		return errors.New(CodeInternalError, err)
 	}
 	return nil
+}
+
+func (su *SessionUsecase) Get(sessValue string) (*models.Session, *errors.Error) {
+	sess, err := su.sessRepo.SelectByValue(sessValue)
+	switch {
+	case err == sql.ErrNoRows:
+		return nil, errors.Get(CodeUserUnauthorized)
+	case err != nil:
+		return nil, errors.New(CodeInternalError, err)
+	}
+	return sess, nil
 }

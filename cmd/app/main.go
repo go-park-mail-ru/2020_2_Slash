@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/config"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
 
 	sessionRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/session/repository"
@@ -22,6 +23,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Locale storage
+	avatarsPath := config.GetAvatarsPath()
+	helpers.InitAvatarStorage(avatarsPath)
 
 	// Database
 	dbConnection, err := sql.Open("postgres", config.GetDbConnString())
@@ -47,8 +52,7 @@ func main() {
 	mw := mwares.NewMiddlewareManager(sessUcase)
 	e.Use(mw.PanicRecovering, mw.AccessLog, mw.CORS)
 
-	avatarsPath := config.GetAvatarsPath()
-	e.Static("/avatars/", avatarsPath)
+	e.Static("/avatars", avatarsPath)
 
 	// Delivery
 	userHandler := userHandler.NewUserHandler(userUcase, sessUcase)

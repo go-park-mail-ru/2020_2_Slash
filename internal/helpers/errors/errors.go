@@ -54,4 +54,22 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "user with this email already exists",
 		UserMessage: "Данный Email адрес уже существует",
 	},
+	CodeUserUnauthorized: {
+		Code:        CodeUserUnauthorized,
+		HTTPCode:    http.StatusUnauthorized,
+		Message:     "user is unauthorized",
+		UserMessage: "Вы не авторизированы",
+	},
+	CodeUserDoesNotExist: {
+		Code:        CodeUserDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "user does not exist",
+		UserMessage: "Такого пользователя не существует",
+	},
+	CodeWrongImgExtension: {
+		Code:        CodeWrongImgExtension,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "file with this extension is prohibited",
+		UserMessage: "Файлы с данным расширением запрещены",
+	},
 }
