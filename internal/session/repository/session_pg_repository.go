@@ -24,7 +24,7 @@ func (sr *SessionPgRepository) Insert(session *models.Session) error {
 	}
 
 	err = tx.QueryRow(
-		`INSERT INTO session(value, expires, profile_id)
+		`INSERT INTO sessions(value, expires, user_id)
 		VALUES ($1, $2, $3) RETURNING id`,
 		session.Value, session.ExpiresAt, session.UserID).Scan(&session.ID)
 	if err != nil {
@@ -42,8 +42,8 @@ func (sr *SessionPgRepository) SelectByValue(sessValue string) (*models.Session,
 	sess := &models.Session{}
 
 	row := sr.dbConn.QueryRow(
-		`SELECT id, value, expires, profile_id
-		FROM session WHERE value=$1`, sessValue)
+		`SELECT id, value, expires, user_id
+		FROM sessions WHERE value=$1`, sessValue)
 
 	err := row.Scan(&sess.ID, &sess.Value, &sess.ExpiresAt, &sess.UserID)
 	if err != nil {
@@ -59,7 +59,7 @@ func (sr *SessionPgRepository) DeleteByValue(sessionValue string) error {
 	}
 
 	_, err = tx.Exec(
-		`DELETE FROM session
+		`DELETE FROM sessions
 		WHERE value=$1`, sessionValue)
 	if err != nil {
 		_ = tx.Rollback()

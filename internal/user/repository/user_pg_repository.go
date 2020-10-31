@@ -24,7 +24,7 @@ func (ur *UserPgRepository) Insert(user *models.User) error {
 	}
 
 	row := ur.dbConn.QueryRow(
-		`INSERT INTO profile(nickname, email, password, avatar)
+		`INSERT INTO users(nickname, email, password, avatar)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id`,
 		user.Nickname, user.Email, user.Password, user.Avatar)
@@ -46,7 +46,7 @@ func (ur *UserPgRepository) SelectByEmail(email string) (*models.User, error) {
 
 	row := ur.dbConn.QueryRow(
 		`SELECT id, nickname, email, password, avatar
-		FROM profile
+		FROM users
 		WHERE email=$1`, email)
 
 	err := row.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.Avatar)
@@ -60,7 +60,7 @@ func (ur *UserPgRepository) SelectByID(userID uint64) (*models.User, error) {
 	user := &models.User{}
 	row := ur.dbConn.QueryRow(
 		`SELECT id, nickname, email, password, avatar
-		FROM profile
+		FROM users
 		WHERE id=$1`, userID)
 
 	err := row.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.Avatar)
@@ -77,7 +77,7 @@ func (ur *UserPgRepository) Update(user *models.User) error {
 	}
 
 	_, err = ur.dbConn.Exec(
-		`UPDATE profile
+		`UPDATE users
 		SET nickname = $2, email = $3, password = $4, avatar = $5
 		WHERE id = $1;`,
 		user.ID, user.Nickname, user.Email, user.Password, user.Avatar)
