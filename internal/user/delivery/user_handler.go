@@ -10,6 +10,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
+	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
@@ -49,7 +50,7 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
 			logrus.Info(err.Message)
-			return cntx.JSON(err.HTTPCode, err)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		user := &models.User{
@@ -60,18 +61,22 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 
 		if err := uh.userUcase.Create(user); err != nil {
 			logrus.Info(err.Message)
-			return cntx.JSON(err.HTTPCode, err)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		sess := models.NewSession(user.ID)
 		if err := uh.sessUcase.Create(sess); err != nil {
 			logrus.Info(err.Message)
-			return cntx.JSON(err.HTTPCode, err)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		cookie := tools.CreateCookie(sess)
 		cntx.SetCookie(cookie)
-		return cntx.JSON(http.StatusOK, user.Sanitize())
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"user": user.Sanitize(),
+			},
+		})
 	}
 }
 
@@ -81,9 +86,13 @@ func (uh *UserHandler) getUserProfileHandler() echo.HandlerFunc {
 		user, err := uh.userUcase.GetByID(userID)
 		if err != nil {
 			logrus.Info(err.Message)
-			return cntx.JSON(err.HTTPCode, err)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
-		return cntx.JSON(http.StatusOK, user.Sanitize())
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"user": user.Sanitize(),
+			},
+		})
 	}
 }
 
@@ -98,7 +107,7 @@ func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
 			logrus.Info(err.Message)
-			return cntx.JSON(err.HTTPCode, err)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		userData := &models.User{
@@ -111,30 +120,31 @@ func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
 		user, err := uh.userUcase.UpdateProfile(userID, userData)
 		if err != nil {
 			logrus.Info(err.Message)
-			return cntx.JSON(err.HTTPCode, err)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
-		return cntx.JSON(http.StatusOK, user.Sanitize())
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"user": user.Sanitize(),
+			},
+		})
 	}
 }
 
 func (uh *UserHandler) updateAvatarHandler() echo.HandlerFunc {
-	type Responce struct {
-		Avatar string `json:"avatar"`
-	}
 	const avatarsDir = "/avatars/"
 
 	return func(cntx echo.Context) error {
 		image, customErr := reader.NewRequestReader(cntx).ReadImage("avatar")
 		if customErr != nil {
 			logrus.Info(customErr.Message)
-			return cntx.JSON(customErr.HTTPCode, customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		imageFile, err := image.Open()
 		if err != nil {
 			logrus.Info(err)
 			customErr := errors.New(CodeBadRequest, err)
-			return cntx.JSON(customErr.HTTPCode, customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 		defer imageFile.Close()
 
@@ -142,7 +152,7 @@ func (uh *UserHandler) updateAvatarHandler() echo.HandlerFunc {
 		if err != nil {
 			logrus.Info(err)
 			customErr := errors.New(CodeBadRequest, err)
-			return cntx.JSON(customErr.HTTPCode, customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		userID := cntx.Get("userID").(uint64)
@@ -156,7 +166,7 @@ func (uh *UserHandler) updateAvatarHandler() echo.HandlerFunc {
 		if err != nil {
 			logrus.Info(err)
 			customErr := errors.New(CodeInternalError, err)
-			return cntx.JSON(customErr.HTTPCode, customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 		defer newAvatarFile.Close()
 
@@ -164,16 +174,19 @@ func (uh *UserHandler) updateAvatarHandler() echo.HandlerFunc {
 			_ = os.Remove(absNewAvatarFilePath)
 			logrus.Info(err)
 			customErr := errors.New(CodeInternalError, err)
-			return cntx.JSON(customErr.HTTPCode, customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		_, customErr = uh.userUcase.UpdateAvatar(userID, rltNewAvatarFilePath)
 		if customErr != nil {
 			logrus.Info(customErr.Message)
-			return cntx.JSON(customErr.HTTPCode, customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
-		res := Responce{Avatar: newAvatarFileName}
-		return cntx.JSON(http.StatusOK, res)
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"avatar": newAvatarFileName,
+			},
+		})
 	}
 }
