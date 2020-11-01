@@ -102,4 +102,10 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "actor doesn't exist in db",
 		UserMessage: "Такого актёра не существует",
 	},
+	CodeDirectorDoesNotExist: {
+		Code:        CodeDirectorDoesNotExist,
+		HTTPCode:    http.StatusNotFound,
+		Message:     "director doesn't exist in db",
+		UserMessage: "Такого режиссёра не существует",
+	},
 }

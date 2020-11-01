@@ -15,4 +15,5 @@ const (
 	CodeSessionDoesNotExist
 	CodeSessionExpired
 	CodeActorDoesNotExist
+	CodeDirectorDoesNotExist
 )
