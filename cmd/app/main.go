@@ -9,6 +9,11 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 
+	directorHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/director/delivery"
+	directorRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/director/repository"
+	directorUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/director/usecases"
+
+
 	"github.com/go-park-mail-ru/2020_2_Slash/config"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
@@ -47,11 +52,13 @@ func main() {
 	sessRepo := sessionRepo.NewSessionPgRepository(dbConnection)
 	userRepo := userRepo.NewUserPgRepository(dbConnection)
 	actorRepo := actorRepo.NewActorPgRepository(dbConnection)
+	directorRepo := directorRepo.NewDirectorPgRepository(dbConnection)
 
 	// Usecases
 	sessUcase := sessionUsecase.NewSessionUsecase(sessRepo)
 	userUcase := userUsecase.NewUserUsecase(userRepo)
 	actorUcase := actorUsecase.NewActorUseCase(actorRepo)
+	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo)
 
 	// Middleware
 	e := echo.New()
@@ -64,9 +71,11 @@ func main() {
 	userHandler := userHandler.NewUserHandler(userUcase, sessUcase)
 	sessionHandler := sessionHandler.NewSessionHandler(sessUcase, userUcase)
 	actorHandler := actorHandler.NewActorHandler(actorUcase)
+	directorHandler := directorHandler.NewDirectorHandler(directorUcase)
 	userHandler.Configure(e, mw)
 	sessionHandler.Configure(e, mw)
 	actorHandler.Configure(e, mw)
+	directorHandler.Configure(e, mw)
 
 	log.Fatal(e.Start(config.GetServerConnString()))
 }
