@@ -96,4 +96,10 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "email doesn't exist in db",
 		UserMessage: "Пользователь с таким email не найден",
 	},
+	CodeActorDoesNotExist: {
+		Code:        CodeActorDoesNotExist,
+		HTTPCode:    http.StatusNotFound,
+		Message:     "actor doesn't exist in db",
+		UserMessage: "Такого актёра не существует",
+	},
 }
