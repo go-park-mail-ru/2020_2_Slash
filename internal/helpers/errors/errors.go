@@ -96,6 +96,18 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "email doesn't exist in db",
 		UserMessage: "Пользователь с таким email не найден",
 	},
+	CodeGenreNameAlreadyExists: {
+		Code:        CodeGenreNameAlreadyExists,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "genre with this name already exists",
+		UserMessage: "Данный жанр уже существует",
+	},
+	CodeGenreDoesNotExist: {
+		Code:        CodeGenreDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "genre does not exist",
+		UserMessage: "Такого жанра не существует",
+	},
 	CodeActorDoesNotExist: {
 		Code:        CodeActorDoesNotExist,
 		HTTPCode:    http.StatusNotFound,

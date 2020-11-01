@@ -16,4 +16,6 @@ const (
 	CodeSessionExpired
 	CodeActorDoesNotExist
 	CodeDirectorDoesNotExist
+	CodeGenreNameAlreadyExists
+	CodeGenreDoesNotExist
 )
