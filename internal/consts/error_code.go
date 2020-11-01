@@ -18,4 +18,6 @@ const (
 	CodeDirectorDoesNotExist
 	CodeGenreNameAlreadyExists
 	CodeGenreDoesNotExist
+	CodeCountryNameAlreadyExists
+	CodeCountryDoesNotExist
 )

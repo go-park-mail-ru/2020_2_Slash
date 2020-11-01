@@ -29,6 +29,10 @@ import (
 	genreHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/genre/delivery"
 	genreRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/genre/repository"
 	genreUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/genre/usecases"
+
+	countryHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/country/delivery"
+	countryRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/country/repository"
+	countryUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/country/usecases"
 )
 
 func main() {
@@ -58,6 +62,7 @@ func main() {
 	actorRepo := actorRepo.NewActorPgRepository(dbConnection)
 	directorRepo := directorRepo.NewDirectorPgRepository(dbConnection)
 	genreRepo := genreRepo.NewGenrePgRepository(dbConnection)
+	countryRepo := countryRepo.NewCountryPgRepository(dbConnection)
 
 	// Usecases
 	sessUcase := sessionUsecase.NewSessionUsecase(sessRepo)
@@ -65,6 +70,7 @@ func main() {
 	actorUcase := actorUsecase.NewActorUseCase(actorRepo)
 	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo)
 	genreUcase := genreUsecase.NewGenreUsecase(genreRepo)
+	countryUcase := countryUsecase.NewCountryUsecase(countryRepo)
 
 	// Middleware
 	e := echo.New()
@@ -79,12 +85,14 @@ func main() {
 	actorHandler := actorHandler.NewActorHandler(actorUcase)
 	directorHandler := directorHandler.NewDirectorHandler(directorUcase)
 	genreHandler := genreHandler.NewGenreHandler(genreUcase)
+	countryHandler := countryHandler.NewCountryHandler(countryUcase)
 
 	userHandler.Configure(e, mw)
 	sessionHandler.Configure(e, mw)
 	actorHandler.Configure(e, mw)
 	directorHandler.Configure(e, mw)
 	genreHandler.Configure(e, mw)
+	countryHandler.Configure(e, mw)
 
 	log.Fatal(e.Start(config.GetServerConnString()))
 }

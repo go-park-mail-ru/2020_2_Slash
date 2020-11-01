@@ -120,4 +120,16 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "director doesn't exist in db",
 		UserMessage: "Такого режиссёра не существует",
 	},
+	CodeCountryNameAlreadyExists: {
+		Code:        CodeCountryNameAlreadyExists,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "country with this name already exists",
+		UserMessage: "Данная страна уже существует",
+	},
+	CodeCountryDoesNotExist: {
+		Code:        CodeCountryDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "country does not exist",
+		UserMessage: "Такой страны не существует",
+	},
 }
