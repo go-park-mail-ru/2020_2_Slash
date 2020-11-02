@@ -90,4 +90,10 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "session expired",
 		UserMessage: "Сессия истекла",
 	},
+	CodeEmailDoesNotExist: {
+		Code:        CodeEmailDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "email doesn't exist in db",
+		UserMessage: "Пользователь с таким email не найден",
+	},
 }
