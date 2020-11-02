@@ -69,7 +69,7 @@ func (mw *MiddlewareManager) CORS(next echo.HandlerFunc) echo.HandlerFunc {
 
 		res := cntx.Response()
 		res.Header().Set("Access-Control-Allow-Origin", allowOrigin)
-		res.Header().Set("Access-Control-Allow-Methods", "GET, POST OPTIONS, PUT, DELETE")
+		res.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
 		res.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 		res.Header().Set("Access-Control-Allow-Credentials", "true")
 
