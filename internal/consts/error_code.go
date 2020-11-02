@@ -13,4 +13,5 @@ const (
 	CodeEmailAlreadyExists
 	CodeWrongImgExtension
 	CodeSessionDoesNotExist
+	CodeSessionExpired
 )

@@ -84,4 +84,10 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "user session doesn't exist in db",
 		UserMessage: "Сессия невалидна",
 	},
+	CodeSessionExpired: {
+		Code:        CodeSessionExpired,
+		HTTPCode:    http.StatusUnauthorized,
+		Message:     "session expired",
+		UserMessage: "Сессия истекла",
+	},
 }

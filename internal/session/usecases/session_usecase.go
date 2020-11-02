@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
+	"time"
 )
 
 type SessionUsecase struct {
@@ -51,4 +52,20 @@ func (su *SessionUsecase) Delete(sessValue string) *errors.Error {
 	}
 
 	return nil
+}
+
+func (su *SessionUsecase) Check(sessValue string) (*models.Session, *errors.Error) {
+	sess, customErr := su.Get(sessValue)
+	if customErr != nil {
+		return nil, customErr
+	}
+	if sess.ExpiresAt.Before(time.Now()) {
+		deleteErr := su.Delete(sessValue)
+		if deleteErr != nil {
+			return nil, deleteErr
+		}
+		customErr = errors.Get(CodeSessionExpired)
+		return nil, customErr
+	}
+	return sess, nil
 }
