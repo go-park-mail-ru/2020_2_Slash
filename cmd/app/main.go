@@ -2,21 +2,21 @@ package main
 
 import (
 	"database/sql"
-	actorHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/actor/delivery"
-	actorRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/actor/repository"
-	actorUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/actor/usecases"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	"log"
 
-	directorHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/director/delivery"
-	directorRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/director/repository"
-	directorUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/director/usecases"
-
-
 	"github.com/go-park-mail-ru/2020_2_Slash/config"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
+
+	actorHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/actor/delivery"
+	actorRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/actor/repository"
+	actorUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/actor/usecases"
+
+	directorHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/director/delivery"
+	directorRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/director/repository"
+	directorUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/director/usecases"
 
 	sessionHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/session/delivery"
 	sessionRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/session/repository"
@@ -25,6 +25,14 @@ import (
 	userHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery"
 	userRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/user/repository"
 	userUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/user/usecases"
+
+	genreHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/genre/delivery"
+	genreRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/genre/repository"
+	genreUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/genre/usecases"
+
+	countryHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/country/delivery"
+	countryRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/country/repository"
+	countryUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/country/usecases"
 )
 
 func main() {
@@ -53,12 +61,16 @@ func main() {
 	userRepo := userRepo.NewUserPgRepository(dbConnection)
 	actorRepo := actorRepo.NewActorPgRepository(dbConnection)
 	directorRepo := directorRepo.NewDirectorPgRepository(dbConnection)
+	genreRepo := genreRepo.NewGenrePgRepository(dbConnection)
+	countryRepo := countryRepo.NewCountryPgRepository(dbConnection)
 
 	// Usecases
 	sessUcase := sessionUsecase.NewSessionUsecase(sessRepo)
 	userUcase := userUsecase.NewUserUsecase(userRepo)
 	actorUcase := actorUsecase.NewActorUseCase(actorRepo)
 	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo)
+	genreUcase := genreUsecase.NewGenreUsecase(genreRepo)
+	countryUcase := countryUsecase.NewCountryUsecase(countryRepo)
 
 	// Middleware
 	e := echo.New()
@@ -72,10 +84,15 @@ func main() {
 	sessionHandler := sessionHandler.NewSessionHandler(sessUcase, userUcase)
 	actorHandler := actorHandler.NewActorHandler(actorUcase)
 	directorHandler := directorHandler.NewDirectorHandler(directorUcase)
+	genreHandler := genreHandler.NewGenreHandler(genreUcase)
+	countryHandler := countryHandler.NewCountryHandler(countryUcase)
+
 	userHandler.Configure(e, mw)
 	sessionHandler.Configure(e, mw)
 	actorHandler.Configure(e, mw)
 	directorHandler.Configure(e, mw)
+	genreHandler.Configure(e, mw)
+	countryHandler.Configure(e, mw)
 
 	log.Fatal(e.Start(config.GetServerConnString()))
 }

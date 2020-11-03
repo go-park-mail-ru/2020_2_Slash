@@ -43,7 +43,6 @@ CREATE TABLE IF NOT EXISTS content (
 
 -- Content directors
 CREATE TABLE IF NOT EXISTS directors (
-
     id serial PRIMARY KEY,
     name varchar(64) NOT NULL
 );
