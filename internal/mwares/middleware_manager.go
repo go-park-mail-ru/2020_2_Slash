@@ -4,6 +4,7 @@ import (
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
+	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -69,7 +70,7 @@ func (mw *MiddlewareManager) CORS(next echo.HandlerFunc) echo.HandlerFunc {
 
 		res := cntx.Response()
 		res.Header().Set("Access-Control-Allow-Origin", allowOrigin)
-		res.Header().Set("Access-Control-Allow-Methods", "GET, POST OPTIONS, PUT, DELETE")
+		res.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
 		res.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 		res.Header().Set("Access-Control-Allow-Credentials", "true")
 
@@ -85,14 +86,13 @@ func (mw *MiddlewareManager) CheckAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		cookie, err := cntx.Cookie(SessionName)
 		if err != nil {
 			logrus.Info(err)
-			err := errors.New(CodeUserUnauthorized, err)
-			return cntx.JSON(err.HTTPCode, err)
+			customErr := errors.New(CodeUserUnauthorized, err)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
-		sess, customErr := mw.sessUcase.Get(cookie.Value)
-		if err != nil {
-			logrus.Info(customErr.Message)
-			return cntx.JSON(customErr.HTTPCode, customErr)
+		sess, customErr := mw.sessUcase.Check(cookie.Value)
+		if customErr != nil {
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		cntx.Set("sessValue", sess.Value)

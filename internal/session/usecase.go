@@ -10,4 +10,5 @@ type SessionUsecase interface {
 	Get(sessValue string) (*models.Session, *errors.Error)
 	IsExist(sessionValue string) bool
 	Delete(sessionValue string) *errors.Error
+	Check(sessValue string) (*models.Session, *errors.Error)
 }
