@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"mime/multipart"
+	"net/http"
 )
 
 type RequestReader struct {
@@ -39,8 +40,37 @@ func (rr *RequestReader) ReadImage(field string) (*multipart.FileHeader, *errors
 	}
 
 	// Check content type of image
-	if customErr := helpers.CheckImageContentType(image); err != nil {
+	if customErr := helpers.CheckImageContentType(image); customErr != nil {
 		return nil, customErr
 	}
 	return image, nil
+}
+
+func (rr *RequestReader) ReadNotRequiredImage(field string) (*multipart.FileHeader, *errors.Error) {
+	image, err := rr.cntx.FormFile(field)
+	switch {
+	case err == http.ErrMissingFile:
+		return nil, nil
+	case err != nil:
+		return nil, errors.New(CodeBadRequest, err)
+	}
+
+	// Check content type of image
+	if customErr := helpers.CheckImageContentType(image); customErr != nil {
+		return nil, customErr
+	}
+	return image, nil
+}
+
+func (rr *RequestReader) ReadVideo(field string) (*multipart.FileHeader, *errors.Error) {
+	video, err := rr.cntx.FormFile(field)
+	if err != nil {
+		return nil, errors.New(CodeBadRequest, err)
+	}
+
+	// Check content type of video
+	if customErr := helpers.CheckVideoContentType(video); customErr != nil {
+		return nil, customErr
+	}
+	return video, nil
 }
