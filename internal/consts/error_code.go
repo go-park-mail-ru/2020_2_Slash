@@ -14,4 +14,6 @@ const (
 	CodeWrongImgExtension
 	CodeSessionDoesNotExist
 	CodeSessionExpired
+	CodeActorDoesNotExist
+	CodeDirectorDoesNotExist
 )
