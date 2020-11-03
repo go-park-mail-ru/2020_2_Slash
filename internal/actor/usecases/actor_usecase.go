@@ -59,3 +59,15 @@ func (au *ActorUseCase) DeleteById(id uint64) *errors.Error {
 
 	return nil
 }
+
+func (au *ActorUseCase) ListByID(actorsID []uint64) ([]*models.Actor, *errors.Error) {
+	var actors []*models.Actor
+	for _, actorID := range actorsID {
+		actor, err := au.Get(actorID)
+		if err != nil {
+			return nil, err
+		}
+		actors = append(actors, actor)
+	}
+	return actors, nil
+}

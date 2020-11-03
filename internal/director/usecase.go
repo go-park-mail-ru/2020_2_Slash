@@ -10,4 +10,5 @@ type DirectorUseCase interface {
 	Get(id uint64) (*models.Director, *errors.Error)
 	Change(newDirector *models.Director) *errors.Error
 	DeleteById(id uint64) *errors.Error
+	ListByID(directorsID []uint64) ([]*models.Director, *errors.Error)
 }

@@ -2,8 +2,8 @@ package usecases
 
 import (
 	"database/sql"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/director"
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/director"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 )
@@ -58,4 +58,16 @@ func (du *DirectorUseCase) DeleteById(id uint64) *errors.Error {
 	}
 
 	return nil
+}
+
+func (du *DirectorUseCase) ListByID(directorsID []uint64) ([]*models.Director, *errors.Error) {
+	var directors []*models.Director
+	for _, directorID := range directorsID {
+		director, err := du.Get(directorID)
+		if err != nil {
+			return nil, err
+		}
+		directors = append(directors, director)
+	}
+	return directors, nil
 }

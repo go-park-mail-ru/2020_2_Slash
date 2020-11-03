@@ -12,4 +12,5 @@ type GenreUsecase interface {
 	GetByID(genreID uint64) (*models.Genre, *errors.Error)
 	GetByName(name string) (*models.Genre, *errors.Error)
 	List() ([]*models.Genre, *errors.Error)
+	ListByID(genresID []uint64) ([]*models.Genre, *errors.Error)
 }
