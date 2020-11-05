@@ -25,4 +25,6 @@ const (
 	CodeMovieDoesNotExist
 	CodeRatingDoesNotExist
 	CodeRatingAlreadyExist
+	CodeFavouriteAlreadyExist
+	CodeFavouriteDoesNotExist
 )

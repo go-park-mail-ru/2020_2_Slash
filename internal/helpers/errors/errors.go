@@ -162,4 +162,16 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "rating already exist",
 		UserMessage: "Оценка уже поставлена",
 	},
+	CodeFavouriteAlreadyExist: {
+		Code:        CodeFavouriteAlreadyExist,
+		HTTPCode:    http.StatusConflict,
+		Message:     "this favourite already exist",
+		UserMessage: "Уже в избранном",
+	},
+	CodeFavouriteDoesNotExist: {
+		Code:        CodeFavouriteDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "this favourite does not exist",
+		UserMessage: "Данный контент отсутствует в избранном",
+	},
 }
