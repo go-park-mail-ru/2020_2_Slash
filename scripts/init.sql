@@ -164,6 +164,7 @@ CREATE TABLE IF NOT EXISTS rates (
 CREATE TABLE IF NOT EXISTS favourites (
     user_id int NOT NULL,
     content_id int NOT NULL,
+    created timestamptz NOT NULL,
 
     PRIMARY KEY(user_id, content_id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
