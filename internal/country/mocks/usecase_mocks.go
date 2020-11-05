@@ -121,3 +121,18 @@ func (mr *MockCountryUsecaseMockRecorder) List() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockCountryUsecase)(nil).List))
 }
+
+// ListByID mocks base method
+func (m *MockCountryUsecase) ListByID(countriesID []uint64) ([]*models.Country, *errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListByID", countriesID)
+	ret0, _ := ret[0].([]*models.Country)
+	ret1, _ := ret[1].(*errors.Error)
+	return ret0, ret1
+}
+
+// ListByID indicates an expected call of ListByID
+func (mr *MockCountryUsecaseMockRecorder) ListByID(countriesID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByID", reflect.TypeOf((*MockCountryUsecase)(nil).ListByID), countriesID)
+}

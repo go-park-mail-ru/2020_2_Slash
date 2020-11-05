@@ -287,3 +287,38 @@ func TestCountryUseCase_List_OK(t *testing.T) {
 	assert.Equal(t, err, (*errors.Error)(nil))
 	assert.Equal(t, dbCountries, countries)
 }
+
+func TestCountryUseCase_ListByID_OK(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	countryRep := mocks.NewMockCountryRepository(ctrl)
+	countryUseCase := NewCountryUsecase(countryRep)
+
+	countries := []*models.Country{
+		&models.Country{
+			ID:   1,
+			Name: "USA",
+		},
+		&models.Country{
+			ID:   2,
+			Name: "GB",
+		},
+	}
+
+	countriesID := []uint64{1, 2}
+
+	countryRep.
+		EXPECT().
+		SelectByID(countriesID[0]).
+		Return(countries[0], nil)
+
+	countryRep.
+		EXPECT().
+		SelectByID(countriesID[1]).
+		Return(countries[1], nil)
+
+	dbCountries, err := countryUseCase.ListByID(countriesID)
+	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbCountries, countries)
+}
