@@ -40,6 +40,9 @@ import (
 	movieHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/movie/delivery"
 	movieRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/movie/repository"
 	movieUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/movie/usecases"
+	ratingHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/rating/delivery"
+	ratingRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/rating/repository"
+	ratingUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/rating/usecases"
 )
 
 func main() {
@@ -78,6 +81,7 @@ func main() {
 	directorRepo := directorRepo.NewDirectorPgRepository(dbConnection)
 	contentRepo := contentRepo.NewContentPgRepository(dbConnection)
 	movieRepo := movieRepo.NewMoviePgRepository(dbConnection)
+	ratingRepo := ratingRepo.NewRatingPgRepository(dbConnection)
 
 	// Usecases
 	sessUcase := sessionUsecase.NewSessionUsecase(sessRepo)
@@ -88,6 +92,7 @@ func main() {
 	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo)
 	contentUcase := contentUsecase.NewContentUsecase(contentRepo, countryUcase, genreUcase, actorUcase, directorUcase)
 	movieUcase := movieUsecase.NewMovieUsecase(movieRepo, contentUcase)
+	ratingUcase := ratingUsecase.NewRatingUseCase(ratingRepo, contentUcase)
 
 	// Middleware
 	e := echo.New()
@@ -106,6 +111,7 @@ func main() {
 	actorHandler := actorHandler.NewActorHandler(actorUcase)
 	directorHandler := directorHandler.NewDirectorHandler(directorUcase)
 	movieHandler := movieHandler.NewMovieHandler(movieUcase, contentUcase, countryUcase, genreUcase, actorUcase, directorUcase)
+	ratingHandler := ratingHandler.NewRatingHandler(ratingUcase)
 
 	userHandler.Configure(e, mw)
 	sessionHandler.Configure(e, mw)
@@ -114,6 +120,7 @@ func main() {
 	actorHandler.Configure(e, mw)
 	directorHandler.Configure(e, mw)
 	movieHandler.Configure(e, mw)
+	ratingHandler.Configure(e, mw)
 
 	log.Fatal(e.Start(config.GetServerConnString()))
 }
