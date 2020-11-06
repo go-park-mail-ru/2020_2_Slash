@@ -112,19 +112,27 @@ func (cu *ContentUsecase) GetFullByID(contentID uint64) (*models.Content, *error
 	if err != nil {
 		return nil, err
 	}
-	if content.Countries, err = cu.GetCountriesByID(content.ContentID); err != nil {
-		return nil, err
-	}
-	if content.Genres, err = cu.GetGenresByID(content.ContentID); err != nil {
-		return nil, err
-	}
-	if content.Actors, err = cu.GetActorsByID(content.ContentID); err != nil {
-		return nil, err
-	}
-	if content.Directors, err = cu.GetDirectorsByID(content.ContentID); err != nil {
+	if err := cu.FillContent(content); err != nil {
 		return nil, err
 	}
 	return content, nil
+}
+
+func (cu *ContentUsecase) FillContent(content *models.Content) *errors.Error {
+	var err *errors.Error
+	if content.Countries, err = cu.GetCountriesByID(content.ContentID); err != nil {
+		return err
+	}
+	if content.Genres, err = cu.GetGenresByID(content.ContentID); err != nil {
+		return err
+	}
+	if content.Actors, err = cu.GetActorsByID(content.ContentID); err != nil {
+		return err
+	}
+	if content.Directors, err = cu.GetDirectorsByID(content.ContentID); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (cu *ContentUsecase) GetCountriesByID(contentID uint64) ([]*models.Country, *errors.Error) {

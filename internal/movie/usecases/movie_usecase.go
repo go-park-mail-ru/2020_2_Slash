@@ -130,6 +130,14 @@ func (mu *MovieUsecase) GetByContentID(contentID uint64) (*models.Movie, *errors
 	return movie, nil
 }
 
+func (mu *MovieUsecase) ListByGenre(genreID uint64) ([]*models.Movie, *errors.Error) {
+	movies, err := mu.movieRepo.SelectByGenre(genreID)
+	if err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+	return movies, nil
+}
+
 func (mu *MovieUsecase) checkByContentID(contentID uint64) *errors.Error {
 	_, err := mu.GetByContentID(contentID)
 	return err

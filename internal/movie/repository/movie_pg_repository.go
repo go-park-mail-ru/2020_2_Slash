@@ -111,3 +111,39 @@ func (mr *MoviePgRepository) SelectByContentID(contentID uint64) (*models.Movie,
 	}
 	return movie, nil
 }
+
+func (mr *MoviePgRepository) SelectByGenre(genreID uint64) ([]*models.Movie, error) {
+	rows, err := mr.dbConn.Query(
+		`SELECT m.id, m.video, c.id, c.name, c.original_name, c.description, c.short_description,
+		c.year, c.images, c.type
+		FROM content AS c
+		JOIN content_genre AS cg ON c.id=cg.content_id AND cg.genre_id=$1
+		LEFT OUTER JOIN movies as m ON m.content_id=c.id`,
+		genreID)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var movies []*models.Movie
+	for rows.Next() {
+		movie := &models.Movie{}
+		cnt := &models.Content{}
+
+		err := rows.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
+			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
+			&cnt.Year, &cnt.Images, &cnt.Type)
+		if err != nil {
+			return nil, err
+		}
+
+		movie.Content = *cnt
+		movies = append(movies, movie)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return movies, nil
+}
