@@ -150,4 +150,16 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "movie does not exist",
 		UserMessage: "Такого фильма не существует",
 	},
+	CodeRatingDoesNotExist: {
+		Code:        CodeRatingDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "trying to update rating that not exist",
+		UserMessage: "Что-то пошло не так",
+	},
+	CodeRatingAlreadyExist: {
+		Code:        CodeRatingAlreadyExist,
+		HTTPCode:    http.StatusConflict,
+		Message:     "rating already exist",
+		UserMessage: "Оценка уже поставлена",
+	},
 }

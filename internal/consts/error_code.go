@@ -23,4 +23,6 @@ const (
 	CodeContentDoesNotExist
 	CodeMovieContentAlreadyExists
 	CodeMovieDoesNotExist
+	CodeRatingDoesNotExist
+	CodeRatingAlreadyExist
 )
