@@ -91,6 +91,18 @@ func (cu *CountryUsecase) List() ([]*models.Country, *errors.Error) {
 	return countries, nil
 }
 
+func (cu *CountryUsecase) ListByID(countriesID []uint64) ([]*models.Country, *errors.Error) {
+	var countries []*models.Country
+	for _, countryID := range countriesID {
+		country, err := cu.GetByID(countryID)
+		if err != nil {
+			return nil, err
+		}
+		countries = append(countries, country)
+	}
+	return countries, nil
+}
+
 func (cu *CountryUsecase) checkByID(countryID uint64) *errors.Error {
 	_, err := cu.GetByID(countryID)
 	return err

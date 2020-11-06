@@ -91,6 +91,18 @@ func (gu *GenreUsecase) List() ([]*models.Genre, *errors.Error) {
 	return genres, nil
 }
 
+func (gu *GenreUsecase) ListByID(genresID []uint64) ([]*models.Genre, *errors.Error) {
+	var genres []*models.Genre
+	for _, genreID := range genresID {
+		genre, err := gu.GetByID(genreID)
+		if err != nil {
+			return nil, err
+		}
+		genres = append(genres, genre)
+	}
+	return genres, nil
+}
+
 func (gu *GenreUsecase) checkByID(genreID uint64) *errors.Error {
 	_, err := gu.GetByID(genreID)
 	return err

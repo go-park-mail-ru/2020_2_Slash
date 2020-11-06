@@ -19,7 +19,7 @@ func TestGenreUseCase_Create_OK(t *testing.T) {
 	genreUseCase := NewGenreUsecase(genreRep)
 
 	genre := &models.Genre{
-		Name: "USA",
+		Name: "comedy",
 	}
 
 	genreRep.
@@ -44,7 +44,7 @@ func TestGenreUseCase_Create_Fail(t *testing.T) {
 	genreUseCase := NewGenreUsecase(genreRep)
 
 	genre := &models.Genre{
-		Name: "USA",
+		Name: "comedy",
 	}
 
 	genreRep.
@@ -65,7 +65,7 @@ func TestGenreUseCase_Update_OK(t *testing.T) {
 
 	genre := &models.Genre{
 		ID:   1,
-		Name: "USA",
+		Name: "comedy",
 	}
 
 	newGenreData := &models.Genre{
@@ -102,7 +102,7 @@ func TestGenreUseCase_Update_Fail(t *testing.T) {
 
 	genre := &models.Genre{
 		ID:   1,
-		Name: "USA",
+		Name: "comedy",
 	}
 
 	newGenreData := &models.Genre{
@@ -134,7 +134,7 @@ func TestGenreUseCase_Delete_OK(t *testing.T) {
 
 	genre := &models.Genre{
 		ID:   1,
-		Name: "USA",
+		Name: "comedy",
 	}
 
 	genreRep.
@@ -160,7 +160,7 @@ func TestGenreUseCase_Delete_Fail(t *testing.T) {
 
 	genre := &models.Genre{
 		ID:   1,
-		Name: "USA",
+		Name: "comedy",
 	}
 
 	genreRep.
@@ -181,7 +181,7 @@ func TestGenreUseCase_GetByID_OK(t *testing.T) {
 
 	genre := &models.Genre{
 		ID:   1,
-		Name: "USA",
+		Name: "comedy",
 	}
 
 	genreRep.
@@ -203,7 +203,7 @@ func TestGenreUseCase_GetByID_Fail(t *testing.T) {
 
 	genre := &models.Genre{
 		ID:   1,
-		Name: "USA",
+		Name: "comedy",
 	}
 
 	genreRep.
@@ -225,7 +225,7 @@ func TestGenreUseCase_GetByName_OK(t *testing.T) {
 
 	genre := &models.Genre{
 		ID:   1,
-		Name: "USA",
+		Name: "comedy",
 	}
 
 	genreRep.
@@ -247,7 +247,7 @@ func TestGenreUseCase_GetByName_Fail(t *testing.T) {
 
 	genre := &models.Genre{
 		ID:   1,
-		Name: "USA",
+		Name: "comedy",
 	}
 
 	genreRep.
@@ -270,11 +270,11 @@ func TestGenreUseCase_List_OK(t *testing.T) {
 	genres := []*models.Genre{
 		&models.Genre{
 			ID:   1,
-			Name: "USA",
+			Name: "comedy",
 		},
 		&models.Genre{
 			ID:   2,
-			Name: "GB",
+			Name: "mult",
 		},
 	}
 
@@ -284,6 +284,41 @@ func TestGenreUseCase_List_OK(t *testing.T) {
 		Return(genres, nil)
 
 	dbGenres, err := genreUseCase.List()
+	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbGenres, genres)
+}
+
+func TestGenreUseCase_ListByID_OK(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	genreRep := mocks.NewMockGenreRepository(ctrl)
+	genreUseCase := NewGenreUsecase(genreRep)
+
+	genres := []*models.Genre{
+		&models.Genre{
+			ID:   1,
+			Name: "comedy",
+		},
+		&models.Genre{
+			ID:   2,
+			Name: "mult",
+		},
+	}
+
+	genresID := []uint64{1, 2}
+
+	genreRep.
+		EXPECT().
+		SelectByID(genresID[0]).
+		Return(genres[0], nil)
+
+	genreRep.
+		EXPECT().
+		SelectByID(genresID[1]).
+		Return(genres[1], nil)
+
+	dbGenres, err := genreUseCase.ListByID(genresID)
 	assert.Equal(t, err, (*errors.Error)(nil))
 	assert.Equal(t, dbGenres, genres)
 }

@@ -126,3 +126,38 @@ func TestActorUseCase_Update_OK(t *testing.T) {
 	err := actorUseCase.Change(actor)
 	assert.Equal(t, err, (*errors.Error)(nil))
 }
+
+func TestActorUseCase_ListByID_OK(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	actorRep := mocks.NewMockActorRepository(ctrl)
+	actorUseCase := NewActorUseCase(actorRep)
+
+	actors := []*models.Actor{
+		&models.Actor{
+			ID:   1,
+			Name: "Margo Robbie",
+		},
+		&models.Actor{
+			ID:   2,
+			Name: "No Margo Robbie",
+		},
+	}
+
+	actorsID := []uint64{1, 2}
+
+	actorRep.
+		EXPECT().
+		SelectById(gomock.Eq(actorsID[0])).
+		Return(actors[0], nil)
+
+	actorRep.
+		EXPECT().
+		SelectById(gomock.Eq(actorsID[1])).
+		Return(actors[1], nil)
+
+	dbActors, err := actorUseCase.ListByID(actorsID)
+	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbActors, actors)
+}

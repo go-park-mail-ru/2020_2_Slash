@@ -12,4 +12,5 @@ type CountryUsecase interface {
 	GetByID(countryID uint64) (*models.Country, *errors.Error)
 	GetByName(name string) (*models.Country, *errors.Error)
 	List() ([]*models.Country, *errors.Error)
+	ListByID(countriesID []uint64) ([]*models.Country, *errors.Error)
 }

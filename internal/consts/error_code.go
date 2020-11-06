@@ -20,4 +20,7 @@ const (
 	CodeGenreDoesNotExist
 	CodeCountryNameAlreadyExists
 	CodeCountryDoesNotExist
+	CodeContentDoesNotExist
+	CodeMovieContentAlreadyExists
+	CodeMovieDoesNotExist
 )

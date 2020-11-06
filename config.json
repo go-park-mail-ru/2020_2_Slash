@@ -10,5 +10,7 @@
     "host": "localhost",
     "port": 8000
   },
-  "avatars": "avatars"
+  "avatars": "avatars",
+  "posters": "images",
+  "videos": "videos"
 }

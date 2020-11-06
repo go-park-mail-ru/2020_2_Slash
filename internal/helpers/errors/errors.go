@@ -132,4 +132,22 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "country does not exist",
 		UserMessage: "Такой страны не существует",
 	},
+	CodeContentDoesNotExist: {
+		Code:        CodeContentDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "content does not exist",
+		UserMessage: "Такого контента не существует",
+	},
+	CodeMovieContentAlreadyExists: {
+		Code:        CodeMovieContentAlreadyExists,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "movie with this content already exists",
+		UserMessage: "Данный контент фильма уже существует",
+	},
+	CodeMovieDoesNotExist: {
+		Code:        CodeMovieDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "movie does not exist",
+		UserMessage: "Такого фильма не существует",
+	},
 }

@@ -156,3 +156,9 @@ Temporary Items
 
 # Avatars storage directory
 avatars/
+
+# Posters storage directory
+images/
+
+# Videos storage directory
+videos/

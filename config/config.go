@@ -19,6 +19,8 @@ type Config struct {
 		Port int    `json:"port"`
 	} `json:"server"`
 	AvatarsDir string `json:"avatars"`
+	PostersDir string `json:"posters"`
+	VideosDir  string `json:"videos"`
 }
 
 func (c *Config) GetDbConnString() string {
@@ -32,6 +34,14 @@ func (c *Config) GetServerConnString() string {
 
 func (c *Config) GetAvatarsPath() string {
 	return fmt.Sprintf("./%s", c.AvatarsDir)
+}
+
+func (c *Config) GetPostersPath() string {
+	return fmt.Sprintf("./%s", c.PostersDir)
+}
+
+func (c *Config) GetVideosPath() string {
+	return fmt.Sprintf("./%s", c.VideosDir)
 }
 
 func LoadConfig(name string) (*Config, error) {
