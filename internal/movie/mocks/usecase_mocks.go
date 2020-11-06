@@ -135,3 +135,18 @@ func (mr *MockMovieUsecaseMockRecorder) GetByContentID(contentID interface{}) *g
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByContentID", reflect.TypeOf((*MockMovieUsecase)(nil).GetByContentID), contentID)
 }
+
+// ListByGenre mocks base method
+func (m *MockMovieUsecase) ListByGenre(genreID uint64) ([]*models.Movie, *errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListByGenre", genreID)
+	ret0, _ := ret[0].([]*models.Movie)
+	ret1, _ := ret[1].(*errors.Error)
+	return ret0, ret1
+}
+
+// ListByGenre indicates an expected call of ListByGenre
+func (mr *MockMovieUsecaseMockRecorder) ListByGenre(genreID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByGenre", reflect.TypeOf((*MockMovieUsecase)(nil).ListByGenre), genreID)
+}

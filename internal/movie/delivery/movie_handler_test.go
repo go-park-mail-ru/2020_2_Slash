@@ -583,3 +583,67 @@ func TestMovieHandler_UpdateMovieVideoHandler(t *testing.T) {
 		assert.JSONEq(t, expResBody.String(), string(bytes))
 	}
 }
+
+func TestMovieHandler_GetMovieListByGenreHandler(t *testing.T) {
+	t.Parallel()
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	movieUseCase := movieMocks.NewMockMovieUsecase(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	countryUseCase := countryMocks.NewMockCountryUsecase(ctrl)
+	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
+	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
+	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
+
+	genre := &models.Genre{
+		ID:   1,
+		Name: "comedy",
+	}
+
+	e := echo.New()
+	genreID := strconv.Itoa(1)
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/movies?genre="+genreID, strings.NewReader(""))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamValues(genreID)
+
+	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
+	handleFunc := movieHandler.GetMovieListByGenreHandler()
+	movieHandler.Configure(e, nil)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	movies := []*models.Movie{
+		&models.Movie{
+			Content: *content[0],
+		},
+	}
+
+	movieUseCase.
+		EXPECT().
+		ListByGenre(genre.ID).
+		Return(movies, nil)
+
+	response := &response.Response{Body: &response.Body{"movies": movies}}
+
+	// Assertions
+	if assert.NoError(t, handleFunc(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+
+		expResBody, err := converter.AnyToBytesBuffer(response)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		bytes, _ := ioutil.ReadAll(rec.Body)
+
+		assert.JSONEq(t, expResBody.String(), string(bytes))
+	}
+}
