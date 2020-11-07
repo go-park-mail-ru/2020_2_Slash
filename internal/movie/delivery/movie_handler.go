@@ -54,6 +54,7 @@ func (mh *MovieHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.PUT("/api/v1/movies/:mid/poster", mh.UpdateMoviePostersHandler(), middleware.BodyLimit("10M"))
 	e.PUT("/api/v1/movies/:mid/video", mh.UpdateMovieVideoHandler(), middleware.BodyLimit("1000M"))
 	e.GET("/api/v1/movies", mh.GetMoviesHandler())
+	e.GET("/api/v1/movies/latest", mh.GetLatestMoviesHandler())
 }
 
 func (mh *MovieHandler) CreateMovieHandler() echo.HandlerFunc {
@@ -399,14 +400,45 @@ func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 }
 
 func (mh *MovieHandler) GetMoviesHandler() echo.HandlerFunc {
+	type Request struct {
+		models.ContentFilter
+		models.Pagination
+	}
+
 	return func(cntx echo.Context) error {
-		params := &models.ContentFilter{}
-		if err := reader.NewRequestReader(cntx).Read(params); err != nil {
+		req := &Request{}
+		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
 			logrus.Info(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		movies, err := mh.movieUcase.ListByParams(params)
+		movies, err := mh.movieUcase.ListByParams(&req.ContentFilter, &req.Pagination)
+		if err != nil {
+			logrus.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"movies": movies,
+			},
+		})
+	}
+}
+
+func (mh *MovieHandler) GetLatestMoviesHandler() echo.HandlerFunc {
+	type Request struct {
+		models.Pagination
+	}
+
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if customErr := reader.NewRequestReader(cntx).Read(req); customErr != nil {
+			logrus.Info(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		movies, err := mh.movieUcase.ListLatest(&req.Pagination)
 		if err != nil {
 			logrus.Info(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})

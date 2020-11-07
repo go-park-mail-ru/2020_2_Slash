@@ -171,14 +171,24 @@ func getWhereQueryByParams(values []interface{}, params *models.ContentFilter) (
 	return filtersQuery, values
 }
 
-func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter) ([]*models.Movie, error) {
+func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter, pgnt *models.Pagination) ([]*models.Movie, error) {
 	selectQuery := `SELECT m.id, m.video, c.id, c.name, c.original_name, c.description,
 		c.short_description, c.year, c.images, c.type
 		FROM content as c`
 
-	joinMovieQuery := "LEFT OUTER JOIN movies as m ON m.content_id=c.id"
-
 	var values []interface{}
+
+	joinMovieQuery := `LEFT OUTER JOIN movies as m ON m.content_id=c.id
+		LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
+		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id`
+	values = append(values, curUserID)
+
+	var pgntQuery string
+	if pgnt.Count != 0 {
+		pgntQuery = "ORDER BY m.id LIMIT $2 OFFSET $3"
+		values = append(values, pgnt.Count, pgnt.From)
+	}
+
 	filtersJoinQuery, values := getJoinFiltersByParams(values, params)
 	filtersWhereQuery, values := getWhereQueryByParams(values, params)
 
@@ -187,9 +197,63 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter) ([]*mo
 		filtersJoinQuery,
 		joinMovieQuery,
 		filtersWhereQuery,
+		pgntQuery,
 	}, " ")
 
 	rows, err := mr.dbConn.Query(resultQuery, values...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var movies []*models.Movie
+	for rows.Next() {
+		movie := &models.Movie{}
+		cnt := &models.Content{}
+
+		err := rows.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
+			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
+			&cnt.Year, &cnt.Images, &cnt.Type)
+		if err != nil {
+			return nil, err
+		}
+
+		movie.Content = *cnt
+		movies = append(movies, movie)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return movies, nil
+}
+
+func (mr *MoviePgRepository) SelectLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, error) {
+	var values []interface{}
+
+	selectQuery := `SELECT m.id, m.video, c.id, c.name, c.original_name, c.description, c.short_description,
+	c.year, c.images, c.type, r.likes,
+	CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
+	FROM content AS c
+	LEFT OUTER JOIN movies as m ON m.content_id=c.id
+	LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
+	LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id
+	ORDER BY c.year DESC`
+	values = append(values, curUserID)
+
+	var pgntQuery string
+	if pgnt.Count != 0 {
+		pgntQuery = "LIMIT $2 OFFSET $3"
+		values = append(values, pgnt.Count, pgnt.From)
+	}
+
+	resultQuery := strings.Join([]string{
+		selectQuery,
+		pgntQuery,
+	}, " ")
+
+	rows, err := mr.dbConn.Query(resultQuery, values...)
+
 	if err != nil {
 		return nil, err
 	}

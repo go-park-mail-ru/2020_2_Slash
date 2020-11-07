@@ -25,6 +25,11 @@ CREATE TABLE IF NOT EXISTS sessions (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+DO $$ BEGIN
+    CREATE TYPE content_type AS ENUM ('movie', 'twshow');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- Content
 CREATE TABLE IF NOT EXISTS content (
@@ -35,7 +40,7 @@ CREATE TABLE IF NOT EXISTS content (
     short_description text NOT NULL,
     year smallint NOT NULL, -- если сериал, то год выхода 1 сезона
     images varchar(128) NOT NULL, -- путь к папке с постерами (/images/witcher), в которой лежит small.png и large.png
-    type varchar(16) NOT NULL -- movie, tvshow
+    type content_type NOT NULL -- movie, tvshow
 
     -- TODO трейлер позже решить
 );

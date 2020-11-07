@@ -130,10 +130,24 @@ func (mu *MovieUsecase) GetByContentID(contentID uint64) (*models.Movie, *errors
 	return movie, nil
 }
 
-func (mu *MovieUsecase) ListByParams(params *models.ContentFilter) ([]*models.Movie, *errors.Error) {
-	movies, err := mu.movieRepo.SelectByParams(params)
+func (mu *MovieUsecase) ListByParams(params *models.ContentFilter, pgnt *models.Pagination) ([]*models.Movie, *errors.Error) {
+	movies, err := mu.movieRepo.SelectByParams(params, pgnt)
 	if err != nil {
 		return nil, errors.New(CodeInternalError, err)
+	}
+	if len(movies) == 0 {
+		return []*models.Movie{}, nil
+	}
+	return movies, nil
+}
+
+func (mu *MovieUsecase) ListLatest(pgnt *models.Pagination) ([]*models.Movie, *errors.Error) {
+	movies, err := mu.movieRepo.SelectLatest(pgnt)
+	if err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+	if len(movies) == 0 {
+		return []*models.Movie{}, nil
 	}
 	return movies, nil
 }

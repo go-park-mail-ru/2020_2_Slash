@@ -9,7 +9,7 @@ type Content struct {
 	Year             int         `json:"year"`
 	Images           string      `json:"images"`
 	Type             string      `json:"type"`
-	Countries        []*Country  `json:"counties"`
+	Countries        []*Country  `json:"countries"`
 	Genres           []*Genre    `json:"genres"`
 	Actors           []*Actor    `json:"actors"`
 	Directors        []*Director `json:"directors"`
