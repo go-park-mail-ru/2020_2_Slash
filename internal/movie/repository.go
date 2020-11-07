@@ -10,5 +10,5 @@ type MovieRepository interface {
 	DeleteByID(movieID uint64) error
 	SelectByID(movieID uint64) (*models.Movie, error)
 	SelectByContentID(contentID uint64) (*models.Movie, error)
-	SelectByGenre(genreID uint64) ([]*models.Movie, error)
+	SelectByParams(params *models.ContentFilter) ([]*models.Movie, error)
 }

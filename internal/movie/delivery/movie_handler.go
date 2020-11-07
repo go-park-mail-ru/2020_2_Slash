@@ -53,7 +53,7 @@ func (mh *MovieHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.GET("/api/v1/movies/:mid", mh.GetMovieHandler())
 	e.PUT("/api/v1/movies/:mid/poster", mh.UpdateMoviePostersHandler(), middleware.BodyLimit("10M"))
 	e.PUT("/api/v1/movies/:mid/video", mh.UpdateMovieVideoHandler(), middleware.BodyLimit("1000M"))
-	e.GET("/api/v1/movies/", mh.GetMovieListByGenreHandler())
+	e.GET("/api/v1/movies", mh.GetMoviesHandler())
 }
 
 func (mh *MovieHandler) CreateMovieHandler() echo.HandlerFunc {
@@ -398,11 +398,15 @@ func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 	}
 }
 
-func (mh *MovieHandler) GetMovieListByGenreHandler() echo.HandlerFunc {
+func (mh *MovieHandler) GetMoviesHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		genre, _ := strconv.ParseUint(cntx.QueryParam("genre"), 10, 64)
+		params := &models.ContentFilter{}
+		if err := reader.NewRequestReader(cntx).Read(params); err != nil {
+			logrus.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
 
-		movies, err := mh.movieUcase.ListByGenre(genre)
+		movies, err := mh.movieUcase.ListByParams(params)
 		if err != nil {
 			logrus.Info(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
