@@ -16,4 +16,5 @@ type MovieUsecase interface {
 	ListByParams(params *models.ContentFilter, pgnt *models.Pagination,
 		curUserID uint64) ([]*models.Movie, *errors.Error)
 	ListLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, *errors.Error)
+	ListByRating(pagination *models.Pagination, userID uint64) ([]*models.Movie, *errors.Error)
 }

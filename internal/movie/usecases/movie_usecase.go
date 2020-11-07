@@ -160,3 +160,16 @@ func (mu *MovieUsecase) checkByContentID(contentID uint64) *errors.Error {
 	_, err := mu.GetByContentID(contentID)
 	return err
 }
+
+func (mu *MovieUsecase) ListByRating(pagination *models.Pagination, userID uint64) ([]*models.Movie, *errors.Error) {
+	movies, err := mu.movieRepo.SelectByRating(userID, pagination.Count, pagination.From)
+	if err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+
+	if len(movies) == 0 {
+		return []*models.Movie{}, nil
+	}
+
+	return movies, nil
+}

@@ -310,3 +310,56 @@ func (mr *MoviePgRepository) SelectLatest(pgnt *models.Pagination, curUserID uin
 	}
 	return movies, nil
 }
+
+func (mr *MoviePgRepository) SelectByRating(userID uint64, limit uint64, offset uint64) ([]*models.Movie, error) {
+	var values []interface{}
+	selectQuery := `
+		SELECT m.id, m.video, c.id, c.name, c.original_name,
+		c.description, c.short_description,
+		c.rating, c.year, c.images, c.type, r.likes,
+		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
+		FROM content AS c
+		LEFT OUTER JOIN movies as m ON m.content_id=c.id
+		LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
+		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id
+		ORDER BY c.rating DESC`
+	values = append(values, userID)
+
+	var pgntQuery string
+	if limit != 0 {
+		pgntQuery = "LIMIT $2 OFFSET $3"
+		values = append(values, limit, offset)
+	}
+
+	resultQuery := strings.Join([]string{
+		selectQuery,
+		pgntQuery,
+	}, " ")
+
+	rows, err := mr.dbConn.Query(resultQuery, values...)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var movies []*models.Movie
+	for rows.Next() {
+		movie := &models.Movie{}
+		cnt := &models.Content{}
+
+		err := rows.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
+			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
+			&cnt.Rating, &cnt.Year, &cnt.Images, &cnt.Type,
+			&cnt.IsLiked, &cnt.IsFavourite)
+		if err != nil {
+			return nil, err
+		}
+		movie.Content = *cnt
+		movies = append(movies, movie)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return movies, nil
+}
