@@ -290,3 +290,29 @@ func TestMovieUseCase_GetByContentID_Fail(t *testing.T) {
 	assert.Equal(t, err, errors.Get(consts.CodeMovieDoesNotExist))
 	assert.Equal(t, dbMovie, (*models.Movie)(nil))
 }
+
+func TestMovieUseCase_ListByGenre_OK(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	movieRep := mocks.NewMockMovieRepository(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+
+	genre := &models.Genre{
+		Name: "comedy",
+	}
+
+	movies := []*models.Movie{}
+	movies = append(movies, movie_inst)
+
+	movieRep.
+		EXPECT().
+		SelectByGenre(gomock.Eq(genre.ID)).
+		Return(movies, nil)
+
+	dbMovie, err := movieUseCase.ListByGenre(genre.ID)
+	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbMovie, movies)
+}

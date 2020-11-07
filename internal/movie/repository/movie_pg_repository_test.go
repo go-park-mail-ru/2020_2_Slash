@@ -196,3 +196,39 @@ func TestMoviePgRepository_SelectById_NoMovieWithThisContentID(t *testing.T) {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
+
+func TestMoviePgRepository_SelectByGenre_OK(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	moviePgRep := NewMoviePgRepository(db)
+
+	genre := &models.Genre{
+		Name: "comedy",
+	}
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	movies := []*models.Movie{
+		&models.Movie{
+			Content: *content[0],
+		},
+	}
+
+	mocks.MockMovieRepoSelectByGenreReturnRows(mock, genre.ID, movies)
+	dbMovies, err := moviePgRep.SelectByGenre(genre.ID)
+	assert.Equal(t, movies, dbMovies)
+	assert.NoError(t, err)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}

@@ -12,6 +12,7 @@ type ContentUsecase interface {
 	DeleteByID(contentID uint64) *errors.Error
 	GetByID(contentID uint64) (*models.Content, *errors.Error)
 	GetFullByID(contentID uint64) (*models.Content, *errors.Error)
+	FillContent(content *models.Content) *errors.Error
 	GetCountriesByID(contentID uint64) ([]*models.Country, *errors.Error)
 	GetGenresByID(contentID uint64) ([]*models.Genre, *errors.Error)
 	GetActorsByID(contentID uint64) ([]*models.Actor, *errors.Error)

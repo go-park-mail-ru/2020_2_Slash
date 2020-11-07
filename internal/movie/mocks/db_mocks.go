@@ -67,3 +67,13 @@ func MockMovieRepoSelectByContentIDReturnRows(mock sqlmock.Sqlmock, id uint64, m
 func MockMovieRepoSelectByContentIDReturnErrNoRows(mock sqlmock.Sqlmock, movie *models.Movie) {
 	mock.ExpectQuery(`SELECT`).WithArgs(movie.ContentID).WillReturnError(sql.ErrNoRows)
 }
+
+func MockMovieRepoSelectByGenreReturnRows(mock sqlmock.Sqlmock, genreID uint64, movies []*models.Movie) {
+	rows := sqlmock.NewRows([]string{"id", "video", "id", "name", "original_name",
+		"description", "short_description", "year", "images", "type"})
+	for _, movie := range movies {
+		rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name, movie.OriginalName, movie.Description,
+			movie.ShortDescription, movie.Year, movie.Images, movie.Type)
+	}
+	mock.ExpectQuery(`SELECT m.id, m.video, c.id`).WithArgs(genreID).WillReturnRows(rows)
+}

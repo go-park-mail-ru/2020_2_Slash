@@ -121,6 +121,20 @@ func (mr *MockContentUsecaseMockRecorder) GetFullByID(contentID interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFullByID", reflect.TypeOf((*MockContentUsecase)(nil).GetFullByID), contentID)
 }
 
+// FillContent mocks base method
+func (m *MockContentUsecase) FillContent(content *models.Content) *errors.Error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FillContent", content)
+	ret0, _ := ret[0].(*errors.Error)
+	return ret0
+}
+
+// FillContent indicates an expected call of FillContent
+func (mr *MockContentUsecaseMockRecorder) FillContent(content interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FillContent", reflect.TypeOf((*MockContentUsecase)(nil).FillContent), content)
+}
+
 // GetCountriesByID mocks base method
 func (m *MockContentUsecase) GetCountriesByID(contentID uint64) ([]*models.Country, *errors.Error) {
 	m.ctrl.T.Helper()

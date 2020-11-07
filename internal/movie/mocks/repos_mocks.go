@@ -104,3 +104,18 @@ func (mr *MockMovieRepositoryMockRecorder) SelectByContentID(contentID interface
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectByContentID", reflect.TypeOf((*MockMovieRepository)(nil).SelectByContentID), contentID)
 }
+
+// SelectByGenre mocks base method
+func (m *MockMovieRepository) SelectByGenre(genreID uint64) ([]*models.Movie, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelectByGenre", genreID)
+	ret0, _ := ret[0].([]*models.Movie)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SelectByGenre indicates an expected call of SelectByGenre
+func (mr *MockMovieRepositoryMockRecorder) SelectByGenre(genreID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectByGenre", reflect.TypeOf((*MockMovieRepository)(nil).SelectByGenre), genreID)
+}

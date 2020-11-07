@@ -13,4 +13,5 @@ type MovieUsecase interface {
 	GetWithContentByID(movieID uint64) (*models.Movie, *errors.Error)
 	GetFullByID(movieID uint64) (*models.Movie, *errors.Error)
 	GetByContentID(contentID uint64) (*models.Movie, *errors.Error)
+	ListByGenre(genreID uint64) ([]*models.Movie, *errors.Error)
 }
