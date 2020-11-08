@@ -88,6 +88,9 @@ func (gu *GenreUsecase) List() ([]*models.Genre, *errors.Error) {
 	if err != nil {
 		return nil, errors.New(CodeInternalError, err)
 	}
+	if len(genres) == 0 {
+		return []*models.Genre{}, nil
+	}
 	return genres, nil
 }
 

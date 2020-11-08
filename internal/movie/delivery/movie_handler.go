@@ -50,10 +50,11 @@ func (mh *MovieHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/movies", mh.CreateMovieHandler())
 	e.PUT("/api/v1/movies/:mid", mh.UpdateMovieHandler())
 	e.DELETE("/api/v1/movies/:mid", mh.DeleteMovieHandler())
-	e.GET("/api/v1/movies/:mid", mh.GetMovieHandler())
+	e.GET("/api/v1/movies/:mid", mh.GetMovieHandler(), mw.GetAuth)
 	e.PUT("/api/v1/movies/:mid/poster", mh.UpdateMoviePostersHandler(), middleware.BodyLimit("10M"))
 	e.PUT("/api/v1/movies/:mid/video", mh.UpdateMovieVideoHandler(), middleware.BodyLimit("1000M"))
-	e.GET("/api/v1/movies/", mh.GetMovieListByGenreHandler())
+	e.GET("/api/v1/movies", mh.GetMoviesHandler(), mw.GetAuth)
+	e.GET("/api/v1/movies/latest", mh.GetLatestMoviesHandler(), mw.GetAuth)
 }
 
 func (mh *MovieHandler) CreateMovieHandler() echo.HandlerFunc {
@@ -241,7 +242,8 @@ func (mh *MovieHandler) GetMovieHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
 
-		movie, err := mh.movieUcase.GetFullByID(movieID)
+		userID, _ := cntx.Get("userID").(uint64)
+		movie, err := mh.movieUcase.GetFullByID(movieID, userID)
 		if err != nil {
 			logrus.Info(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -398,11 +400,49 @@ func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 	}
 }
 
-func (mh *MovieHandler) GetMovieListByGenreHandler() echo.HandlerFunc {
-	return func(cntx echo.Context) error {
-		genre, _ := strconv.ParseUint(cntx.QueryParam("genre"), 10, 64)
+func (mh *MovieHandler) GetMoviesHandler() echo.HandlerFunc {
+	type Request struct {
+		models.ContentFilter
+		models.Pagination
+	}
 
-		movies, err := mh.movieUcase.ListByGenre(genre)
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
+			logrus.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		userID, _ := cntx.Get("userID").(uint64)
+		movies, err := mh.movieUcase.ListByParams(&req.ContentFilter,
+			&req.Pagination, userID)
+		if err != nil {
+			logrus.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"movies": movies,
+			},
+		})
+	}
+}
+
+func (mh *MovieHandler) GetLatestMoviesHandler() echo.HandlerFunc {
+	type Request struct {
+		models.Pagination
+	}
+
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if customErr := reader.NewRequestReader(cntx).Read(req); customErr != nil {
+			logrus.Info(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		userID, _ := cntx.Get("userID").(uint64)
+		movies, err := mh.movieUcase.ListLatest(&req.Pagination, userID)
 		if err != nil {
 			logrus.Info(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})

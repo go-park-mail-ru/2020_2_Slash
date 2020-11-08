@@ -88,6 +88,9 @@ func (cu *CountryUsecase) List() ([]*models.Country, *errors.Error) {
 	if err != nil {
 		return nil, errors.New(CodeInternalError, err)
 	}
+	if len(countries) == 0 {
+		return []*models.Country{}, nil
+	}
 	return countries, nil
 }
 

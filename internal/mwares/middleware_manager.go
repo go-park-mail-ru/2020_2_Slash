@@ -100,3 +100,21 @@ func (mw *MiddlewareManager) CheckAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		return next(cntx)
 	}
 }
+
+func (mw *MiddlewareManager) GetAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(cntx echo.Context) error {
+		cookie, err := cntx.Cookie(SessionName)
+		if err != nil {
+			return next(cntx)
+		}
+
+		sess, customErr := mw.sessUcase.Check(cookie.Value)
+		if customErr != nil {
+			return next(cntx)
+		}
+
+		cntx.Set("sessValue", sess.Value)
+		cntx.Set("userID", sess.UserID)
+		return next(cntx)
+	}
+}
