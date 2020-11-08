@@ -55,6 +55,7 @@ func (mh *MovieHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.PUT("/api/v1/movies/:mid/video", mh.UpdateMovieVideoHandler(), middleware.BodyLimit("1000M"))
 	e.GET("/api/v1/movies", mh.GetMoviesHandler(), mw.GetAuth)
 	e.GET("/api/v1/movies/latest", mh.GetLatestMoviesHandler(), mw.GetAuth)
+	e.GET("/api/v1/movies/top", mh.GetTopMovieListHandler(), mw.GetAuth)
 }
 
 func (mh *MovieHandler) CreateMovieHandler() echo.HandlerFunc {
@@ -443,6 +444,33 @@ func (mh *MovieHandler) GetLatestMoviesHandler() echo.HandlerFunc {
 
 		userID, _ := cntx.Get("userID").(uint64)
 		movies, err := mh.movieUcase.ListLatest(&req.Pagination, userID)
+		if err != nil {
+			logrus.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"movies": movies,
+			},
+		})
+	}
+}
+
+func (mh *MovieHandler) GetTopMovieListHandler() echo.HandlerFunc {
+	type Request struct {
+		models.Pagination
+	}
+
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if customErr := reader.NewRequestReader(cntx).Read(req); customErr != nil {
+			logrus.Info(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		userID, _ := cntx.Get("userID").(uint64)
+		movies, err := mh.movieUcase.ListByRating(&req.Pagination, userID)
 		if err != nil {
 			logrus.Info(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})

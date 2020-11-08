@@ -34,7 +34,7 @@ func (fh *FavouriteHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager
 
 func (fh *FavouriteHandler) CreateHandler() echo.HandlerFunc {
 	type Request struct {
-		ContentID uint64 `json:"content_id"`
+		ContentID uint64 `json:"content_id" validate:"required"`
 	}
 
 	return func(cntx echo.Context) error {
@@ -102,10 +102,20 @@ func (fh *FavouriteHandler) DeleteHandler() echo.HandlerFunc {
 }
 
 func (fh *FavouriteHandler) GetFavouritesHandler() echo.HandlerFunc {
+	type Request struct {
+		models.Pagination
+	}
+
 	return func(cntx echo.Context) error {
+		req := &Request{}
+		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
+			logrus.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
 		userID := cntx.Get("userID").(uint64)
 
-		favourites, customErr := fh.favouriteUseCase.GetUserFavourites(userID)
+		favouriteMovies, customErr := fh.favouriteUseCase.GetUserFavouriteMovies(userID, &req.Pagination)
 		if customErr != nil {
 			logrus.Info(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
@@ -113,7 +123,7 @@ func (fh *FavouriteHandler) GetFavouritesHandler() echo.HandlerFunc {
 
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
-				"favourites": favourites,
+				"favourites": favouriteMovies,
 			},
 		})
 	}

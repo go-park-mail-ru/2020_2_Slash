@@ -1,5 +1,7 @@
 DROP TRIGGER IF EXISTS seasons_inc on seasons;
 DROP TRIGGER IF EXISTS episodes_inc on episodes;
+DROP TRIGGER IF EXISTS rating_ins_upd on rates;
+DROP TRIGGER IF EXISTS rating_del on rates;
 DROP TABLE IF EXISTS
     users, sessions, content, directors, content_director, actors, content_actor,
     genres, content_genre, countries, content_country, movies, tv_shows, seasons,
@@ -38,6 +40,7 @@ CREATE TABLE IF NOT EXISTS content (
     original_name varchar(128) NOT NULL,
     description text NOT NULL,
     short_description text NOT NULL,
+    rating int DEFAULT 0, -- триггер на каждый лайк/дизлайк
     year smallint NOT NULL, -- если сериал, то год выхода 1 сезона
     images varchar(128) NOT NULL, -- путь к папке с постерами (/images/witcher), в которой лежит small.png и large.png
     type content_type NOT NULL -- movie, tvshow
@@ -71,7 +74,6 @@ CREATE TABLE IF NOT EXISTS actors (
 CREATE TABLE IF NOT EXISTS content_actor (
     content_id int NOT NULL,
     actor_id int NOT NULL,
-    
     PRIMARY KEY(content_id, actor_id),
     FOREIGN KEY (content_id) REFERENCES content(id) ON DELETE CASCADE,
     FOREIGN KEY (actor_id) REFERENCES actors(id) ON DELETE CASCADE
@@ -175,6 +177,58 @@ CREATE TABLE IF NOT EXISTS favourites (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (content_id) REFERENCES content(id) ON DELETE CASCADE
 );
+
+CREATE OR REPLACE FUNCTION rating_ins_upd() RETURNS trigger AS $$
+    DECLARE
+        value int;
+    BEGIN
+        IF TG_OP = 'UPDATE' THEN
+            value := 2;
+        ELSE
+            value := 1;
+        END IF;
+
+        IF NEW.likes = TRUE THEN
+            UPDATE content
+            SET rating = rating + value
+            WHERE id=NEW.content_id;
+        ELSE
+            UPDATE content
+            SET rating = rating - value
+            WHERE id=NEW.content_id;
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION rating_del() RETURNS trigger AS $$
+    DECLARE
+        var_likes boolean;
+    BEGIN
+        SELECT likes
+        FROM rates
+        WHERE content_id=OLD.content_id
+        AND user_id=OLD.user_id
+        INTO STRICT var_likes;
+
+        IF var_likes = TRUE THEN
+            UPDATE content
+            SET rating = rating - 1
+            WHERE id=OLD.content_id;
+        ELSE
+            UPDATE content
+            SET rating = rating + 1
+            WHERE id=OLD.content_id;
+        END IF;
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER rating_ins_upd AFTER INSERT OR UPDATE ON rates
+    FOR EACH ROW EXECUTE PROCEDURE rating_ins_upd();
+CREATE TRIGGER rating_del BEFORE DELETE ON rates
+    FOR EACH ROW EXECUTE PROCEDURE rating_del();
 
 
 -- Triger for increment seasons number in tw_show

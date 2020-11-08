@@ -6,6 +6,7 @@ type Content struct {
 	OriginalName     string      `json:"original_name"`
 	Description      string      `json:"description"`
 	ShortDescription string      `json:"short_description"`
+	Rating           int         `json:"rating"`
 	Year             int         `json:"year"`
 	Images           string      `json:"images"`
 	Type             string      `json:"type"`

@@ -47,12 +47,15 @@ func (uc *RatingUsecase) Change(rating *models.Rating) *errors.Error {
 		return customErr
 	}
 
-	isExist, customErr := uc.isExist(rating)
+	dbRating, customErr := uc.GetByUserIDContentID(rating.UserID, rating.ContentID)
 	if customErr != nil {
 		return customErr
 	}
-	if !isExist {
+
+	if dbRating == nil {
 		return errors.Get(consts.CodeRatingDoesNotExist)
+	} else if dbRating.Likes == rating.Likes {
+		return errors.Get(consts.CodeRatingAlreadyExist)
 	}
 
 	err := uc.rep.Update(rating)
