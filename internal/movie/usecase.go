@@ -11,8 +11,9 @@ type MovieUsecase interface {
 	DeleteByID(movieID uint64) *errors.Error
 	GetByID(movieID uint64) (*models.Movie, *errors.Error)
 	GetWithContentByID(movieID uint64) (*models.Movie, *errors.Error)
-	GetFullByID(movieID uint64) (*models.Movie, *errors.Error)
+	GetFullByID(movieID uint64, curUserID uint64) (*models.Movie, *errors.Error)
 	GetByContentID(contentID uint64) (*models.Movie, *errors.Error)
-	ListByParams(params *models.ContentFilter, pgnt *models.Pagination) ([]*models.Movie, *errors.Error)
-	ListLatest(pgnt *models.Pagination) ([]*models.Movie, *errors.Error)
+	ListByParams(params *models.ContentFilter, pgnt *models.Pagination,
+		curUserID uint64) ([]*models.Movie, *errors.Error)
+	ListLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, *errors.Error)
 }

@@ -9,7 +9,9 @@ type MovieRepository interface {
 	Update(movie *models.Movie) error
 	DeleteByID(movieID uint64) error
 	SelectByID(movieID uint64) (*models.Movie, error)
+	SelectFullByID(movieID uint64, curUserID uint64) (*models.Movie, error)
 	SelectByContentID(contentID uint64) (*models.Movie, error)
-	SelectByParams(params *models.ContentFilter, pgnt *models.Pagination) ([]*models.Movie, error)
-	SelectLatest(pgnt *models.Pagination) ([]*models.Movie, error)
+	SelectByParams(params *models.ContentFilter, pgnt *models.Pagination,
+		curUserID uint64) ([]*models.Movie, error)
+	SelectLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, error)
 }

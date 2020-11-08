@@ -13,6 +13,8 @@ type Content struct {
 	Genres           []*Genre    `json:"genres"`
 	Actors           []*Actor    `json:"actors"`
 	Directors        []*Director `json:"directors"`
+	IsLiked          *bool       `json:"is_liked,omitempty"`
+	IsFavourite      *bool       `json:"is_favourite"`
 }
 
 func (c *Content) ReplaceBy(other *Content) {

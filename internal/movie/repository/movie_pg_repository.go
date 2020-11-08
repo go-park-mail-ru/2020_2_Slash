@@ -88,6 +88,7 @@ func (mr *MoviePgRepository) DeleteByID(movieID uint64) error {
 
 func (mr *MoviePgRepository) SelectByID(movieID uint64) (*models.Movie, error) {
 	movie := &models.Movie{}
+
 	row := mr.dbConn.QueryRow(
 		`SELECT id, video, content_id
 		FROM movies
@@ -97,6 +98,32 @@ func (mr *MoviePgRepository) SelectByID(movieID uint64) (*models.Movie, error) {
 	if err := row.Scan(&movie.ID, &movie.Video, &movie.ContentID); err != nil {
 		return nil, err
 	}
+	return movie, nil
+}
+
+func (mr *MoviePgRepository) SelectFullByID(movieID uint64, curUserID uint64) (*models.Movie, error) {
+	movie := &models.Movie{}
+	cnt := &models.Content{}
+
+	row := mr.dbConn.QueryRow(
+		`SELECT m.id, m.video, c.id, c.name, c.original_name, c.description, c.short_description,
+		c.year, c.images, c.type, r.likes,
+		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
+		FROM content AS c
+		JOIN movies as m ON m.content_id=c.id AND m.id=$1
+		LEFT OUTER JOIN rates as r ON r.user_id=$2 AND r.content_id=c.id
+		LEFT OUTER JOIN favourites as f ON f.user_id=$2 AND f.content_id=c.id`,
+		movieID, curUserID)
+
+	err := row.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
+		&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
+		&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
+
+	if err != nil {
+		return nil, err
+	}
+
+	movie.Content = *cnt
 	return movie, nil
 }
 
@@ -171,9 +198,12 @@ func getWhereQueryByParams(values []interface{}, params *models.ContentFilter) (
 	return filtersQuery, values
 }
 
-func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter, pgnt *models.Pagination) ([]*models.Movie, error) {
+func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
+	pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, error) {
+
 	selectQuery := `SELECT m.id, m.video, c.id, c.name, c.original_name, c.description,
-		c.short_description, c.year, c.images, c.type
+		c.short_description, c.year, c.images, c.type, r.likes,
+		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content as c`
 
 	var values []interface{}
@@ -213,7 +243,7 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter, pgnt *
 
 		err := rows.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
 			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
-			&cnt.Year, &cnt.Images, &cnt.Type)
+			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err
 		}
@@ -266,7 +296,7 @@ func (mr *MoviePgRepository) SelectLatest(pgnt *models.Pagination, curUserID uin
 
 		err := rows.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
 			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
-			&cnt.Year, &cnt.Images, &cnt.Type)
+			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err
 		}

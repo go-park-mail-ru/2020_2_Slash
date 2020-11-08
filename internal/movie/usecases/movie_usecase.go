@@ -106,16 +106,18 @@ func (mu *MovieUsecase) GetWithContentByID(movieID uint64) (*models.Movie, *erro
 	return movie, nil
 }
 
-func (mu *MovieUsecase) GetFullByID(movieID uint64) (*models.Movie, *errors.Error) {
-	movie, err := mu.GetByID(movieID)
-	if err != nil {
-		return nil, err
+func (mu *MovieUsecase) GetFullByID(movieID uint64, curUserID uint64) (*models.Movie, *errors.Error) {
+	movie, err := mu.movieRepo.SelectFullByID(movieID, curUserID)
+	switch {
+	case err == sql.ErrNoRows:
+		return nil, errors.Get(CodeMovieDoesNotExist)
+	case err != nil:
+		return nil, errors.New(CodeInternalError, err)
 	}
-	content, err := mu.contentUcase.GetFullByID(movie.ContentID)
-	if err != nil {
-		return nil, err
+	customErr := mu.contentUcase.FillContent(&movie.Content)
+	if customErr != nil {
+		return nil, customErr
 	}
-	movie.Content = *content
 	return movie, nil
 }
 
@@ -130,8 +132,10 @@ func (mu *MovieUsecase) GetByContentID(contentID uint64) (*models.Movie, *errors
 	return movie, nil
 }
 
-func (mu *MovieUsecase) ListByParams(params *models.ContentFilter, pgnt *models.Pagination) ([]*models.Movie, *errors.Error) {
-	movies, err := mu.movieRepo.SelectByParams(params, pgnt)
+func (mu *MovieUsecase) ListByParams(params *models.ContentFilter, pgnt *models.Pagination,
+	curUserID uint64) ([]*models.Movie, *errors.Error) {
+
+	movies, err := mu.movieRepo.SelectByParams(params, pgnt, curUserID)
 	if err != nil {
 		return nil, errors.New(CodeInternalError, err)
 	}
@@ -141,8 +145,8 @@ func (mu *MovieUsecase) ListByParams(params *models.ContentFilter, pgnt *models.
 	return movies, nil
 }
 
-func (mu *MovieUsecase) ListLatest(pgnt *models.Pagination) ([]*models.Movie, *errors.Error) {
-	movies, err := mu.movieRepo.SelectLatest(pgnt)
+func (mu *MovieUsecase) ListLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, *errors.Error) {
+	movies, err := mu.movieRepo.SelectLatest(pgnt, curUserID)
 	if err != nil {
 		return nil, errors.New(CodeInternalError, err)
 	}

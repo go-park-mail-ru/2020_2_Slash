@@ -50,11 +50,11 @@ func (mh *MovieHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/movies", mh.CreateMovieHandler())
 	e.PUT("/api/v1/movies/:mid", mh.UpdateMovieHandler())
 	e.DELETE("/api/v1/movies/:mid", mh.DeleteMovieHandler())
-	e.GET("/api/v1/movies/:mid", mh.GetMovieHandler())
+	e.GET("/api/v1/movies/:mid", mh.GetMovieHandler(), mw.GetAuth)
 	e.PUT("/api/v1/movies/:mid/poster", mh.UpdateMoviePostersHandler(), middleware.BodyLimit("10M"))
 	e.PUT("/api/v1/movies/:mid/video", mh.UpdateMovieVideoHandler(), middleware.BodyLimit("1000M"))
-	e.GET("/api/v1/movies", mh.GetMoviesHandler())
-	e.GET("/api/v1/movies/latest", mh.GetLatestMoviesHandler())
+	e.GET("/api/v1/movies", mh.GetMoviesHandler(), mw.GetAuth)
+	e.GET("/api/v1/movies/latest", mh.GetLatestMoviesHandler(), mw.GetAuth)
 }
 
 func (mh *MovieHandler) CreateMovieHandler() echo.HandlerFunc {
@@ -242,7 +242,8 @@ func (mh *MovieHandler) GetMovieHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
 
-		movie, err := mh.movieUcase.GetFullByID(movieID)
+		userID, _ := cntx.Get("userID").(uint64)
+		movie, err := mh.movieUcase.GetFullByID(movieID, userID)
 		if err != nil {
 			logrus.Info(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -412,7 +413,9 @@ func (mh *MovieHandler) GetMoviesHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		movies, err := mh.movieUcase.ListByParams(&req.ContentFilter, &req.Pagination)
+		userID, _ := cntx.Get("userID").(uint64)
+		movies, err := mh.movieUcase.ListByParams(&req.ContentFilter,
+			&req.Pagination, userID)
 		if err != nil {
 			logrus.Info(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -438,7 +441,8 @@ func (mh *MovieHandler) GetLatestMoviesHandler() echo.HandlerFunc {
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
-		movies, err := mh.movieUcase.ListLatest(&req.Pagination)
+		userID, _ := cntx.Get("userID").(uint64)
+		movies, err := mh.movieUcase.ListLatest(&req.Pagination, userID)
 		if err != nil {
 			logrus.Info(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
