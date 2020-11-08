@@ -5,6 +5,6 @@ import "github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 type FavouriteRepository interface {
 	Insert(favourite *models.Favourite) error
 	Select(favourite *models.Favourite) error
-	SelectFavouriteContent(userID uint64) ([]*models.Content, error)
+	SelectFavouriteMovies(userID uint64, limit uint64, offset uint64) ([]*models.Movie, error)
 	Delete(favourite *models.Favourite) error
 }

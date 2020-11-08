@@ -37,19 +37,20 @@ func (uc *FavouriteUsecase) Create(favourite *models.Favourite) *errors.Error {
 	return nil
 }
 
-func (uc *FavouriteUsecase) GetUserFavourites(userID uint64) ([]*models.Content, *errors.Error) {
-	favourites, err := uc.favouriteRepo.SelectFavouriteContent(userID)
+func (uc *FavouriteUsecase) GetUserFavouriteMovies(userID uint64, pagination *models.Pagination) ([]*models.Movie, *errors.Error) {
+	favouriteMovies, err := uc.favouriteRepo.
+		SelectFavouriteMovies(userID, pagination.Count, pagination.From)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
 		return nil, errors.New(consts.CodeInternalError, err)
 	}
 
-	if len(favourites) == 0 {
-		return []*models.Content{}, nil
+	if len(favouriteMovies) == 0 {
+		return []*models.Movie{}, nil
 	}
 
-	return favourites, nil
+	return favouriteMovies, nil
 }
 
 func (uc *FavouriteUsecase) Delete(favourite *models.Favourite) *errors.Error {
