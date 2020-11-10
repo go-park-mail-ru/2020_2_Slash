@@ -31,7 +31,7 @@ func NewSessionHandler(sessUcase session.SessionUsecase,
 
 func (sh *SessionHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/session", sh.loginHandler())
-	e.DELETE("/api/v1/session", sh.logoutHandler())
+	e.DELETE("/api/v1/session", sh.logoutHandler(), mw.CheckAuth)
 }
 
 func (sh *SessionHandler) loginHandler() echo.HandlerFunc {
@@ -68,7 +68,7 @@ func (sh *SessionHandler) loginHandler() echo.HandlerFunc {
 		cntx.SetCookie(cookie)
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
-				"user": dbUser.Sanitize(),
+				"user": dbUser,
 			},
 		})
 	}

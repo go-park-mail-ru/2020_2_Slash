@@ -74,7 +74,7 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 		cntx.SetCookie(cookie)
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
-				"user": user.Sanitize(),
+				"user": user,
 			},
 		})
 	}
@@ -90,7 +90,7 @@ func (uh *UserHandler) getUserProfileHandler() echo.HandlerFunc {
 		}
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
-				"user": user.Sanitize(),
+				"user": user,
 			},
 		})
 	}
@@ -124,7 +124,7 @@ func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
 		}
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
-				"user": user.Sanitize(),
+				"user": user,
 			},
 		})
 	}
