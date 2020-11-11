@@ -9,6 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/config"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	sessionHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/session/delivery"
 	sessionRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/session/repository"
@@ -54,6 +55,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Logger
+	logger.InitLogger(config.GetLoggerDir(), config.GetLogLevel())
 
 	// Locale storage
 	avatarsPath := config.GetAvatarsPath()
@@ -129,6 +133,6 @@ func main() {
 	movieHandler.Configure(e, mw)
 	ratingHandler.Configure(e, mw)
 	favouriteHandler.Configure(e, mw)
-	
+
 	log.Fatal(e.Start(config.GetServerConnString()))
 }

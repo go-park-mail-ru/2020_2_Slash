@@ -12,5 +12,7 @@
   },
   "avatars": "avatars",
   "posters": "images",
-  "videos": "videos"
+  "videos": "videos",
+  "logger": "/var/log/slash/flicksbox.log",
+  "log_level": "INFO"
 }
