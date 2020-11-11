@@ -9,11 +9,11 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"os"
@@ -49,7 +49,7 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -61,13 +61,13 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 		}
 
 		if err := uh.userUcase.Create(user); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		sess := models.NewSession(user.ID)
 		if err := uh.sessUcase.Create(sess); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -86,7 +86,7 @@ func (uh *UserHandler) getUserProfileHandler() echo.HandlerFunc {
 		userID := cntx.Get("userID").(uint64)
 		user, err := uh.userUcase.GetByID(userID)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 		return cntx.JSON(http.StatusOK, Response{
@@ -107,7 +107,7 @@ func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -121,7 +121,7 @@ func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
 		userID := cntx.Get("userID").(uint64)
 		user, err := uh.userUcase.UpdateProfile(userID, userData)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 		return cntx.JSON(http.StatusOK, Response{
@@ -138,13 +138,13 @@ func (uh *UserHandler) updateAvatarHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		image, customErr := reader.NewRequestReader(cntx).ReadImage("avatar")
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		imageFile, err := image.Open()
 		if err != nil {
-			logrus.Info(err)
+			logger.Error(err)
 			customErr := errors.New(CodeBadRequest, err)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
@@ -152,7 +152,7 @@ func (uh *UserHandler) updateAvatarHandler() echo.HandlerFunc {
 
 		fileExtension, err := helpers.GetImageExtension(image)
 		if err != nil {
-			logrus.Info(err)
+			logger.Error(err)
 			customErr := errors.New(CodeBadRequest, err)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
@@ -166,7 +166,7 @@ func (uh *UserHandler) updateAvatarHandler() echo.HandlerFunc {
 		// Save image to storage
 		newAvatarFile, err := os.OpenFile(absNewAvatarFilePath, os.O_WRONLY|os.O_CREATE, os.FileMode(fileMode))
 		if err != nil {
-			logrus.Info(err)
+			logger.Error(err)
 			customErr := errors.New(CodeInternalError, err)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
@@ -174,14 +174,14 @@ func (uh *UserHandler) updateAvatarHandler() echo.HandlerFunc {
 
 		if _, err := io.Copy(newAvatarFile, imageFile); err != nil {
 			_ = os.Remove(absNewAvatarFilePath)
-			logrus.Info(err)
+			logger.Error(err)
 			customErr := errors.New(CodeInternalError, err)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		_, customErr = uh.userUcase.UpdateAvatar(userID, rltNewAvatarFilePath)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 

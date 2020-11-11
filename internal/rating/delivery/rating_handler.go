@@ -6,10 +6,10 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/rating"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 )
@@ -40,14 +40,14 @@ func (rh *RatingHandler) CreateHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		contentID, err := strconv.ParseUint(cntx.Param("cid"), 10, 64)
 		if err != nil {
 			customErr := errors.New(consts.CodeBadRequest, err)
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -60,7 +60,7 @@ func (rh *RatingHandler) CreateHandler() echo.HandlerFunc {
 
 		customErr := rh.ratingUseCase.Create(rating)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -79,7 +79,7 @@ func (rh *RatingHandler) DeleteHandler() echo.HandlerFunc {
 		contentID, err := strconv.ParseUint(cntx.Param("cid"), 10, 64)
 		if err != nil {
 			customErr := errors.New(consts.CodeBadRequest, err)
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -90,7 +90,7 @@ func (rh *RatingHandler) DeleteHandler() echo.HandlerFunc {
 
 		customErr := rh.ratingUseCase.Delete(rating)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -106,7 +106,7 @@ func (rh *RatingHandler) ChangeHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -114,7 +114,7 @@ func (rh *RatingHandler) ChangeHandler() echo.HandlerFunc {
 		contentID, err := strconv.ParseUint(cntx.Param("cid"), 10, 64)
 		if err != nil {
 			customErr := errors.New(consts.CodeBadRequest, err)
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 		rating := &models.Rating{
@@ -125,7 +125,7 @@ func (rh *RatingHandler) ChangeHandler() echo.HandlerFunc {
 
 		customErr := rh.ratingUseCase.Change(rating)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -143,13 +143,13 @@ func (rh *RatingHandler) GetHandler() echo.HandlerFunc {
 		contentID, err := strconv.ParseUint(cntx.Param("cid"), 10, 64)
 		if err != nil {
 			customErr := errors.New(consts.CodeBadRequest, err)
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		rating, customErr := rh.ratingUseCase.GetByUserIDContentID(userID, contentID)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -166,13 +166,13 @@ func (rh *RatingHandler) GetContentRatingHandler() echo.HandlerFunc {
 		contentID, err := strconv.ParseUint(cntx.Param("cid"), 10, 64)
 		if err != nil {
 			customErr := errors.New(consts.CodeBadRequest, err)
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		match, customErr := rh.ratingUseCase.GetContentRating(contentID)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 

@@ -4,7 +4,6 @@ go 1.13
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/go-playground/assert/v2 v2.0.1 // indirect
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/golang/mock v1.4.4
 	github.com/labstack/echo/v4 v4.1.17

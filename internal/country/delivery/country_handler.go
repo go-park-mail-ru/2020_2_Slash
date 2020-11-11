@@ -4,10 +4,10 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/country"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 )
@@ -37,7 +37,7 @@ func (ch *CountryHandler) CreateCountryHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -46,7 +46,7 @@ func (ch *CountryHandler) CreateCountryHandler() echo.HandlerFunc {
 		}
 
 		if err := ch.countryUcase.Create(country); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -66,7 +66,7 @@ func (ch *CountryHandler) UpdateCountryHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -77,7 +77,7 @@ func (ch *CountryHandler) UpdateCountryHandler() echo.HandlerFunc {
 		countryID, _ := strconv.ParseUint(cntx.Param("cid"), 10, 64)
 		country, err := ch.countryUcase.UpdateByID(countryID, countryData)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -94,7 +94,7 @@ func (ch *CountryHandler) DeleteCountryHandler() echo.HandlerFunc {
 		countryID, _ := strconv.ParseUint(cntx.Param("cid"), 10, 64)
 
 		if err := ch.countryUcase.DeleteByID(countryID); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -108,7 +108,7 @@ func (ch *CountryHandler) GetCountriesListHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		countries, err := ch.countryUcase.List()
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 

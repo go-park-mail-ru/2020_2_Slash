@@ -5,10 +5,10 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/favourite"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -40,13 +40,13 @@ func (fh *FavouriteHandler) CreateHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if customErr := reader.NewRequestReader(cntx).Read(req); customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		_, customErr := fh.contentUseCase.GetByID(req.ContentID)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -60,7 +60,7 @@ func (fh *FavouriteHandler) CreateHandler() echo.HandlerFunc {
 
 		customErr = fh.favouriteUseCase.Create(newFavourite)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -80,7 +80,7 @@ func (fh *FavouriteHandler) DeleteHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -93,7 +93,7 @@ func (fh *FavouriteHandler) DeleteHandler() echo.HandlerFunc {
 
 		customErr := fh.favouriteUseCase.Delete(newFavourite)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -109,7 +109,7 @@ func (fh *FavouriteHandler) GetFavouritesHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -117,7 +117,7 @@ func (fh *FavouriteHandler) GetFavouritesHandler() echo.HandlerFunc {
 
 		favouriteMovies, customErr := fh.favouriteUseCase.GetUserFavouriteMovies(userID, &req.Pagination)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 

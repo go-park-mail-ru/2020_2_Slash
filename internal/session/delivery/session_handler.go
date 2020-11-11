@@ -8,10 +8,10 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -43,24 +43,24 @@ func (sh *SessionHandler) loginHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		dbUser, err := sh.userUcase.GetByEmail(req.Email)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		if err := sh.userUcase.CheckPassword(dbUser, req.Password); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		sess := models.NewSession(dbUser.ID)
 		if err = sh.sessUcase.Create(sess); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -80,13 +80,13 @@ func (sh *SessionHandler) logoutHandler() echo.HandlerFunc {
 
 		if hasCookie == http.ErrNoCookie {
 			err := errors.Get(CodeUserUnauthorized)
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		err := sh.sessUcase.Delete(session.Value)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 		SetOverdueCookie(cntx, session)

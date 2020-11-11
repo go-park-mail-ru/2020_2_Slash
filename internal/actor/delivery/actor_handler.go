@@ -6,10 +6,10 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 )
@@ -39,7 +39,7 @@ func (ah *ActorHandler) CreateActorHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -48,7 +48,7 @@ func (ah *ActorHandler) CreateActorHandler() echo.HandlerFunc {
 		}
 		err := ah.actorUseCase.Create(actor)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -69,13 +69,13 @@ func (ah *ActorHandler) ChangeActorHandler() echo.HandlerFunc {
 		id, err := strconv.ParseUint(cntx.Param("id"), 10, 64)
 		if err != nil {
 			customErr := errors.New(consts.CodeBadRequest, err)
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		req := &Request{}
 		if customErr := reader.NewRequestReader(cntx).Read(req); customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -85,7 +85,7 @@ func (ah *ActorHandler) ChangeActorHandler() echo.HandlerFunc {
 		}
 		customErr := ah.actorUseCase.Change(actor)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -102,13 +102,13 @@ func (ah *ActorHandler) GetActorHandler() echo.HandlerFunc {
 		id, err := strconv.ParseUint(cntx.Param("id"), 10, 64)
 		if err != nil {
 			customErr := errors.New(consts.CodeBadRequest, err)
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		actor, customErr := ah.actorUseCase.Get(id)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -125,13 +125,13 @@ func (ah *ActorHandler) DeleteActorHandler() echo.HandlerFunc {
 		id, err := strconv.ParseUint(cntx.Param("id"), 10, 64)
 		if err != nil {
 			customErr := errors.New(consts.CodeBadRequest, err)
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		customErr := ah.actorUseCase.DeleteById(id)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
