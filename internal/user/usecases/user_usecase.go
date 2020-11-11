@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
+	"github.com/go-park-mail-ru/2020_2_Slash/pkg/sanitizer"
 	"golang.org/x/crypto/bcrypt"
 	"os"
 	"strings"
@@ -22,6 +23,7 @@ func NewUserUsecase(repo user.UserRepository) user.UserUsecase {
 }
 
 func (uu *UserUsecase) Create(user *models.User) *errors.Error {
+	sanitizer.Sanitize(user)
 	if err := uu.checkByEmail(user.Email); err == nil {
 		return errors.Get(CodeEmailAlreadyExists)
 	}
@@ -67,6 +69,7 @@ func (uu *UserUsecase) GetByID(userID uint64) (*models.User, *errors.Error) {
 }
 
 func (uu *UserUsecase) UpdateProfile(userID uint64, newUserData *models.User) (*models.User, *errors.Error) {
+	sanitizer.Sanitize(newUserData)
 	user, err := uu.GetByID(userID)
 	if err != nil {
 		return nil, err
