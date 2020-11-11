@@ -61,19 +61,19 @@ func (mr *MockFavouriteRepositoryMockRecorder) Select(favourite interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Select", reflect.TypeOf((*MockFavouriteRepository)(nil).Select), favourite)
 }
 
-// SelectFavouriteContent mocks base method
-func (m *MockFavouriteRepository) SelectFavouriteContent(userID uint64) ([]*models.Content, error) {
+// SelectFavouriteMovies mocks base method
+func (m *MockFavouriteRepository) SelectFavouriteMovies(userID, limit, offset uint64) ([]*models.Movie, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SelectFavouriteContent", userID)
-	ret0, _ := ret[0].([]*models.Content)
+	ret := m.ctrl.Call(m, "SelectFavouriteMovies", userID, limit, offset)
+	ret0, _ := ret[0].([]*models.Movie)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SelectFavouriteContent indicates an expected call of SelectFavouriteContent
-func (mr *MockFavouriteRepositoryMockRecorder) SelectFavouriteContent(userID interface{}) *gomock.Call {
+// SelectFavouriteMovies indicates an expected call of SelectFavouriteMovies
+func (mr *MockFavouriteRepositoryMockRecorder) SelectFavouriteMovies(userID, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectFavouriteContent", reflect.TypeOf((*MockFavouriteRepository)(nil).SelectFavouriteContent), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectFavouriteMovies", reflect.TypeOf((*MockFavouriteRepository)(nil).SelectFavouriteMovies), userID, limit, offset)
 }
 
 // Delete mocks base method

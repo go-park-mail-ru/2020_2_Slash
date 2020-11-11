@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/favourite/mocks"
-	contentMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/content/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/golang/mock/gomock"
@@ -18,8 +17,7 @@ func TestFavouriteUseCase_Create_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	favouriteRep := mocks.NewMockFavouriteRepository(ctrl)
-	contentUsecase := contentMocks.NewMockContentUsecase(ctrl)
-	favouriteUseCase := NewFavouriteUsecase(favouriteRep, contentUsecase)
+	favouriteUseCase := NewFavouriteUsecase(favouriteRep)
 
 	favourite := &models.Favourite{
 		UserID:    3,
@@ -46,8 +44,7 @@ func TestFavouriteUseCase_Create_AlreadyExist(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	favouriteRep := mocks.NewMockFavouriteRepository(ctrl)
-	contentUsecase := contentMocks.NewMockContentUsecase(ctrl)
-	favouriteUseCase := NewFavouriteUsecase(favouriteRep, contentUsecase)
+	favouriteUseCase := NewFavouriteUsecase(favouriteRep)
 
 	favourite := &models.Favourite{
 		UserID:    3,
@@ -69,8 +66,7 @@ func TestFavouriteUseCase_Delete_DoesNotExist(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	favouriteRep := mocks.NewMockFavouriteRepository(ctrl)
-	contentUsecase := contentMocks.NewMockContentUsecase(ctrl)
-	favouriteUseCase := NewFavouriteUsecase(favouriteRep, contentUsecase)
+	favouriteUseCase := NewFavouriteUsecase(favouriteRep)
 
 	favourite := &models.Favourite{
 		UserID:    3,
@@ -92,8 +88,7 @@ func TestFavouriteUseCase_Delete_Success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	favouriteRep := mocks.NewMockFavouriteRepository(ctrl)
-	contentUsecase := contentMocks.NewMockContentUsecase(ctrl)
-	favouriteUseCase := NewFavouriteUsecase(favouriteRep, contentUsecase)
+	favouriteUseCase := NewFavouriteUsecase(favouriteRep)
 
 	favourite := &models.Favourite{
 		UserID:    3,
@@ -120,26 +115,29 @@ func TestFavouriteUsecase_GetUserFavourites_Success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	favouriteRep := mocks.NewMockFavouriteRepository(ctrl)
-	contentUsecase := contentMocks.NewMockContentUsecase(ctrl)
-	favouriteUseCase := NewFavouriteUsecase(favouriteRep, contentUsecase)
+	favouriteUseCase := NewFavouriteUsecase(favouriteRep)
 
 	var userID uint64 = 3
+	pagination := models.Pagination{
+		From:  0,
+		Count: 2,
+	}
 
-	expectReturn := []*models.Content{
+	expectReturn := []*models.Movie{
 		{
-			ContentID: 2,
+			ID: 2,
 		},
 		{
-			ContentID: 4,
+			ID: 4,
 		},
 	}
 
 	favouriteRep.
 		EXPECT().
-		SelectFavouriteContent(gomock.Eq(userID)).
+		SelectFavouriteMovies(gomock.Eq(userID), pagination.Count, pagination.From).
 		Return(expectReturn, nil)
 
-	res, err := favouriteUseCase.GetUserFavourites(userID)
+	res, err := favouriteUseCase.GetUserFavouriteMovies(userID, &pagination)
 	assert.Equal(t, expectReturn, res)
 	assert.Equal(t, (*errors.Error)(nil), err)
 }
@@ -149,19 +147,22 @@ func TestFavouriteUsecase_GetUserFavourites_Empty(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	favouriteRep := mocks.NewMockFavouriteRepository(ctrl)
-	contentUsecase := contentMocks.NewMockContentUsecase(ctrl)
-	favouriteUseCase := NewFavouriteUsecase(favouriteRep, contentUsecase)
+	favouriteUseCase := NewFavouriteUsecase(favouriteRep)
 
 	var userID uint64 = 3
+	pagination := models.Pagination{
+		From:  0,
+		Count: 2,
+	}
 
-	var expectReturn []*models.Content
+	var expectReturn []*models.Movie
 
 	favouriteRep.
 		EXPECT().
-		SelectFavouriteContent(gomock.Eq(userID)).
+		SelectFavouriteMovies(gomock.Eq(userID), pagination.Count, pagination.From).
 		Return(nil, sql.ErrNoRows)
 
-	res, err := favouriteUseCase.GetUserFavourites(userID)
+	res, err := favouriteUseCase.GetUserFavouriteMovies(userID, &pagination)
 	assert.Equal(t, expectReturn, res)
 	assert.Equal(t, (*errors.Error)(nil), err)
 }
