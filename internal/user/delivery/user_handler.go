@@ -33,23 +33,23 @@ func NewUserHandler(userUcase user.UserUsecase, sessUcase session.SessionUsecase
 }
 
 func (uh *UserHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
-	e.POST("/api/v1/user/register", uh.registerUserHandler())
-	e.GET("/api/v1/user/profile", uh.getUserProfileHandler(), mw.CheckAuth)
-	e.PUT("/api/v1/user/profile", uh.updateUserProfileHandler(), mw.CheckAuth, mw.CheckCSRF)
-	e.POST("/api/v1/user/avatar", uh.updateAvatarHandler(), mw.CheckAuth, middleware.BodyLimit("10M"), mw.CheckCSRF)
+	e.POST("/api/v1/user/register", uh.RegisterUserHandler())
+	e.GET("/api/v1/user/profile", uh.GetUserProfileHandler(), mw.CheckAuth)
+	e.PUT("/api/v1/user/profile", uh.UpdateUserProfileHandler(), mw.CheckAuth, mw.CheckCSRF)
+	e.POST("/api/v1/user/avatar", uh.UpdateAvatarHandler(), mw.CheckAuth, middleware.BodyLimit("10M"), mw.CheckCSRF)
 }
 
-func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
+func (uh *UserHandler) RegisterUserHandler() echo.HandlerFunc {
 	type Request struct {
-		Nickname         string `json:"nickname"`
-		Email            string `json:"email" validate:"required,email"`
-		Password         string `json:"password" validate:"required,gte=6"`
+		Nickname         string `json:"nickname" validate:"gte=3,lte=32"`
+		Email            string `json:"email" validate:"required,email,lte=64"`
+		Password         string `json:"password" validate:"required,gte=6,lte=32"`
 		RepeatedPassword string `json:"repeated_password" validate:"eqfield=Password"`
 	}
 
 	return func(cntx echo.Context) error {
 		req := &Request{}
-		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
+		if err := reader.NewRequestReader(cntx).ReadUser(req); err != nil {
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
@@ -81,7 +81,7 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 
 		cookie := tools.CreateCookie(sess)
 		cntx.SetCookie(cookie)
-		return cntx.JSON(http.StatusOK, Response{
+		return cntx.JSON(http.StatusCreated, Response{
 			Body: &Body{
 				"user": user,
 			},
@@ -89,7 +89,7 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 	}
 }
 
-func (uh *UserHandler) getUserProfileHandler() echo.HandlerFunc {
+func (uh *UserHandler) GetUserProfileHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		userID := cntx.Get("userID").(uint64)
 		user, err := uh.userUcase.GetByID(userID)
@@ -105,16 +105,16 @@ func (uh *UserHandler) getUserProfileHandler() echo.HandlerFunc {
 	}
 }
 
-func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
+func (uh *UserHandler) UpdateUserProfileHandler() echo.HandlerFunc {
 	type Request struct {
-		Nickname string `json:"nickname"`
-		Email    string `json:"email" validate:"omitempty,email"`
-		Password string `json:"password" validate:"omitempty,gte=6"`
+		Nickname string `json:"nickname" validate:"omitempty,gte=3,lte=32"`
+		Email    string `json:"email" validate:"omitempty,email,lte=64"`
+		Password string `json:"password" validate:"omitempty,gte=6,lte=32"`
 	}
 
 	return func(cntx echo.Context) error {
 		req := &Request{}
-		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
+		if err := reader.NewRequestReader(cntx).ReadUser(req); err != nil {
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
@@ -140,7 +140,7 @@ func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
 	}
 }
 
-func (uh *UserHandler) updateAvatarHandler() echo.HandlerFunc {
+func (uh *UserHandler) UpdateAvatarHandler() echo.HandlerFunc {
 	const avatarsDir = "/avatars/"
 
 	return func(cntx echo.Context) error {
