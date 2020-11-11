@@ -25,10 +25,10 @@ func NewRatingHandler(ratingUseCase rating.RatingUsecase) *RatingHandler {
 }
 
 func (rh *RatingHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
-	e.POST("/api/v1/rating/:cid", rh.CreateHandler(), mw.CheckAuth)
-	e.PUT("/api/v1/rating/:cid", rh.ChangeHandler(), mw.CheckAuth)
+	e.POST("/api/v1/rating/:cid", rh.CreateHandler(), mw.CheckAuth, mw.CheckCSRF)
+	e.PUT("/api/v1/rating/:cid", rh.ChangeHandler(), mw.CheckAuth, mw.CheckCSRF)
 	e.GET("api/v1/rating/:cid", rh.GetHandler(), mw.CheckAuth)
-	e.DELETE("/api/v1/rating/:cid", rh.DeleteHandler(), mw.CheckAuth)
+	e.DELETE("/api/v1/rating/:cid", rh.DeleteHandler(), mw.CheckAuth, mw.CheckCSRF)
 	e.GET("/api/v1/movies/:cid/rating", rh.GetContentRatingHandler())
 }
 

@@ -180,4 +180,16 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "user tries to execute request without sufficient rights",
 		UserMessage: "Недостаточно прав",
 	},
+	CodeCSRFTokenWasNotPassed: {
+		Code:        CodeCSRFTokenWasNotPassed,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "CSRF token was not passed",
+		UserMessage: "Неверный формат запроса",
+	},
+	CodeWrongCSRFToken: {
+		Code:        CodeWrongCSRFToken,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "wrong CSRF token",
+		UserMessage: "Неверный формат запроса",
+	},
 }

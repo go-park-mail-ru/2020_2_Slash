@@ -9,6 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/CSRFManager"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
@@ -34,8 +35,8 @@ func NewUserHandler(userUcase user.UserUsecase, sessUcase session.SessionUsecase
 func (uh *UserHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/user/register", uh.registerUserHandler())
 	e.GET("/api/v1/user/profile", uh.getUserProfileHandler(), mw.CheckAuth)
-	e.PUT("/api/v1/user/profile", uh.updateUserProfileHandler(), mw.CheckAuth)
-	e.POST("/api/v1/user/avatar", uh.updateAvatarHandler(), mw.CheckAuth, middleware.BodyLimit("10M"))
+	e.PUT("/api/v1/user/profile", uh.updateUserProfileHandler(), mw.CheckAuth, mw.CheckCSRF)
+	e.POST("/api/v1/user/avatar", uh.updateAvatarHandler(), mw.CheckAuth, middleware.BodyLimit("10M"), mw.CheckCSRF)
 }
 
 func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
@@ -70,6 +71,13 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
+
+		token, err := CSRFManager.CreateToken(sess)
+		if err != nil {
+			logger.Info(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+		cntx.Response().Header().Set("X-CSRF-TOKEN", token)
 
 		cookie := tools.CreateCookie(sess)
 		cntx.SetCookie(cookie)

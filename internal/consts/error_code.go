@@ -28,4 +28,6 @@ const (
 	CodeFavouriteAlreadyExist
 	CodeFavouriteDoesNotExist
 	CodeAccessDenied
+	CodeCSRFTokenWasNotPassed
+	CodeWrongCSRFToken
 )

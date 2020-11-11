@@ -5,6 +5,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/CSRFManager"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
@@ -75,7 +76,7 @@ func (mw *MiddlewareManager) CORS(next echo.HandlerFunc) echo.HandlerFunc {
 		res := cntx.Response()
 		res.Header().Set("Access-Control-Allow-Origin", allowOrigin)
 		res.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
-		res.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		res.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN")
 		res.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		if cntx.Request().Method == http.MethodOptions {
@@ -129,13 +130,50 @@ func (mw *MiddlewareManager) CheckAdmin(next echo.HandlerFunc) echo.HandlerFunc 
 		userID := cntx.Get("userID").(uint64)
 		isAdmin, customErr := mw.userUcase.IsAdmin(userID)
 		if customErr != nil {
-			logger.Error(customErr.Message)
+			logger.Info(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		if !isAdmin {
 			customErr := errors.Get(CodeAccessDenied)
-			logger.Error(customErr.Message)
+			logger.Info(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		return next(cntx)
+	}
+}
+
+func (mw *MiddlewareManager) CheckCSRF(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(cntx echo.Context) error {
+		switch cntx.Request().Method {
+		case http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodTrace:
+			return next(cntx)
+		}
+
+		token := cntx.Request().Header.Get("X-CSRF-TOKEN")
+		if token == "" {
+			customErr := errors.Get(CodeCSRFTokenWasNotPassed)
+			logger.Info(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		cookie, err := cntx.Cookie(SessionName)
+		if err != nil {
+			logger.Info(err)
+			customErr := errors.New(CodeUserUnauthorized, err)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		sess, customErr := mw.sessUcase.Get(cookie.Value)
+		if customErr != nil {
+			logger.Info(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		customErr = CSRFManager.ValidateToken(sess, token)
+		if customErr != nil {
+			logger.Info(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
