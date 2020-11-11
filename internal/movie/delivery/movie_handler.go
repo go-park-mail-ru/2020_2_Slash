@@ -47,14 +47,14 @@ func NewMovieHandler(movieUcase movie.MovieUsecase, contentUcase content.Content
 }
 
 func (mh *MovieHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
-	e.POST("/api/v1/movies", mh.CreateMovieHandler(), mw.CheckAuth, mw.CheckAdmin)
-	e.PUT("/api/v1/movies/:mid", mh.UpdateMovieHandler(), mw.CheckAuth, mw.CheckAdmin)
-	e.DELETE("/api/v1/movies/:mid", mh.DeleteMovieHandler(), mw.CheckAuth, mw.CheckAdmin)
+	e.POST("/api/v1/movies", mh.CreateMovieHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
+	e.PUT("/api/v1/movies/:mid", mh.UpdateMovieHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
+	e.DELETE("/api/v1/movies/:mid", mh.DeleteMovieHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.GET("/api/v1/movies/:mid", mh.GetMovieHandler(), mw.GetAuth)
 	e.PUT("/api/v1/movies/:mid/poster", mh.UpdateMoviePostersHandler(),
-		middleware.BodyLimit("10M"), mw.CheckAuth, mw.CheckAdmin)
+		middleware.BodyLimit("10M"), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.PUT("/api/v1/movies/:mid/video", mh.UpdateMovieVideoHandler(),
-		middleware.BodyLimit("1000M"), mw.CheckAuth, mw.CheckAdmin)
+		middleware.BodyLimit("1000M"), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.GET("/api/v1/movies", mh.GetMoviesHandler(), mw.GetAuth)
 	e.GET("/api/v1/movies/latest", mh.GetLatestMoviesHandler(), mw.GetAuth)
 	e.GET("/api/v1/movies/top", mh.GetTopMovieListHandler(), mw.GetAuth)

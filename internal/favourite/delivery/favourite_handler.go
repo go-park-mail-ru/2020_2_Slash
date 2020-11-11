@@ -27,8 +27,8 @@ func NewFavouriteHandler(favouriteUseCase favourite.FavouriteUsecase,
 }
 
 func (fh *FavouriteHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
-	e.POST("/api/v1/favourites", fh.CreateHandler(), mw.CheckAuth)
-	e.DELETE("/api/v1/favourites", fh.DeleteHandler(), mw.CheckAuth)
+	e.POST("/api/v1/favourites", fh.CreateHandler(), mw.CheckAuth, mw.CheckCSRF)
+	e.DELETE("/api/v1/favourites", fh.DeleteHandler(), mw.CheckAuth, mw.CheckCSRF)
 	e.GET("/api/v1/favourites", fh.GetFavouritesHandler(), mw.CheckAuth)
 }
 

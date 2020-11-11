@@ -25,10 +25,10 @@ func NewDirectorHandler(directorUseCase director.DirectorUseCase) *DirectorHandl
 }
 
 func (dh *DirectorHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
-	e.POST("/api/v1/directors", dh.CreateDirectorHandler(), mw.CheckAuth, mw.CheckAdmin)
-	e.PUT("/api/v1/directors/:id", dh.ChangeDirectorHandler(), mw.CheckAuth, mw.CheckAdmin)
-	e.GET("/api/v1/directors/:id", dh.GetDirectorHandler(), mw.CheckAuth, mw.CheckAdmin)
-	e.DELETE("/api/v1/directors/:id", dh.DeleteDirectorHandler(), mw.CheckAuth, mw.CheckAdmin)
+	e.POST("/api/v1/directors", dh.CreateDirectorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
+	e.PUT("/api/v1/directors/:id", dh.ChangeDirectorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
+	e.GET("/api/v1/directors/:id", dh.GetDirectorHandler(), mw.CheckAuth)
+	e.DELETE("/api/v1/directors/:id", dh.DeleteDirectorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 }
 
 func (dh *DirectorHandler) CreateDirectorHandler() echo.HandlerFunc {

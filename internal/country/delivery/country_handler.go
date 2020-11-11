@@ -23,10 +23,10 @@ func NewCountryHandler(countryUcase country.CountryUsecase) *CountryHandler {
 }
 
 func (ch *CountryHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
-	e.POST("/api/v1/countries", ch.CreateCountryHandler(), mw.CheckAuth, mw.CheckAdmin)
-	e.PUT("/api/v1/countries/:cid", ch.UpdateCountryHandler(), mw.CheckAuth, mw.CheckAdmin)
-	e.DELETE("/api/v1/countries/:cid", ch.DeleteCountryHandler(), mw.CheckAuth, mw.CheckAdmin)
-	e.GET("/api/v1/countries", ch.GetCountriesListHandler(), mw.CheckAuth, mw.CheckAdmin)
+	e.POST("/api/v1/countries", ch.CreateCountryHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
+	e.PUT("/api/v1/countries/:cid", ch.UpdateCountryHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
+	e.DELETE("/api/v1/countries/:cid", ch.DeleteCountryHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
+	e.GET("/api/v1/countries", ch.GetCountriesListHandler(), mw.CheckAuth)
 }
 
 func (ch *CountryHandler) CreateCountryHandler() echo.HandlerFunc {
