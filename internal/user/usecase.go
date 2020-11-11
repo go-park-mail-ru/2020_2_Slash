@@ -12,4 +12,5 @@ type UserUsecase interface {
 	UpdateProfile(userID uint64, newUserData *models.User) (*models.User, *errors.Error)
 	UpdateAvatar(userID uint64, newAvatar string) (*models.User, *errors.Error)
 	CheckPassword(user *models.User, password string) *errors.Error
+	IsAdmin(userID uint64) (bool, *errors.Error)
 }

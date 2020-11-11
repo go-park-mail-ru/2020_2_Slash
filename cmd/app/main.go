@@ -102,7 +102,7 @@ func main() {
 
 	// Middleware
 	e := echo.New()
-	mw := mwares.NewMiddlewareManager(sessUcase)
+	mw := mwares.NewMiddlewareManager(sessUcase, userUcase)
 	e.Use(mw.PanicRecovering, mw.AccessLog, mw.CORS)
 
 	e.Static("/avatars", avatarsPath)

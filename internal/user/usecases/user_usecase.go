@@ -134,3 +134,12 @@ func (uu *UserUsecase) CheckPassword(user *models.User, password string) *errors
 	}
 	return nil
 }
+
+func (uu *UserUsecase) IsAdmin(userID uint64) (bool, *errors.Error) {
+	user, err := uu.GetByID(userID)
+	if err != nil {
+		return false, err
+	}
+
+	return user.Role == Admin, nil
+}
