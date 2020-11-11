@@ -1,11 +1,10 @@
 package delivery
 
 import (
-	"bytes"
-	"encoding/json"
 	contentMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/content/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/favourite/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+	"github.com/go-park-mail-ru/2020_2_Slash/pkg/converter"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -16,15 +15,6 @@ import (
 	"strings"
 	"testing"
 )
-
-func AnyToBytesBuffer(i interface{}) (*bytes.Buffer, error) {
-	buf := new(bytes.Buffer)
-	err := json.NewEncoder(buf).Encode(i)
-	if err != nil {
-		return buf, err
-	}
-	return buf, nil
-}
 
 func TestFavouriteHandler_Create_Success(t *testing.T) {
 	// Setup
@@ -44,7 +34,7 @@ func TestFavouriteHandler_Create_Success(t *testing.T) {
 		ContentID uint64 `json:"content_id"`
 	}
 
-	favouriteJSON, err := AnyToBytesBuffer(Request{ContentID: contentID})
+	favouriteJSON, err := converter.AnyToBytesBuffer(Request{ContentID: contentID})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +67,7 @@ func TestFavouriteHandler_Create_Success(t *testing.T) {
 	if assert.NoError(t, handleFunc(c)) {
 		assert.Equal(t, http.StatusCreated, rec.Code)
 
-		expResBody, err := AnyToBytesBuffer(response)
+		expResBody, err := converter.AnyToBytesBuffer(response)
 		if err != nil {
 			t.Error(err)
 			return
@@ -105,7 +95,7 @@ func TestFavouriteHandler_DeleteHandler_Success(t *testing.T) {
 		ContentID uint64 `json:"content_id"`
 	}
 
-	favouriteJSON, err := AnyToBytesBuffer(Request{ContentID: contentID})
+	favouriteJSON, err := converter.AnyToBytesBuffer(Request{ContentID: contentID})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -132,7 +122,7 @@ func TestFavouriteHandler_DeleteHandler_Success(t *testing.T) {
 	if assert.NoError(t, handleFunc(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
-		expResBody, err := AnyToBytesBuffer(response)
+		expResBody, err := converter.AnyToBytesBuffer(response)
 		if err != nil {
 			t.Error(err)
 			return
@@ -151,20 +141,20 @@ func TestFavouriteHandler_GetFavouritesHandler_Success(t *testing.T) {
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
 
 	var userID uint64 = 3
-	expectReturn := []*models.Content{
+	expectReturn := []*models.Movie{
 		{
-			ContentID: 2,
+			ID: 2,
 		},
 		{
-			ContentID: 4,
+			ID: 4,
 		},
 		{
-			ContentID: 421,
+			ID: 421,
 		},
 	}
 
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/favourites", strings.NewReader(""))
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/favourites?from=0&count=15", strings.NewReader(""))
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -173,9 +163,14 @@ func TestFavouriteHandler_GetFavouritesHandler_Success(t *testing.T) {
 	handleFunc := favouriteHandler.GetFavouritesHandler()
 	favouriteHandler.Configure(e, nil)
 
+	paginate := &models.Pagination{
+		From:  0,
+		Count: 15,
+	}
+
 	favouriteUseCase.
 		EXPECT().
-		GetUserFavourites(userID).
+		GetUserFavouriteMovies(userID, paginate).
 		Return(expectReturn, nil)
 
 	response := &response.Response{Body: &response.Body{"favourites": expectReturn}}
@@ -184,7 +179,7 @@ func TestFavouriteHandler_GetFavouritesHandler_Success(t *testing.T) {
 	if assert.NoError(t, handleFunc(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
-		expResBody, err := AnyToBytesBuffer(response)
+		expResBody, err := converter.AnyToBytesBuffer(response)
 		if err != nil {
 			t.Error(err)
 			return
