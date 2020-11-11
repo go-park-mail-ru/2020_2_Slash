@@ -4,6 +4,7 @@ import (
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
@@ -13,12 +14,15 @@ import (
 
 type MiddlewareManager struct {
 	sessUcase session.SessionUsecase
+	userUcase user.UserUsecase
 	origins   []string
 }
 
-func NewMiddlewareManager(sessUcase session.SessionUsecase) *MiddlewareManager {
+func NewMiddlewareManager(sessUcase session.SessionUsecase,
+	userUcase user.UserUsecase) *MiddlewareManager {
 	return &MiddlewareManager{
 		sessUcase: sessUcase,
+		userUcase: userUcase,
 		origins:   []string{"http://www.flicksbox.ru"},
 	}
 }
@@ -85,13 +89,14 @@ func (mw *MiddlewareManager) CheckAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		cookie, err := cntx.Cookie(SessionName)
 		if err != nil {
-			logrus.Info(err)
 			customErr := errors.New(CodeUserUnauthorized, err)
+			logrus.Info(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		sess, customErr := mw.sessUcase.Check(cookie.Value)
 		if customErr != nil {
+			logrus.Info(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -115,6 +120,25 @@ func (mw *MiddlewareManager) GetAuth(next echo.HandlerFunc) echo.HandlerFunc {
 
 		cntx.Set("sessValue", sess.Value)
 		cntx.Set("userID", sess.UserID)
+		return next(cntx)
+	}
+}
+
+func (mw *MiddlewareManager) CheckAdmin(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(cntx echo.Context) error {
+		userID := cntx.Get("userID").(uint64)
+		isAdmin, customErr := mw.userUcase.IsAdmin(userID)
+		if customErr != nil {
+			logrus.Info(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		if !isAdmin {
+			customErr := errors.Get(CodeAccessDenied)
+			logrus.Info(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		return next(cntx)
 	}
 }

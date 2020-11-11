@@ -27,4 +27,5 @@ const (
 	CodeRatingAlreadyExist
 	CodeFavouriteAlreadyExist
 	CodeFavouriteDoesNotExist
+	CodeAccessDenied
 )

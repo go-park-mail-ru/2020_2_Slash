@@ -57,6 +57,7 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 			Nickname: req.Nickname,
 			Email:    req.Email,
 			Password: req.Password,
+			Role:     User,
 		}
 
 		if err := uh.userUcase.Create(user); err != nil {
@@ -74,7 +75,7 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 		cntx.SetCookie(cookie)
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
-				"user": user.Sanitize(),
+				"user": user,
 			},
 		})
 	}
@@ -90,7 +91,7 @@ func (uh *UserHandler) getUserProfileHandler() echo.HandlerFunc {
 		}
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
-				"user": user.Sanitize(),
+				"user": user,
 			},
 		})
 	}
@@ -114,6 +115,7 @@ func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
 			Nickname: req.Nickname,
 			Email:    req.Email,
 			Password: req.Password,
+			Role:     User,
 		}
 
 		userID := cntx.Get("userID").(uint64)
@@ -124,7 +126,7 @@ func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
 		}
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
-				"user": user.Sanitize(),
+				"user": user,
 			},
 		})
 	}

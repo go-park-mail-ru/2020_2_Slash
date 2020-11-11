@@ -174,4 +174,10 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "this favourite does not exist",
 		UserMessage: "Данный контент отсутствует в избранном",
 	},
+	CodeAccessDenied: {
+		Code:        CodeAccessDenied,
+		HTTPCode:    http.StatusUnauthorized,
+		Message:     "user tries to execute request without sufficient rights",
+		UserMessage: "Недостаточно прав",
+	},
 }
