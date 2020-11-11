@@ -8,6 +8,11 @@ DROP TABLE IF EXISTS
     episodes, rates, favourites
     CASCADE;
 
+DO $$ BEGIN
+    CREATE TYPE role AS ENUM ('admin', 'user');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- Users of the app
 CREATE TABLE IF NOT EXISTS users (
@@ -15,7 +20,8 @@ CREATE TABLE IF NOT EXISTS users (
     nickname varchar(64) NOT NULL,
     email varchar(64) UNIQUE NOT NULL,
     password text NOT NULL,
-    avatar varchar(64) NOT NULL DEFAULT ''
+    avatar varchar(64) NOT NULL DEFAULT '',
+    role role NOT NULL DEFAULT 'user'
 );
 
 CREATE TABLE IF NOT EXISTS sessions (

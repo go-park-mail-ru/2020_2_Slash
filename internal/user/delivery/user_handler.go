@@ -57,6 +57,7 @@ func (uh *UserHandler) registerUserHandler() echo.HandlerFunc {
 			Nickname: req.Nickname,
 			Email:    req.Email,
 			Password: req.Password,
+			Role:     User,
 		}
 
 		if err := uh.userUcase.Create(user); err != nil {
@@ -114,6 +115,7 @@ func (uh *UserHandler) updateUserProfileHandler() echo.HandlerFunc {
 			Nickname: req.Nickname,
 			Email:    req.Email,
 			Password: req.Password,
+			Role:     User,
 		}
 
 		userID := cntx.Get("userID").(uint64)

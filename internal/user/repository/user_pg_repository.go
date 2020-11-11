@@ -24,10 +24,10 @@ func (ur *UserPgRepository) Insert(user *models.User) error {
 	}
 
 	row := ur.dbConn.QueryRow(
-		`INSERT INTO users(nickname, email, password, avatar)
-		VALUES ($1, $2, $3, $4)
+		`INSERT INTO users(nickname, email, password, avatar, role)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id`,
-		user.Nickname, user.Email, user.Password, user.Avatar)
+		user.Nickname, user.Email, user.Password, user.Avatar, user.Role)
 
 	err = row.Scan(&user.ID)
 	if err != nil {
@@ -45,11 +45,11 @@ func (ur *UserPgRepository) SelectByEmail(email string) (*models.User, error) {
 	user := &models.User{}
 
 	row := ur.dbConn.QueryRow(
-		`SELECT id, nickname, email, password, avatar
+		`SELECT id, nickname, email, password, avatar, role
 		FROM users
 		WHERE email=$1`, email)
 
-	err := row.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.Avatar)
+	err := row.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.Avatar, &user.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -59,11 +59,11 @@ func (ur *UserPgRepository) SelectByEmail(email string) (*models.User, error) {
 func (ur *UserPgRepository) SelectByID(userID uint64) (*models.User, error) {
 	user := &models.User{}
 	row := ur.dbConn.QueryRow(
-		`SELECT id, nickname, email, password, avatar
+		`SELECT id, nickname, email, password, avatar, role
 		FROM users
 		WHERE id=$1`, userID)
 
-	err := row.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.Avatar)
+	err := row.Scan(&user.ID, &user.Nickname, &user.Email, &user.Password, &user.Avatar, &user.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -78,9 +78,9 @@ func (ur *UserPgRepository) Update(user *models.User) error {
 
 	_, err = ur.dbConn.Exec(
 		`UPDATE users
-		SET nickname = $2, email = $3, password = $4, avatar = $5
+		SET nickname = $2, email = $3, password = $4, avatar = $5, role = $6
 		WHERE id = $1;`,
-		user.ID, user.Nickname, user.Email, user.Password, user.Avatar)
+		user.ID, user.Nickname, user.Email, user.Password, user.Avatar, user.Role)
 	if err != nil {
 		_ = tx.Rollback()
 		return nil
