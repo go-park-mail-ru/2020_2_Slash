@@ -4,10 +4,10 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/genre"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 )
@@ -37,7 +37,7 @@ func (gh *GenreHandler) CreateGenreHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -46,7 +46,7 @@ func (gh *GenreHandler) CreateGenreHandler() echo.HandlerFunc {
 		}
 
 		if err := gh.genreUcase.Create(genre); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -66,7 +66,7 @@ func (gh *GenreHandler) UpdateGenreHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -77,7 +77,7 @@ func (gh *GenreHandler) UpdateGenreHandler() echo.HandlerFunc {
 		genreID, _ := strconv.ParseUint(cntx.Param("gid"), 10, 64)
 		genre, err := gh.genreUcase.UpdateByID(genreID, genreData)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -94,7 +94,7 @@ func (gh *GenreHandler) DeleteGenreHandler() echo.HandlerFunc {
 		genreID, _ := strconv.ParseUint(cntx.Param("gid"), 10, 64)
 
 		if err := gh.genreUcase.DeleteByID(genreID); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -108,7 +108,7 @@ func (gh *GenreHandler) GetGenresListHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		genres, err := gh.genreUcase.List()
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 

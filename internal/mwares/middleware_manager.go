@@ -5,9 +5,9 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -31,7 +31,7 @@ func (m *MiddlewareManager) PanicRecovering(next echo.HandlerFunc) echo.HandlerF
 	return func(cntx echo.Context) error {
 		defer func() {
 			if err := recover(); err != nil {
-				logrus.Warn(err)
+				logger.Warn(err)
 			}
 		}()
 
@@ -41,14 +41,14 @@ func (m *MiddlewareManager) PanicRecovering(next echo.HandlerFunc) echo.HandlerF
 
 func (m *MiddlewareManager) AccessLog(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		logrus.Info(cntx.Request().RemoteAddr, " ", cntx.Request().Method, " ", cntx.Request().URL)
+		logger.Info(cntx.Request().RemoteAddr, " ", cntx.Request().Method, " ", cntx.Request().URL)
 
 		start := time.Now()
 		err := next(cntx)
 		end := time.Now()
 
-		logrus.Info("Status: ", cntx.Response().Status, " Work time: ", end.Sub(start))
-		logrus.Println()
+		logger.Info("Status: ", cntx.Response().Status, " Work time: ", end.Sub(start))
+		logger.Println()
 
 		return err
 	}
@@ -90,13 +90,13 @@ func (mw *MiddlewareManager) CheckAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		cookie, err := cntx.Cookie(SessionName)
 		if err != nil {
 			customErr := errors.New(CodeUserUnauthorized, err)
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		sess, customErr := mw.sessUcase.Check(cookie.Value)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
@@ -129,13 +129,13 @@ func (mw *MiddlewareManager) CheckAdmin(next echo.HandlerFunc) echo.HandlerFunc 
 		userID := cntx.Get("userID").(uint64)
 		isAdmin, customErr := mw.userUcase.IsAdmin(userID)
 		if customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		if !isAdmin {
 			customErr := errors.Get(CodeAccessDenied)
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 

@@ -13,11 +13,11 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/movie"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
 	"github.com/go-park-mail-ru/2020_2_Slash/pkg/uniq"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -76,32 +76,32 @@ func (mh *MovieHandler) CreateMovieHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		// Get countries
 		countries, err := mh.countryUcase.ListByID(uniq.RemoveDuplicates(req.CountriesID))
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 		// Get genres
 		genres, err := mh.genreUcase.ListByID(uniq.RemoveDuplicates(req.GenresID))
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 		// Get actors
 		actors, err := mh.actorUcase.ListByID(uniq.RemoveDuplicates(req.ActorsID))
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 		// Get directors
 		directors, err := mh.directorUcase.ListByID(uniq.RemoveDuplicates(req.DirectorsID))
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -123,7 +123,7 @@ func (mh *MovieHandler) CreateMovieHandler() echo.HandlerFunc {
 		}
 
 		if err := mh.movieUcase.Create(movie); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -151,32 +151,32 @@ func (mh *MovieHandler) UpdateMovieHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		// Get countries
 		countries, err := mh.countryUcase.ListByID(uniq.RemoveDuplicates(req.CountriesID))
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 		// Get genres
 		genres, err := mh.genreUcase.ListByID(uniq.RemoveDuplicates(req.GenresID))
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 		// Get actors
 		actors, err := mh.actorUcase.ListByID(uniq.RemoveDuplicates(req.ActorsID))
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 		// Get directors
 		directors, err := mh.directorUcase.ListByID(uniq.RemoveDuplicates(req.DirectorsID))
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -195,13 +195,13 @@ func (mh *MovieHandler) UpdateMovieHandler() echo.HandlerFunc {
 		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
 		movie, err := mh.movieUcase.GetByID(movieID)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		content, err := mh.contentUcase.UpdateByID(movie.ContentID, contentData)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -220,18 +220,18 @@ func (mh *MovieHandler) DeleteMovieHandler() echo.HandlerFunc {
 
 		movie, err := mh.movieUcase.GetByID(movieID)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		if err := mh.movieUcase.DeleteByID(movie.ID); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		// Other related data are deleted in CASCADE
 		if err := mh.contentUcase.DeleteByID(movie.ContentID); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -248,7 +248,7 @@ func (mh *MovieHandler) GetMovieHandler() echo.HandlerFunc {
 		userID, _ := cntx.Get("userID").(uint64)
 		movie, err := mh.movieUcase.GetFullByID(movieID, userID)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -268,34 +268,34 @@ func (mh *MovieHandler) UpdateMoviePostersHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		smallImage, err := reader.NewRequestReader(cntx).ReadNotRequiredImage("small_poster")
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		largeImage, err := reader.NewRequestReader(cntx).ReadNotRequiredImage("large_poster")
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		// Check for passing at least one image
 		if smallImage == nil && largeImage == nil {
 			err := errors.Get(CodeBadRequest)
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
 		movie, err := mh.movieUcase.GetWithContentByID(movieID)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		path, osErr := os.Getwd()
 		if osErr != nil {
 			err := errors.New(CodeInternalError, osErr)
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -311,7 +311,7 @@ func (mh *MovieHandler) UpdateMoviePostersHandler() echo.HandlerFunc {
 				if movie.Content.Images == "" {
 					os.RemoveAll(postersDirPath)
 				}
-				logrus.Info(err.Message)
+				logger.Error(err.Message)
 				return cntx.JSON(err.HTTPCode, Response{Error: err})
 			}
 		}
@@ -323,7 +323,7 @@ func (mh *MovieHandler) UpdateMoviePostersHandler() echo.HandlerFunc {
 				if movie.Content.Images == "" {
 					os.RemoveAll(postersDirPath)
 				}
-				logrus.Info(err.Message)
+				logger.Error(err.Message)
 				return cntx.JSON(err.HTTPCode, Response{Error: err})
 			}
 		}
@@ -333,7 +333,7 @@ func (mh *MovieHandler) UpdateMoviePostersHandler() echo.HandlerFunc {
 			if movie.Content.Images == "" {
 				os.RemoveAll(postersDirPath)
 			}
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -352,21 +352,21 @@ func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		video, err := reader.NewRequestReader(cntx).ReadVideo("video")
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
 		movie, err := mh.movieUcase.GetByID(movieID)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
 		path, osErr := os.Getwd()
 		if osErr != nil {
 			err := errors.New(CodeInternalError, osErr)
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -381,7 +381,7 @@ func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 			if movie.Video == "" {
 				os.RemoveAll(videosDirPath)
 			}
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -391,7 +391,7 @@ func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 			if movie.Video == "" {
 				os.RemoveAll(videosDirPath)
 			}
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -412,7 +412,7 @@ func (mh *MovieHandler) GetMoviesHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -420,7 +420,7 @@ func (mh *MovieHandler) GetMoviesHandler() echo.HandlerFunc {
 		movies, err := mh.movieUcase.ListByParams(&req.ContentFilter,
 			&req.Pagination, userID)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -440,14 +440,14 @@ func (mh *MovieHandler) GetLatestMoviesHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if customErr := reader.NewRequestReader(cntx).Read(req); customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		userID, _ := cntx.Get("userID").(uint64)
 		movies, err := mh.movieUcase.ListLatest(&req.Pagination, userID)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
@@ -467,14 +467,14 @@ func (mh *MovieHandler) GetTopMovieListHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		req := &Request{}
 		if customErr := reader.NewRequestReader(cntx).Read(req); customErr != nil {
-			logrus.Info(customErr.Message)
+			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
 		userID, _ := cntx.Get("userID").(uint64)
 		movies, err := mh.movieUcase.ListByRating(&req.Pagination, userID)
 		if err != nil {
-			logrus.Info(err.Message)
+			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 

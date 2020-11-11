@@ -6,6 +6,14 @@ import (
 	"os"
 )
 
+var logLevelsCode = map[string]int{
+	"DEBUG": 10,
+	"INFO":  20,
+	"WARN":  30,
+	"ERROR": 40,
+	"FATAL": 50,
+}
+
 type Config struct {
 	Database struct {
 		User     string `json:"user"`
@@ -21,6 +29,8 @@ type Config struct {
 	AvatarsDir string `json:"avatars"`
 	PostersDir string `json:"posters"`
 	VideosDir  string `json:"videos"`
+	LoggerFile string `json:"logger"`
+	LogLevel   string `json:"log_level"`
 }
 
 func (c *Config) GetDbConnString() string {
@@ -42,6 +52,14 @@ func (c *Config) GetPostersPath() string {
 
 func (c *Config) GetVideosPath() string {
 	return fmt.Sprintf("./%s", c.VideosDir)
+}
+
+func (c *Config) GetLoggerDir() string {
+	return c.LoggerFile
+}
+
+func (c *Config) GetLogLevel() int {
+	return logLevelsCode[c.LogLevel]
 }
 
 func LoadConfig(name string) (*Config, error) {
