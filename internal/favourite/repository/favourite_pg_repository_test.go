@@ -68,19 +68,48 @@ func TestFavouritePgRepository_SelectFavouritesById_Success(t *testing.T) {
 	defer db.Close()
 
 	var userID uint64 = 3
-	result := []*models.Content{
-		{
-			ContentID: 2,
-		},
-		{
-			ContentID: 5,
-		},
+	content := models.Content{
+		ContentID:        1,
+		Name:             "content_1",
+		OriginalName:     "content_1",
+		Description:      "desc",
+		ShortDescription: "short desc",
+		Year:             2020,
+		Images:           "images/content_1",
+		Type:             "movie",
 	}
+	content2 := models.Content{
+		ContentID:        2,
+		Name:             "content_2",
+		OriginalName:     "content_2",
+		Description:      "desc",
+		ShortDescription: "short desc",
+		Year:             2020,
+		Images:           "images/content_2",
+		Type:             "movie",
+	}
+
+	movie := &models.Movie{
+		ID:      1,
+		Video:   "videos/movie_1.mp4",
+		Content: content,
+	}
+	movie2 := &models.Movie{
+		ID:      2,
+		Video:   "videos/movie_2.mp4",
+		Content: content2,
+	}
+	result := []*models.Movie{
+		movie,
+		movie2,
+	}
+	var limit uint64 = 2
+	var	offset uint64 = 0
 
 	favouritePgRep := NewFavouritePgRepository(db)
 
-	mocks.MockSelectFavouriteContentReturnRows(mock, userID, result)
-	dbFavourites, err := favouritePgRep.SelectFavouriteContent(userID)
+	mocks.MockSelectFavouriteMoviesReturnRows(mock, userID, result, limit, offset)
+	dbFavourites, err := favouritePgRep.SelectFavouriteMovies(userID, limit, offset)
 	assert.Equal(t, result, dbFavourites)
 	assert.NoError(t, err)
 
@@ -101,9 +130,10 @@ func TestFavouritePgRepository_SelectFavouritesById_NoRows(t *testing.T) {
 
 	favouritePgRep := NewFavouritePgRepository(db)
 
-	mocks.MockSelectFavouriteContentReturnErrNoRows(mock, userID)
-	dbFavourites, err := favouritePgRep.SelectFavouriteContent(userID)
-	assert.Equal(t, ([]*models.Content)(nil), dbFavourites)
+	var limit, offset uint64 = 2, 0
+	mocks.MockSelectFavouriteContentReturnErrNoRows(mock, userID, limit, offset)
+	dbFavourites, err := favouritePgRep.SelectFavouriteMovies(userID, limit, offset)
+	assert.Equal(t, ([]*models.Movie)(nil), dbFavourites)
 	assert.Error(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {

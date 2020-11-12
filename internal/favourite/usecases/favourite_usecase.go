@@ -3,7 +3,6 @@ package usecases
 import (
 	"database/sql"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/favourite"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
@@ -11,13 +10,11 @@ import (
 
 type FavouriteUsecase struct {
 	favouriteRepo  favourite.FavouriteRepository
-	contentUseCase content.ContentUsecase
 }
 
-func NewFavouriteUsecase(repo favourite.FavouriteRepository, contentUseCase content.ContentUsecase) favourite.FavouriteUsecase {
+func NewFavouriteUsecase(repo favourite.FavouriteRepository) favourite.FavouriteUsecase {
 	return &FavouriteUsecase{
 		favouriteRepo: repo,
-		contentUseCase : contentUseCase,
 	}
 }
 

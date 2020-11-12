@@ -48,19 +48,19 @@ func (mr *MockFavouriteUsecaseMockRecorder) Create(favourite interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockFavouriteUsecase)(nil).Create), favourite)
 }
 
-// GetUserFavourites mocks base method
-func (m *MockFavouriteUsecase) GetUserFavourites(userID uint64) ([]*models.Content, *errors.Error) {
+// GetUserFavouriteMovies mocks base method
+func (m *MockFavouriteUsecase) GetUserFavouriteMovies(userID uint64, pagination *models.Pagination) ([]*models.Movie, *errors.Error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserFavourites", userID)
-	ret0, _ := ret[0].([]*models.Content)
+	ret := m.ctrl.Call(m, "GetUserFavouriteMovies", userID, pagination)
+	ret0, _ := ret[0].([]*models.Movie)
 	ret1, _ := ret[1].(*errors.Error)
 	return ret0, ret1
 }
 
-// GetUserFavourites indicates an expected call of GetUserFavourites
-func (mr *MockFavouriteUsecaseMockRecorder) GetUserFavourites(userID interface{}) *gomock.Call {
+// GetUserFavouriteMovies indicates an expected call of GetUserFavouriteMovies
+func (mr *MockFavouriteUsecaseMockRecorder) GetUserFavouriteMovies(userID, pagination interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFavourites", reflect.TypeOf((*MockFavouriteUsecase)(nil).GetUserFavourites), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFavouriteMovies", reflect.TypeOf((*MockFavouriteUsecase)(nil).GetUserFavouriteMovies), userID, pagination)
 }
 
 // Delete mocks base method

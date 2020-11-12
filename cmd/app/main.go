@@ -102,7 +102,7 @@ func main() {
 	contentUcase := contentUsecase.NewContentUsecase(contentRepo, countryUcase, genreUcase, actorUcase, directorUcase)
 	movieUcase := movieUsecase.NewMovieUsecase(movieRepo, contentUcase)
 	ratingUcase := ratingUsecase.NewRatingUseCase(ratingRepo, contentUcase)
-	favouriteUcase := favouriteUsecase.NewFavouriteUsecase(favouriteRepo, contentUcase)
+	favouriteUcase := favouriteUsecase.NewFavouriteUsecase(favouriteRepo)
 
 	// Middleware
 	e := echo.New()

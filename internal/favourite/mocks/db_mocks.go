@@ -24,21 +24,25 @@ func MockDeleteSuccess(mock sqlmock.Sqlmock, favourite *models.Favourite) {
 	mock.ExpectCommit()
 }
 
-func MockSelectFavouriteContentReturnRows(mock sqlmock.Sqlmock, userID uint64,
-	resContent []*models.Content) {
-	rows := sqlmock.NewRows([]string{"id", "name", "original_name", "description",
-		"short_description", "year", "images", "type"})
-	for _, favourite := range resContent {
-		rows.AddRow(favourite.ContentID, "", "", "", "", 0, "", "")
+func MockSelectFavouriteMoviesReturnRows(mock sqlmock.Sqlmock, userID uint64,
+	resMovies []*models.Movie, limit uint64, offset uint64) {
+	rows := sqlmock.NewRows([]string{"id", "video", "content_id", "name", "original_name",
+		"description", "short_description", "year", "images", "type",
+		"likes", "is_favourite"})
+	for _, movie := range resMovies {
+		rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name,
+			movie.OriginalName, movie.Description, movie.ShortDescription,
+			movie.Year, movie.Images, movie.Type, movie.IsLiked, movie.IsFavourite)
 	}
 	mock.ExpectQuery(`SELECT`).
-		WithArgs(userID).
+		WithArgs(userID, limit, offset).
 		WillReturnRows(rows)
 }
 
-func MockSelectFavouriteContentReturnErrNoRows(mock sqlmock.Sqlmock, userID uint64) {
+func MockSelectFavouriteContentReturnErrNoRows(mock sqlmock.Sqlmock, userID uint64,
+	limit uint64, offset uint64) {
 	mock.ExpectQuery(`SELECT`).
-		WithArgs(userID).
+		WithArgs(userID, limit, offset).
 		WillReturnError(sql.ErrNoRows)
 }
 
