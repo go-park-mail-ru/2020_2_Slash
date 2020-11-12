@@ -76,7 +76,8 @@ func (mw *MiddlewareManager) CORS(next echo.HandlerFunc) echo.HandlerFunc {
 		res := cntx.Response()
 		res.Header().Set("Access-Control-Allow-Origin", allowOrigin)
 		res.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
-		res.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN")
+		res.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, X-Csrf-Token")
+		res.Header().Set("Access-Control-Expose-Headers", "X-Csrf-Token")
 		res.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		if cntx.Request().Method == http.MethodOptions {
@@ -151,7 +152,7 @@ func (mw *MiddlewareManager) CheckCSRF(next echo.HandlerFunc) echo.HandlerFunc {
 			return next(cntx)
 		}
 
-		token := cntx.Request().Header.Get("X-CSRF-TOKEN")
+		token := cntx.Request().Header.Get("X-Csrf-Token")
 		if token == "" {
 			customErr := errors.Get(CodeCSRFTokenWasNotPassed)
 			logger.Info(customErr.Message)

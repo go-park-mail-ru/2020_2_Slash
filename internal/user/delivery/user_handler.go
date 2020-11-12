@@ -77,7 +77,7 @@ func (uh *UserHandler) RegisterUserHandler() echo.HandlerFunc {
 			logger.Info(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
-		cntx.Response().Header().Set("X-CSRF-TOKEN", token)
+		cntx.Response().Header().Set("X-Csrf-Token", token)
 
 		cookie := tools.CreateCookie(sess)
 		cntx.SetCookie(cookie)
