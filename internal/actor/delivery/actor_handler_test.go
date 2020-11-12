@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -29,8 +30,9 @@ func AnyToBytesBuffer(i interface{}) (*bytes.Buffer, error) {
 }
 
 func TestActorHandler_CreateActorHandler(t *testing.T) {
-	// Setup
 	t.Parallel()
+	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	actorUseCase := mocks.NewMockActorUseCase(ctrl)
@@ -77,6 +79,7 @@ func TestActorHandler_CreateActorHandler(t *testing.T) {
 func TestActorHandler_ChangeActorHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	actorUseCase := mocks.NewMockActorUseCase(ctrl)
@@ -128,6 +131,7 @@ func TestActorHandler_ChangeActorHandler(t *testing.T) {
 func TestActorHandler_GetActorHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	actorUseCase := mocks.NewMockActorUseCase(ctrl)
@@ -175,6 +179,7 @@ func TestActorHandler_GetActorHandler(t *testing.T) {
 func TestActorHandler_GetActorHandler_NoActor(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	actorUseCase := mocks.NewMockActorUseCase(ctrl)
@@ -218,6 +223,7 @@ func TestActorHandler_GetActorHandler_NoActor(t *testing.T) {
 func TestActorHandler_DeleteActorHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	actorUseCase := mocks.NewMockActorUseCase(ctrl)
