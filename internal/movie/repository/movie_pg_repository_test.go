@@ -8,14 +8,14 @@ import (
 	"testing"
 )
 
-var content_inst *models.Content = &models.Content{
+var contentInst *models.Content = &models.Content{
 	ContentID: 1,
 }
 
-var movie_inst *models.Movie = &models.Movie{
+var movieInst *models.Movie = &models.Movie{
 	ID:      1,
-	Video:   "movie_inst.mp4",
-	Content: *content_inst,
+	Video:   "movie.mp4",
+	Content: *contentInst,
 }
 
 func TestMoviePgRepository_Insert_OK(t *testing.T) {
@@ -28,8 +28,8 @@ func TestMoviePgRepository_Insert_OK(t *testing.T) {
 
 	moviePgRep := NewMoviePgRepository(db)
 
-	mocks.MockMovieRepoInsertReturnRows(mock, 1, movie_inst)
-	err = moviePgRep.Insert(movie_inst)
+	mocks.MockMovieRepoInsertReturnRows(mock, 1, movieInst)
+	err = moviePgRep.Insert(movieInst)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -47,12 +47,12 @@ func TestMoviePgRepository_Insert_ContentAlreadyExist(t *testing.T) {
 
 	moviePgRep := NewMoviePgRepository(db)
 
-	mocks.MockMovieRepoInsertReturnRows(mock, 1, movie_inst)
-	err = moviePgRep.Insert(movie_inst)
+	mocks.MockMovieRepoInsertReturnRows(mock, 1, movieInst)
+	err = moviePgRep.Insert(movieInst)
 	assert.NoError(t, err)
 
-	mocks.MockMovieRepoInsertReturnErrNoUniq(mock, 2, movie_inst)
-	err = moviePgRep.Insert(movie_inst)
+	mocks.MockMovieRepoInsertReturnErrNoUniq(mock, 2, movieInst)
+	err = moviePgRep.Insert(movieInst)
 	assert.Error(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -70,8 +70,14 @@ func TestMoviePgRepository_Update_OK(t *testing.T) {
 
 	moviePgRep := NewMoviePgRepository(db)
 
-	mocks.MockMovieRepoUpdateReturnResultOk(mock, movie_inst.ID, movie_inst)
-	err = moviePgRep.Update(movie_inst)
+	var movieInst *models.Movie = &models.Movie{
+		ID:      1,
+		Video:   "movie.mp4",
+		Content: *contentInst,
+	}
+
+	mocks.MockMovieRepoUpdateReturnResultOk(mock, movieInst.ID, movieInst)
+	err = moviePgRep.Update(movieInst)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -89,8 +95,8 @@ func TestMoviePgRepository_Update_NoMovieWithThisID(t *testing.T) {
 
 	moviePgRep := NewMoviePgRepository(db)
 
-	mocks.MockMovieRepoUpdateReturnResultZero(mock, movie_inst.ID, movie_inst)
-	err = moviePgRep.Update(movie_inst)
+	mocks.MockMovieRepoUpdateReturnResultZero(mock, movieInst.ID, movieInst)
+	err = moviePgRep.Update(movieInst)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -108,8 +114,8 @@ func TestMoviePgRepository_DeleteByID_OK(t *testing.T) {
 
 	moviePgRep := NewMoviePgRepository(db)
 
-	mocks.MockMovieRepoDeleteReturnResultOk(mock, movie_inst.ID, movie_inst)
-	err = moviePgRep.DeleteByID(movie_inst.ID)
+	mocks.MockMovieRepoDeleteReturnResultOk(mock, movieInst.ID, movieInst)
+	err = moviePgRep.DeleteByID(movieInst.ID)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -127,9 +133,9 @@ func TestMoviePgRepository_SelectByID_OK(t *testing.T) {
 
 	moviePgRep := NewMoviePgRepository(db)
 
-	mocks.MockMovieRepoSelectByIDReturnRows(mock, movie_inst.ID, movie_inst)
-	dbMovie, err := moviePgRep.SelectByID(movie_inst.ID)
-	assert.Equal(t, movie_inst, dbMovie)
+	mocks.MockMovieRepoSelectByIDReturnRows(mock, movieInst.ID, movieInst)
+	dbMovie, err := moviePgRep.SelectByID(movieInst.ID)
+	assert.Equal(t, movieInst, dbMovie)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -147,8 +153,8 @@ func TestMoviePgRepository_SelectById_NoMovieWithThisID(t *testing.T) {
 
 	moviePgRep := NewMoviePgRepository(db)
 
-	mocks.MockMovieRepoSelectByIDReturnErrNoRows(mock, movie_inst.ID)
-	dbMovie, err := moviePgRep.SelectByID(movie_inst.ID)
+	mocks.MockMovieRepoSelectByIDReturnErrNoRows(mock, movieInst.ID)
+	dbMovie, err := moviePgRep.SelectByID(movieInst.ID)
 	assert.Equal(t, dbMovie, (*models.Movie)(nil))
 	assert.Error(t, err)
 
@@ -157,7 +163,7 @@ func TestMoviePgRepository_SelectById_NoMovieWithThisID(t *testing.T) {
 	}
 }
 
-func TestMoviePgRepository_SelectByName_OK(t *testing.T) {
+func TestMoviePgRepository_SelectFullByID_OK(t *testing.T) {
 	t.Parallel()
 	db, mock, err := sqlmock.New()
 	if err != nil {
@@ -167,9 +173,30 @@ func TestMoviePgRepository_SelectByName_OK(t *testing.T) {
 
 	moviePgRep := NewMoviePgRepository(db)
 
-	mocks.MockMovieRepoSelectByContentIDReturnRows(mock, movie_inst.ID, movie_inst)
-	dbMovie, err := moviePgRep.SelectByContentID(movie_inst.ContentID)
-	assert.Equal(t, movie_inst, dbMovie)
+	var userID uint64 = 1
+	mocks.MockMovieRepoSelectFullByIDReturnRows(mock, movieInst.ID, userID, movieInst)
+	dbMovie, err := moviePgRep.SelectFullByID(movieInst.ID, userID)
+	assert.Equal(t, movieInst, dbMovie)
+	assert.NoError(t, err)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestMoviePgRepository_SelectByContentID_OK(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	moviePgRep := NewMoviePgRepository(db)
+
+	mocks.MockMovieRepoSelectByContentIDReturnRows(mock, movieInst.ID, movieInst)
+	dbMovie, err := moviePgRep.SelectByContentID(movieInst.ContentID)
+	assert.Equal(t, movieInst, dbMovie)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -187,8 +214,8 @@ func TestMoviePgRepository_SelectById_NoMovieWithThisContentID(t *testing.T) {
 
 	moviePgRep := NewMoviePgRepository(db)
 
-	mocks.MockMovieRepoSelectByContentIDReturnErrNoRows(mock, movie_inst)
-	dbMovie, err := moviePgRep.SelectByContentID(movie_inst.ContentID)
+	mocks.MockMovieRepoSelectByContentIDReturnErrNoRows(mock, movieInst)
+	dbMovie, err := moviePgRep.SelectByContentID(movieInst.ContentID)
 	assert.Equal(t, dbMovie, (*models.Movie)(nil))
 	assert.Error(t, err)
 
@@ -197,7 +224,7 @@ func TestMoviePgRepository_SelectById_NoMovieWithThisContentID(t *testing.T) {
 	}
 }
 
-func TestMoviePgRepository_SelectByGenre_OK(t *testing.T) {
+func TestMoviePgRepository_SelectByParams_OK(t *testing.T) {
 	t.Parallel()
 	db, mock, err := sqlmock.New()
 	if err != nil {
@@ -207,9 +234,62 @@ func TestMoviePgRepository_SelectByGenre_OK(t *testing.T) {
 
 	moviePgRep := NewMoviePgRepository(db)
 
-	genre := &models.Genre{
-		Name: "comedy",
+	var contentInst *models.Content = &models.Content{
+		Name:             "Шрек",
+		OriginalName:     "Shrek",
+		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
+		ShortDescription: "Полная сюрпризов сказка об ужасном болотном огре",
+		Year:             2001,
+		Countries:        nil,
+		Genres:           nil,
+		Actors:           nil,
+		Directors:        nil,
+		Type:             "movie",
 	}
+
+	content := []*models.Content{
+		contentInst,
+	}
+
+	movies := []*models.Movie{
+		&models.Movie{
+			Content: *content[0],
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 1
+
+	params := &models.ContentFilter{
+		Year:     2001,
+		Genre:    1,
+		Country:  1,
+		Actor:    1,
+		Director: 1,
+	}
+
+	mocks.MockMovieRepoSelectByParamsReturnRows(mock, params, pgnt, userID, movies)
+	dbMovies, err := moviePgRep.SelectByParams(params, pgnt, userID)
+	assert.Equal(t, movies, dbMovies)
+	assert.NoError(t, err)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestMoviePgRepository_SelectLatest_OK(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	moviePgRep := NewMoviePgRepository(db)
 
 	content := []*models.Content{
 		&models.Content{
@@ -223,8 +303,52 @@ func TestMoviePgRepository_SelectByGenre_OK(t *testing.T) {
 		},
 	}
 
-	mocks.MockMovieRepoSelectByGenreReturnRows(mock, genre.ID, movies)
-	dbMovies, err := moviePgRep.SelectByGenre(genre.ID)
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 1
+
+	mocks.MockMovieRepoSelectLatestReturnRows(mock, pgnt, userID, movies)
+	dbMovies, err := moviePgRep.SelectLatest(pgnt, userID)
+	assert.Equal(t, movies, dbMovies)
+	assert.NoError(t, err)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestMoviePgRepository_SelectByRating_OK(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	moviePgRep := NewMoviePgRepository(db)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	movies := []*models.Movie{
+		&models.Movie{
+			Content: *content[0],
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 1
+
+	mocks.MockMovieRepoSelectByRatingReturnRows(mock, pgnt, userID, movies)
+	dbMovies, err := moviePgRep.SelectByRating(pgnt, userID)
 	assert.Equal(t, movies, dbMovies)
 	assert.NoError(t, err)
 

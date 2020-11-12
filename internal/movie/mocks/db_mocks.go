@@ -58,6 +58,18 @@ func MockMovieRepoSelectByIDReturnErrNoRows(mock sqlmock.Sqlmock, id uint64) {
 	mock.ExpectQuery(`SELECT`).WithArgs(id).WillReturnError(sql.ErrNoRows)
 }
 
+func MockMovieRepoSelectFullByIDReturnRows(mock sqlmock.Sqlmock, id uint64, curUserID uint64,
+	movie *models.Movie) {
+
+	rows := sqlmock.NewRows([]string{"m.id", "m.video", "c.id", "c.name",
+		"c.original_name", "c.description", "c.short_description",
+		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+	rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name,
+		movie.OriginalName, movie.Description, movie.ShortDescription,
+		movie.Year, movie.Images, movie.Type, movie.IsLiked, movie.IsFavourite)
+	mock.ExpectQuery(`SELECT m.id, m.video, c.id, c.name`).WithArgs(id, curUserID).WillReturnRows(rows)
+}
+
 func MockMovieRepoSelectByContentIDReturnRows(mock sqlmock.Sqlmock, id uint64, movie *models.Movie) {
 	rows := sqlmock.NewRows([]string{"id", "video", "content_id"})
 	rows.AddRow(id, movie.Video, movie.ContentID)
@@ -76,4 +88,56 @@ func MockMovieRepoSelectByGenreReturnRows(mock sqlmock.Sqlmock, genreID uint64, 
 			movie.ShortDescription, movie.Year, movie.Images, movie.Type)
 	}
 	mock.ExpectQuery(`SELECT m.id, m.video, c.id`).WithArgs(genreID).WillReturnRows(rows)
+}
+
+func MockMovieRepoSelectByParamsReturnRows(mock sqlmock.Sqlmock, params *models.ContentFilter,
+	pgnt *models.Pagination, curUserID uint64, movies []*models.Movie) {
+
+	rows := sqlmock.NewRows([]string{"m.id", "m.video", "c.id", "c.name",
+		"c.original_name", "c.description", "c.short_description", "c.rating",
+		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+	for _, movie := range movies {
+		rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name,
+			movie.OriginalName, movie.Description, movie.ShortDescription, movie.Rating,
+			movie.Year, movie.Images, movie.Type, movie.IsLiked, movie.IsFavourite)
+	}
+	query := `
+		SELECT m.id, m.video, c.id, c.name`
+
+	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From, params.Genre,
+		params.Country, params.Actor, params.Director, params.Year).WillReturnRows(rows)
+}
+
+func MockMovieRepoSelectLatestReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pagination, curUserID uint64,
+	movies []*models.Movie) {
+
+	rows := sqlmock.NewRows([]string{"m.id", "m.video", "c.id", "c.name",
+		"c.original_name", "c.description", "c.short_description", "c.rating",
+		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+	for _, movie := range movies {
+		rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name,
+			movie.OriginalName, movie.Description, movie.ShortDescription, movie.Rating,
+			movie.Year, movie.Images, movie.Type, movie.IsLiked, movie.IsFavourite)
+	}
+	query := `
+		SELECT m.id, m.video, c.id, c.name`
+
+	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From).WillReturnRows(rows)
+}
+
+func MockMovieRepoSelectByRatingReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pagination, curUserID uint64,
+	movies []*models.Movie) {
+
+	rows := sqlmock.NewRows([]string{"m.id", "m.video", "c.id", "c.name",
+		"c.original_name", "c.description", "c.short_description", "c.rating",
+		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+	for _, movie := range movies {
+		rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name,
+			movie.OriginalName, movie.Description, movie.ShortDescription, movie.Rating,
+			movie.Year, movie.Images, movie.Type, movie.IsLiked, movie.IsFavourite)
+	}
+	query := `
+		SELECT m.id, m.video, c.id, c.name`
+
+	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From).WillReturnRows(rows)
 }

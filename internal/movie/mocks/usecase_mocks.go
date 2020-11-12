@@ -107,18 +107,18 @@ func (mr *MockMovieUsecaseMockRecorder) GetWithContentByID(movieID interface{}) 
 }
 
 // GetFullByID mocks base method
-func (m *MockMovieUsecase) GetFullByID(movieID uint64) (*models.Movie, *errors.Error) {
+func (m *MockMovieUsecase) GetFullByID(movieID, curUserID uint64) (*models.Movie, *errors.Error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFullByID", movieID)
+	ret := m.ctrl.Call(m, "GetFullByID", movieID, curUserID)
 	ret0, _ := ret[0].(*models.Movie)
 	ret1, _ := ret[1].(*errors.Error)
 	return ret0, ret1
 }
 
 // GetFullByID indicates an expected call of GetFullByID
-func (mr *MockMovieUsecaseMockRecorder) GetFullByID(movieID interface{}) *gomock.Call {
+func (mr *MockMovieUsecaseMockRecorder) GetFullByID(movieID, curUserID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFullByID", reflect.TypeOf((*MockMovieUsecase)(nil).GetFullByID), movieID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFullByID", reflect.TypeOf((*MockMovieUsecase)(nil).GetFullByID), movieID, curUserID)
 }
 
 // GetByContentID mocks base method
@@ -136,17 +136,47 @@ func (mr *MockMovieUsecaseMockRecorder) GetByContentID(contentID interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByContentID", reflect.TypeOf((*MockMovieUsecase)(nil).GetByContentID), contentID)
 }
 
-// ListByGenre mocks base method
-func (m *MockMovieUsecase) ListByGenre(genreID uint64) ([]*models.Movie, *errors.Error) {
+// ListByParams mocks base method
+func (m *MockMovieUsecase) ListByParams(params *models.ContentFilter, pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, *errors.Error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListByGenre", genreID)
+	ret := m.ctrl.Call(m, "ListByParams", params, pgnt, curUserID)
 	ret0, _ := ret[0].([]*models.Movie)
 	ret1, _ := ret[1].(*errors.Error)
 	return ret0, ret1
 }
 
-// ListByGenre indicates an expected call of ListByGenre
-func (mr *MockMovieUsecaseMockRecorder) ListByGenre(genreID interface{}) *gomock.Call {
+// ListByParams indicates an expected call of ListByParams
+func (mr *MockMovieUsecaseMockRecorder) ListByParams(params, pgnt, curUserID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByGenre", reflect.TypeOf((*MockMovieUsecase)(nil).ListByGenre), genreID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByParams", reflect.TypeOf((*MockMovieUsecase)(nil).ListByParams), params, pgnt, curUserID)
+}
+
+// ListLatest mocks base method
+func (m *MockMovieUsecase) ListLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, *errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListLatest", pgnt, curUserID)
+	ret0, _ := ret[0].([]*models.Movie)
+	ret1, _ := ret[1].(*errors.Error)
+	return ret0, ret1
+}
+
+// ListLatest indicates an expected call of ListLatest
+func (mr *MockMovieUsecaseMockRecorder) ListLatest(pgnt, curUserID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListLatest", reflect.TypeOf((*MockMovieUsecase)(nil).ListLatest), pgnt, curUserID)
+}
+
+// ListByRating mocks base method
+func (m *MockMovieUsecase) ListByRating(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, *errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListByRating", pgnt, curUserID)
+	ret0, _ := ret[0].([]*models.Movie)
+	ret1, _ := ret[1].(*errors.Error)
+	return ret0, ret1
+}
+
+// ListByRating indicates an expected call of ListByRating
+func (mr *MockMovieUsecaseMockRecorder) ListByRating(pgnt, curUserID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByRating", reflect.TypeOf((*MockMovieUsecase)(nil).ListByRating), pgnt, curUserID)
 }
