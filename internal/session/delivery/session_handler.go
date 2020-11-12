@@ -31,11 +31,11 @@ func NewSessionHandler(sessUcase session.SessionUsecase,
 }
 
 func (sh *SessionHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
-	e.POST("/api/v1/session", sh.loginHandler())
-	e.DELETE("/api/v1/session", sh.logoutHandler(), mw.CheckAuth, mw.CheckCSRF)
+	e.POST("/api/v1/session", sh.LoginHandler())
+	e.DELETE("/api/v1/session", sh.LogoutHandler(), mw.CheckAuth, mw.CheckCSRF)
 }
 
-func (sh *SessionHandler) loginHandler() echo.HandlerFunc {
+func (sh *SessionHandler) LoginHandler() echo.HandlerFunc {
 	type Request struct {
 		Email    string `json:"email" validate:"required,email"`
 		Password string `json:"password" validate:"required,gte=6"`
@@ -82,7 +82,7 @@ func (sh *SessionHandler) loginHandler() echo.HandlerFunc {
 	}
 }
 
-func (sh *SessionHandler) logoutHandler() echo.HandlerFunc {
+func (sh *SessionHandler) LogoutHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		session, hasCookie := cntx.Cookie(SessionName)
 
