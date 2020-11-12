@@ -1,9 +1,7 @@
 package usecases
 
 import (
-	// "database/sql"
 	actorMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/actor/mocks"
-	// "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content/mocks"
 	countryMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/country/mocks"
 	directorMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/director/mocks"
@@ -49,7 +47,7 @@ var directors = []*models.Director{
 	},
 }
 
-var content_inst *models.Content = &models.Content{
+var contentInst *models.Content = &models.Content{
 	Name:             "Шрек",
 	OriginalName:     "Shrek",
 	Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
@@ -77,10 +75,10 @@ func TestContentUseCase_Create_OK(t *testing.T) {
 
 	contentRep.
 		EXPECT().
-		Insert(gomock.Eq(content_inst)).
+		Insert(gomock.Eq(contentInst)).
 		Return(nil)
 
-	err := contentUseCase.Create(content_inst)
+	err := contentUseCase.Create(contentInst)
 	assert.Equal(t, err, (*errors.Error)(nil))
 }
 
@@ -104,12 +102,12 @@ func TestContentUseCase_Update_OK(t *testing.T) {
 
 	contentRep.
 		EXPECT().
-		SelectByID(gomock.Eq(content_inst.ContentID)).
-		Return(content_inst, nil)
+		SelectByID(gomock.Eq(contentInst.ContentID)).
+		Return(contentInst, nil)
 
 	contentRep.
 		EXPECT().
-		SelectCountriesByID(gomock.Eq(content_inst.ContentID)).
+		SelectCountriesByID(gomock.Eq(contentInst.ContentID)).
 		Return(countriesID, nil)
 
 	countryUseCase.
@@ -119,7 +117,7 @@ func TestContentUseCase_Update_OK(t *testing.T) {
 
 	contentRep.
 		EXPECT().
-		SelectGenresByID(gomock.Eq(content_inst.ContentID)).
+		SelectGenresByID(gomock.Eq(contentInst.ContentID)).
 		Return(genresID, nil)
 
 	genreUseCase.
@@ -129,7 +127,7 @@ func TestContentUseCase_Update_OK(t *testing.T) {
 
 	contentRep.
 		EXPECT().
-		SelectActorsByID(gomock.Eq(content_inst.ContentID)).
+		SelectActorsByID(gomock.Eq(contentInst.ContentID)).
 		Return(actorsID, nil)
 
 	actorUseCase.
@@ -139,7 +137,7 @@ func TestContentUseCase_Update_OK(t *testing.T) {
 
 	contentRep.
 		EXPECT().
-		SelectDirectorsByID(gomock.Eq(content_inst.ContentID)).
+		SelectDirectorsByID(gomock.Eq(contentInst.ContentID)).
 		Return(directorsID, nil)
 
 	directorUseCase.
@@ -149,12 +147,12 @@ func TestContentUseCase_Update_OK(t *testing.T) {
 
 	contentRep.
 		EXPECT().
-		Update(gomock.Eq(content_inst)).
+		Update(gomock.Eq(contentInst)).
 		Return(nil)
 
-	dbContent, err := contentUseCase.UpdateByID(content_inst.ContentID, content_inst)
+	dbContent, err := contentUseCase.UpdateByID(contentInst.ContentID, contentInst)
 	assert.Equal(t, err, (*errors.Error)(nil))
-	assert.Equal(t, dbContent, content_inst)
+	assert.Equal(t, dbContent, contentInst)
 }
 
 func TestContentUseCase_UpdatePosters_OK(t *testing.T) {
@@ -174,10 +172,10 @@ func TestContentUseCase_UpdatePosters_OK(t *testing.T) {
 
 	contentRep.
 		EXPECT().
-		UpdateImages(gomock.Eq(content_inst)).
+		UpdateImages(gomock.Eq(contentInst)).
 		Return(nil)
 
-	err := contentUseCase.UpdatePosters(content_inst, newPostersDir)
+	err := contentUseCase.UpdatePosters(contentInst, newPostersDir)
 	assert.Equal(t, err, (*errors.Error)(nil))
 }
 
@@ -196,14 +194,14 @@ func TestContentUseCase_Delete_OK(t *testing.T) {
 
 	contentRep.
 		EXPECT().
-		SelectByID(gomock.Eq(content_inst.ContentID)).
-		Return(content_inst, nil)
+		SelectByID(gomock.Eq(contentInst.ContentID)).
+		Return(contentInst, nil)
 
 	contentRep.
 		EXPECT().
-		DeleteByID(gomock.Eq(content_inst.ContentID)).
+		DeleteByID(gomock.Eq(contentInst.ContentID)).
 		Return(nil)
 
-	err := contentUseCase.DeleteByID(content_inst.ContentID)
+	err := contentUseCase.DeleteByID(contentInst.ContentID)
 	assert.Equal(t, err, (*errors.Error)(nil))
 }

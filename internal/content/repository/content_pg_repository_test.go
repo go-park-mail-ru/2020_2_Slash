@@ -42,7 +42,7 @@ var directors = []*models.Director{
 	},
 }
 
-var content_inst *models.Content = &models.Content{
+var contentInst *models.Content = &models.Content{
 	Name:             "Шрек",
 	OriginalName:     "Shrek",
 	Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
@@ -65,8 +65,8 @@ func TestContentPgRepository_DeleteByID_OK(t *testing.T) {
 
 	contentPgRep := NewContentPgRepository(db)
 
-	mocks.MockContentRepoDeleteReturnResultOk(mock, content_inst.ContentID)
-	err = contentPgRep.DeleteByID(content_inst.ContentID)
+	mocks.MockContentRepoDeleteReturnResultOk(mock, contentInst.ContentID)
+	err = contentPgRep.DeleteByID(contentInst.ContentID)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -82,7 +82,7 @@ func TestContentPgRepository_SelectByID_OK(t *testing.T) {
 	}
 	defer db.Close()
 
-	var content_inst *models.Content = &models.Content{
+	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
 		OriginalName:     "Shrek",
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
@@ -93,9 +93,9 @@ func TestContentPgRepository_SelectByID_OK(t *testing.T) {
 
 	contentPgRep := NewContentPgRepository(db)
 
-	mocks.MockContentRepoSelectByIDReturnRows(mock, content_inst.ContentID, content_inst)
-	dbContent, err := contentPgRep.SelectByID(content_inst.ContentID)
-	assert.Equal(t, content_inst, dbContent)
+	mocks.MockContentRepoSelectByIDReturnRows(mock, contentInst.ContentID, contentInst)
+	dbContent, err := contentPgRep.SelectByID(contentInst.ContentID)
+	assert.Equal(t, contentInst, dbContent)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -113,8 +113,8 @@ func TestContentPgRepository_SelectById_NoContentWithThisID(t *testing.T) {
 
 	contentPgRep := NewContentPgRepository(db)
 
-	mocks.MockContentRepoSelectByIDReturnErrNoRows(mock, content_inst.ContentID)
-	dbContent, err := contentPgRep.SelectByID(content_inst.ContentID)
+	mocks.MockContentRepoSelectByIDReturnErrNoRows(mock, contentInst.ContentID)
+	dbContent, err := contentPgRep.SelectByID(contentInst.ContentID)
 	assert.Equal(t, dbContent, (*models.Content)(nil))
 	assert.Error(t, err)
 
@@ -135,8 +135,8 @@ func TestContentPgRepository_SelectCountries_OK(t *testing.T) {
 
 	contentPgRep := NewContentPgRepository(db)
 
-	mocks.MockContentRepoSelectCountriesReturnRows(mock, content_inst.ContentID, countriesID)
-	dbCountires, err := contentPgRep.SelectCountriesByID(content_inst.ContentID)
+	mocks.MockContentRepoSelectCountriesReturnRows(mock, contentInst.ContentID, countriesID)
+	dbCountires, err := contentPgRep.SelectCountriesByID(contentInst.ContentID)
 	assert.Equal(t, countriesID, dbCountires)
 	assert.NoError(t, err)
 
@@ -157,8 +157,8 @@ func TestContentPgRepository_SelectDirectors_OK(t *testing.T) {
 
 	contentPgRep := NewContentPgRepository(db)
 
-	mocks.MockContentRepoSelectDirectorsReturnRows(mock, content_inst.ContentID, directorsID)
-	dbDirectors, err := contentPgRep.SelectDirectorsByID(content_inst.ContentID)
+	mocks.MockContentRepoSelectDirectorsReturnRows(mock, contentInst.ContentID, directorsID)
+	dbDirectors, err := contentPgRep.SelectDirectorsByID(contentInst.ContentID)
 	assert.Equal(t, directorsID, dbDirectors)
 	assert.NoError(t, err)
 
@@ -179,8 +179,8 @@ func TestContentPgRepository_SelectActors_OK(t *testing.T) {
 
 	contentPgRep := NewContentPgRepository(db)
 
-	mocks.MockContentRepoSelectActorsReturnRows(mock, content_inst.ContentID, actorsID)
-	dbActors, err := contentPgRep.SelectActorsByID(content_inst.ContentID)
+	mocks.MockContentRepoSelectActorsReturnRows(mock, contentInst.ContentID, actorsID)
+	dbActors, err := contentPgRep.SelectActorsByID(contentInst.ContentID)
 	assert.Equal(t, actorsID, dbActors)
 	assert.NoError(t, err)
 
@@ -201,8 +201,8 @@ func TestContentPgRepository_SelectGenres_OK(t *testing.T) {
 
 	contentPgRep := NewContentPgRepository(db)
 
-	mocks.MockContentRepoSelectGenresReturnRows(mock, content_inst.ContentID, genresID)
-	dbGenres, err := contentPgRep.SelectGenresByID(content_inst.ContentID)
+	mocks.MockContentRepoSelectGenresReturnRows(mock, contentInst.ContentID, genresID)
+	dbGenres, err := contentPgRep.SelectGenresByID(contentInst.ContentID)
 	assert.Equal(t, genresID, dbGenres)
 	assert.NoError(t, err)
 

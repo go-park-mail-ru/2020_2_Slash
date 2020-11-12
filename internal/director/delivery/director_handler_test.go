@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/director/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -29,8 +30,9 @@ func AnyToBytesBuffer(i interface{}) (*bytes.Buffer, error) {
 }
 
 func TestDirectorHandler_CreateDirectorHandler(t *testing.T) {
-	// Setup
 	t.Parallel()
+	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	directorUseCase := mocks.NewMockDirectorUseCase(ctrl)
@@ -77,6 +79,7 @@ func TestDirectorHandler_CreateDirectorHandler(t *testing.T) {
 func TestDirectorHandler_ChangeDirectorHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	directorUseCase := mocks.NewMockDirectorUseCase(ctrl)
@@ -128,6 +131,7 @@ func TestDirectorHandler_ChangeDirectorHandler(t *testing.T) {
 func TestDirectorHandler_GetDirectorHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	directorUseCase := mocks.NewMockDirectorUseCase(ctrl)
@@ -175,6 +179,7 @@ func TestDirectorHandler_GetDirectorHandler(t *testing.T) {
 func TestDirectorHandler_GetDirectorHandler_NoDirector(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	directorUseCase := mocks.NewMockDirectorUseCase(ctrl)
@@ -218,6 +223,7 @@ func TestDirectorHandler_GetDirectorHandler_NoDirector(t *testing.T) {
 func TestDirectorHandler_DeleteDirectorHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	directorUseCase := mocks.NewMockDirectorUseCase(ctrl)

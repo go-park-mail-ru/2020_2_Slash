@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/pkg/converter"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -21,6 +22,7 @@ import (
 func TestGenreHandler_CreateGenreHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	genreUseCase := mocks.NewMockGenreUsecase(ctrl)
@@ -67,6 +69,7 @@ func TestGenreHandler_CreateGenreHandler(t *testing.T) {
 func TestGenreHandler_CreateGenreHandler_NameAlreadyExists(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	genreUseCase := mocks.NewMockGenreUsecase(ctrl)
@@ -113,6 +116,7 @@ func TestGenreHandler_CreateGenreHandler_NameAlreadyExists(t *testing.T) {
 func TestGenreHandler_UpdateGenreHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	genreUseCase := mocks.NewMockGenreUsecase(ctrl)
@@ -169,6 +173,7 @@ func TestGenreHandler_UpdateGenreHandler(t *testing.T) {
 func TestGenreHandler_UpdateGenreHandler_NameAlreadyExists(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	genreUseCase := mocks.NewMockGenreUsecase(ctrl)
@@ -225,6 +230,7 @@ func TestGenreHandler_UpdateGenreHandler_NameAlreadyExists(t *testing.T) {
 func TestGenreHandler_DeleteGenreHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	genreUseCase := mocks.NewMockGenreUsecase(ctrl)
@@ -272,6 +278,7 @@ func TestGenreHandler_DeleteGenreHandler(t *testing.T) {
 func TestGenreHandler_DeleteGenreHandler_NoGenre(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	genreUseCase := mocks.NewMockGenreUsecase(ctrl)
@@ -317,6 +324,7 @@ func TestGenreHandler_DeleteGenreHandler_NoGenre(t *testing.T) {
 func TestGenreHandler_GetGenresListHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	genreUseCase := mocks.NewMockGenreUsecase(ctrl)

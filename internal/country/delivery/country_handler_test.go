@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/pkg/converter"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -21,6 +22,7 @@ import (
 func TestCountryHandler_CreateCountryHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryUseCase := mocks.NewMockCountryUsecase(ctrl)
@@ -67,6 +69,7 @@ func TestCountryHandler_CreateCountryHandler(t *testing.T) {
 func TestCountryHandler_CreateCountryHandler_NameAlreadyExists(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryUseCase := mocks.NewMockCountryUsecase(ctrl)
@@ -113,6 +116,7 @@ func TestCountryHandler_CreateCountryHandler_NameAlreadyExists(t *testing.T) {
 func TestCountryHandler_UpdateCountryHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryUseCase := mocks.NewMockCountryUsecase(ctrl)
@@ -169,6 +173,7 @@ func TestCountryHandler_UpdateCountryHandler(t *testing.T) {
 func TestCountryHandler_UpdateCountryHandler_NameAlreadyExists(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryUseCase := mocks.NewMockCountryUsecase(ctrl)
@@ -225,6 +230,7 @@ func TestCountryHandler_UpdateCountryHandler_NameAlreadyExists(t *testing.T) {
 func TestCountryHandler_DeleteCountryHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryUseCase := mocks.NewMockCountryUsecase(ctrl)
@@ -272,6 +278,7 @@ func TestCountryHandler_DeleteCountryHandler(t *testing.T) {
 func TestCountryHandler_DeleteCountryHandler_NoCountry(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryUseCase := mocks.NewMockCountryUsecase(ctrl)
@@ -317,6 +324,7 @@ func TestCountryHandler_DeleteCountryHandler_NoCountry(t *testing.T) {
 func TestCountryHandler_GetCountriesListHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryUseCase := mocks.NewMockCountryUsecase(ctrl)
