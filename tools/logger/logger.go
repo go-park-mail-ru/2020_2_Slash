@@ -4,6 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -54,6 +55,13 @@ func InitLogger(filename string, logLevel int) {
 	mw := io.MultiWriter(os.Stdout, logFile)
 	logrusLogger.SetOutput(mw)
 	logrus.RegisterExitHandler(closeLogFile)
+}
+
+func DisableLogger() {
+	if logrusLogger == nil {
+		logrusLogger = logrus.New()
+	}
+	logrusLogger.SetOutput(ioutil.Discard)
 }
 
 func Info(args ...interface{}) {

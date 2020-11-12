@@ -33,6 +33,29 @@ func (rr *RequestReader) Read(request interface{}) *errors.Error {
 	return nil
 }
 
+func (rr *RequestReader) ReadUser(request interface{}) *errors.Error {
+	if err := rr.cntx.Bind(request); err != nil {
+		return errors.New(CodeInternalError, err)
+	}
+
+	if err := rr.validator.Struct(request); err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			switch err.Field() {
+			case "Nickname":
+				return errors.New(CodeErrorInNickname, err)
+			case "Email":
+				return errors.New(CodeErrorInEmail, err)
+			case "Password":
+				return errors.New(CodeErrorInPassword, err)
+			case "RepeatedPassword":
+				return errors.New(CodePasswordsDoesNotMatch, err)
+			}
+		}
+		return errors.New(CodeBadRequest, err)
+	}
+	return nil
+}
+
 func (rr *RequestReader) ReadImage(field string) (*multipart.FileHeader, *errors.Error) {
 	image, err := rr.cntx.FormFile(field)
 	if err != nil {

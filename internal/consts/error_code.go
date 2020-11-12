@@ -30,4 +30,8 @@ const (
 	CodeAccessDenied
 	CodeCSRFTokenWasNotPassed
 	CodeWrongCSRFToken
+	CodeErrorInNickname
+	CodeErrorInEmail
+	CodeErrorInPassword
+	CodePasswordsDoesNotMatch
 )

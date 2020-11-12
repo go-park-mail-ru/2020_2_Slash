@@ -192,4 +192,28 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "wrong CSRF token",
 		UserMessage: "Неверный формат запроса",
 	},
+	CodeErrorInNickname: {
+		Code:        CodeErrorInNickname,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "error in nickname",
+		UserMessage: "Логин должен содержать от 3 до 32 символов",
+	},
+	CodeErrorInEmail: {
+		Code:        CodeErrorInEmail,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "error in email",
+		UserMessage: "Email должен быть корректным и содержать до 64 символов",
+	},
+	CodeErrorInPassword: {
+		Code:        CodeErrorInPassword,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "error in password",
+		UserMessage: "Пароль должен содержать от 6 до 32 символов",
+	},
+	CodePasswordsDoesNotMatch: {
+		Code:        CodePasswordsDoesNotMatch,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "passwords does not match",
+		UserMessage: "Пароли не совпадают",
+	},
 }
