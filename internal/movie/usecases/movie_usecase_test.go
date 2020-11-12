@@ -12,14 +12,14 @@ import (
 	"testing"
 )
 
-var content_inst *models.Content = &models.Content{
+var contentInst *models.Content = &models.Content{
 	ContentID: 1,
 }
 
-var movie_inst *models.Movie = &models.Movie{
+var movieInst *models.Movie = &models.Movie{
 	ID:      1,
-	Video:   "movie_inst.mp4",
-	Content: *content_inst,
+	Video:   "movieInst.mp4",
+	Content: *contentInst,
 }
 
 func TestMovieUseCase_Create_OK(t *testing.T) {
@@ -33,20 +33,20 @@ func TestMovieUseCase_Create_OK(t *testing.T) {
 
 	movieRep.
 		EXPECT().
-		SelectByContentID(gomock.Eq(movie_inst.ContentID)).
+		SelectByContentID(gomock.Eq(movieInst.ContentID)).
 		Return(nil, sql.ErrNoRows)
 
 	contentUseCase.
 		EXPECT().
-		Create(gomock.Eq(content_inst)).
+		Create(gomock.Eq(contentInst)).
 		Return(nil)
 
 	movieRep.
 		EXPECT().
-		Insert(gomock.Eq(movie_inst)).
+		Insert(gomock.Eq(movieInst)).
 		Return(nil)
 
-	err := movieUseCase.Create(movie_inst)
+	err := movieUseCase.Create(movieInst)
 	assert.Equal(t, err, (*errors.Error)(nil))
 }
 
@@ -61,10 +61,10 @@ func TestMovieUseCase_Create_Fail(t *testing.T) {
 
 	movieRep.
 		EXPECT().
-		SelectByContentID(gomock.Eq(movie_inst.ContentID)).
-		Return(movie_inst, nil)
+		SelectByContentID(gomock.Eq(movieInst.ContentID)).
+		Return(movieInst, nil)
 
-	err := movieUseCase.Create(movie_inst)
+	err := movieUseCase.Create(movieInst)
 	assert.Equal(t, err, errors.Get(consts.CodeMovieContentAlreadyExists))
 }
 
@@ -81,52 +81,11 @@ func TestMovieUseCase_UpdateVideo_OK(t *testing.T) {
 
 	movieRep.
 		EXPECT().
-		Update(gomock.Eq(movie_inst)).
+		Update(gomock.Eq(movieInst)).
 		Return(nil)
 
-	err := movieUseCase.UpdateVideo(movie_inst, newVideoPath)
+	err := movieUseCase.UpdateVideo(movieInst, newVideoPath)
 	assert.Equal(t, err, (*errors.Error)(nil))
-}
-
-func TestMovieUseCase_Delete_OK(t *testing.T) {
-	t.Parallel()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	movieRep := mocks.NewMockMovieRepository(ctrl)
-	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
-
-	movieRep.
-		EXPECT().
-		SelectByID(gomock.Eq(movie_inst.ID)).
-		Return(movie_inst, nil)
-
-	movieRep.
-		EXPECT().
-		DeleteByID(gomock.Eq(movie_inst.ID)).
-		Return(nil)
-
-	err := movieUseCase.DeleteByID(movie_inst.ID)
-	assert.Equal(t, err, (*errors.Error)(nil))
-}
-
-func TestMovieUseCase_Delete_Fail(t *testing.T) {
-	t.Parallel()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	movieRep := mocks.NewMockMovieRepository(ctrl)
-	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
-
-	movieRep.
-		EXPECT().
-		SelectByID(gomock.Eq(movie_inst.ID)).
-		Return(nil, sql.ErrNoRows)
-
-	err := movieUseCase.DeleteByID(movie_inst.ID)
-	assert.Equal(t, err, errors.Get(consts.CodeMovieDoesNotExist))
 }
 
 func TestMovieUseCase_GetByID_OK(t *testing.T) {
@@ -140,12 +99,12 @@ func TestMovieUseCase_GetByID_OK(t *testing.T) {
 
 	movieRep.
 		EXPECT().
-		SelectByID(gomock.Eq(movie_inst.ID)).
-		Return(movie_inst, nil)
+		SelectByID(gomock.Eq(movieInst.ID)).
+		Return(movieInst, nil)
 
-	dbMovie, err := movieUseCase.GetByID(movie_inst.ID)
+	dbMovie, err := movieUseCase.GetByID(movieInst.ID)
 	assert.Equal(t, err, (*errors.Error)(nil))
-	assert.Equal(t, dbMovie, movie_inst)
+	assert.Equal(t, dbMovie, movieInst)
 }
 
 func TestMovieUseCase_GetByID_Fail(t *testing.T) {
@@ -159,10 +118,10 @@ func TestMovieUseCase_GetByID_Fail(t *testing.T) {
 
 	movieRep.
 		EXPECT().
-		SelectByID(gomock.Eq(movie_inst.ID)).
+		SelectByID(gomock.Eq(movieInst.ID)).
 		Return(nil, sql.ErrNoRows)
 
-	dbMovie, err := movieUseCase.GetByID(movie_inst.ID)
+	dbMovie, err := movieUseCase.GetByID(movieInst.ID)
 	assert.Equal(t, err, errors.Get(consts.CodeMovieDoesNotExist))
 	assert.Equal(t, dbMovie, (*models.Movie)(nil))
 }
@@ -178,17 +137,17 @@ func TestMovieUseCase_GetWithContentByID_OK(t *testing.T) {
 
 	movieRep.
 		EXPECT().
-		SelectByID(gomock.Eq(movie_inst.ID)).
-		Return(movie_inst, nil)
+		SelectByID(gomock.Eq(movieInst.ID)).
+		Return(movieInst, nil)
 
 	contentUseCase.
 		EXPECT().
-		GetByID(gomock.Eq(movie_inst.ContentID)).
-		Return(content_inst, nil)
+		GetByID(gomock.Eq(movieInst.ContentID)).
+		Return(contentInst, nil)
 
-	dbMovie, err := movieUseCase.GetWithContentByID(movie_inst.ID)
+	dbMovie, err := movieUseCase.GetWithContentByID(movieInst.ID)
 	assert.Equal(t, err, (*errors.Error)(nil))
-	assert.Equal(t, dbMovie, movie_inst)
+	assert.Equal(t, dbMovie, movieInst)
 }
 
 func TestMovieUseCase_GetWithContentByID_Fail(t *testing.T) {
@@ -202,10 +161,10 @@ func TestMovieUseCase_GetWithContentByID_Fail(t *testing.T) {
 
 	movieRep.
 		EXPECT().
-		SelectByID(gomock.Eq(movie_inst.ID)).
+		SelectByID(gomock.Eq(movieInst.ID)).
 		Return(nil, sql.ErrNoRows)
 
-	dbMovie, err := movieUseCase.GetWithContentByID(movie_inst.ID)
+	dbMovie, err := movieUseCase.GetWithContentByID(movieInst.ID)
 	assert.Equal(t, err, errors.Get(consts.CodeMovieDoesNotExist))
 	assert.Equal(t, dbMovie, (*models.Movie)(nil))
 }
@@ -218,58 +177,21 @@ func TestMovieUseCase_GetFullByID_OK(t *testing.T) {
 	movieRep := mocks.NewMockMovieRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
 	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+	var userID uint64 = 1
 
 	movieRep.
 		EXPECT().
-		SelectByID(gomock.Eq(movie_inst.ID)).
-		Return(movie_inst, nil)
+		SelectFullByID(gomock.Eq(movieInst.ID), gomock.Eq(userID)).
+		Return(movieInst, nil)
 
 	contentUseCase.
 		EXPECT().
-		GetFullByID(gomock.Eq(movie_inst.ContentID)).
-		Return(content_inst, nil)
+		FillContent(gomock.Eq(&movieInst.Content)).
+		Return(nil)
 
-	dbMovie, err := movieUseCase.GetFullByID(movie_inst.ID)
+	dbMovie, err := movieUseCase.GetFullByID(movieInst.ID, userID)
 	assert.Equal(t, err, (*errors.Error)(nil))
-	assert.Equal(t, dbMovie, movie_inst)
-}
-
-func TestMovieUseCase_GetFullByID_Fail(t *testing.T) {
-	t.Parallel()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	movieRep := mocks.NewMockMovieRepository(ctrl)
-	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
-
-	movieRep.
-		EXPECT().
-		SelectByID(gomock.Eq(movie_inst.ID)).
-		Return(nil, sql.ErrNoRows)
-
-	dbMovie, err := movieUseCase.GetFullByID(movie_inst.ID)
-	assert.Equal(t, err, errors.Get(consts.CodeMovieDoesNotExist))
-	assert.Equal(t, dbMovie, (*models.Movie)(nil))
-}
-
-func TestMovieUseCase_GetByContentID_OK(t *testing.T) {
-	t.Parallel()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	movieRep := mocks.NewMockMovieRepository(ctrl)
-	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
-
-	movieRep.
-		EXPECT().
-		SelectByContentID(gomock.Eq(movie_inst.ContentID)).
-		Return(movie_inst, nil)
-
-	dbMovie, err := movieUseCase.GetByContentID(movie_inst.ContentID)
-	assert.Equal(t, err, (*errors.Error)(nil))
-	assert.Equal(t, dbMovie, movie_inst)
+	assert.Equal(t, dbMovie, movieInst)
 }
 
 func TestMovieUseCase_GetByContentID_Fail(t *testing.T) {
@@ -283,15 +205,15 @@ func TestMovieUseCase_GetByContentID_Fail(t *testing.T) {
 
 	movieRep.
 		EXPECT().
-		SelectByContentID(gomock.Eq(movie_inst.ContentID)).
+		SelectByContentID(gomock.Eq(movieInst.ContentID)).
 		Return(nil, sql.ErrNoRows)
 
-	dbMovie, err := movieUseCase.GetByContentID(movie_inst.ContentID)
+	dbMovie, err := movieUseCase.GetByContentID(movieInst.ContentID)
 	assert.Equal(t, err, errors.Get(consts.CodeMovieDoesNotExist))
 	assert.Equal(t, dbMovie, (*models.Movie)(nil))
 }
 
-func TestMovieUseCase_ListByGenre_OK(t *testing.T) {
+func TestMovieUseCase_ListByParams_OK(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -300,19 +222,123 @@ func TestMovieUseCase_ListByGenre_OK(t *testing.T) {
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
 	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
 
-	genre := &models.Genre{
-		Name: "comedy",
+	var contentInst *models.Content = &models.Content{
+		Name:             "Шрек",
+		OriginalName:     "Shrek",
+		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
+		ShortDescription: "Полная сюрпризов сказка об ужасном болотном огре",
+		Year:             2001,
+		Countries:        nil,
+		Genres:           nil,
+		Actors:           nil,
+		Directors:        nil,
+		Type:             "movie",
 	}
 
-	movies := []*models.Movie{}
-	movies = append(movies, movie_inst)
+	content := []*models.Content{
+		contentInst,
+	}
+
+	movies := []*models.Movie{
+		&models.Movie{
+			Content: *content[0],
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 1
+
+	params := &models.ContentFilter{
+		Year:     2001,
+		Genre:    1,
+		Country:  1,
+		Actor:    1,
+		Director: 1,
+	}
 
 	movieRep.
 		EXPECT().
-		SelectByGenre(gomock.Eq(genre.ID)).
+		SelectByParams(gomock.Eq(params), gomock.Eq(pgnt), gomock.Eq(userID)).
 		Return(movies, nil)
 
-	dbMovie, err := movieUseCase.ListByGenre(genre.ID)
+	dbMovies, err := movieUseCase.ListByParams(params, pgnt, userID)
 	assert.Equal(t, err, (*errors.Error)(nil))
-	assert.Equal(t, dbMovie, movies)
+	assert.Equal(t, dbMovies, movies)
+}
+
+func TestMovieUseCase_ListLatest_OK(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	movieRep := mocks.NewMockMovieRepository(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	movies := []*models.Movie{
+		&models.Movie{
+			Content: *content[0],
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 1
+
+	movieRep.
+		EXPECT().
+		SelectLatest(gomock.Eq(pgnt), gomock.Eq(userID)).
+		Return(movies, nil)
+
+	dbMovies, err := movieUseCase.ListLatest(pgnt, userID)
+	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbMovies, movies)
+}
+
+func TestMovieUseCase_ListByRating_OK(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	movieRep := mocks.NewMockMovieRepository(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	movies := []*models.Movie{
+		&models.Movie{
+			Content: *content[0],
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 1
+
+	movieRep.
+		EXPECT().
+		SelectByRating(gomock.Eq(pgnt), gomock.Eq(userID)).
+		Return(movies, nil)
+
+	dbMovies, err := movieUseCase.ListByRating(pgnt, userID)
+	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbMovies, movies)
 }

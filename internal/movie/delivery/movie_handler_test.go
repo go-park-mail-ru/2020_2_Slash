@@ -11,6 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	movieMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/movie/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/pkg/converter"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -81,7 +82,7 @@ func TestMovieHandler_CreateMovieHandler(t *testing.T) {
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
 
-	var content_inst *models.Content = &models.Content{
+	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
 		OriginalName:     "Shrek",
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
@@ -111,8 +112,8 @@ func TestMovieHandler_CreateMovieHandler(t *testing.T) {
 		DirectorsID:      directorsID,
 	}
 
-	var movie_inst *models.Movie = &models.Movie{
-		Content: *content_inst,
+	var movieInst *models.Movie = &models.Movie{
+		Content: *contentInst,
 	}
 
 	movieJSON, err := converter.AnyToBytesBuffer(requestData)
@@ -153,10 +154,10 @@ func TestMovieHandler_CreateMovieHandler(t *testing.T) {
 
 	movieUseCase.
 		EXPECT().
-		Create(movie_inst).
+		Create(movieInst).
 		Return(nil)
 
-	response := &response.Response{Body: &response.Body{"movie": movie_inst}}
+	response := &response.Response{Body: &response.Body{"movie": movieInst}}
 
 	// Assertions
 	if assert.NoError(t, handleFunc(c)) {
@@ -185,7 +186,7 @@ func TestMovieHandler_UpdateMovieHandler(t *testing.T) {
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
 
-	var content_inst *models.Content = &models.Content{
+	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
 		OriginalName:     "Shrek",
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
@@ -214,8 +215,8 @@ func TestMovieHandler_UpdateMovieHandler(t *testing.T) {
 		DirectorsID:      directorsID,
 	}
 
-	var movie_inst *models.Movie = &models.Movie{
-		Content: *content_inst,
+	var movieInst *models.Movie = &models.Movie{
+		Content: *contentInst,
 	}
 
 	movieJSON, err := converter.AnyToBytesBuffer(requestData)
@@ -224,7 +225,7 @@ func TestMovieHandler_UpdateMovieHandler(t *testing.T) {
 	}
 
 	e := echo.New()
-	strId := strconv.Itoa(int(movie_inst.ID))
+	strId := strconv.Itoa(int(movieInst.ID))
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/movies"+strId, strings.NewReader(movieJSON.String()))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -259,15 +260,15 @@ func TestMovieHandler_UpdateMovieHandler(t *testing.T) {
 
 	movieUseCase.
 		EXPECT().
-		GetByID(movie_inst.ID).
-		Return(movie_inst, nil)
+		GetByID(movieInst.ID).
+		Return(movieInst, nil)
 
 	contentUseCase.
 		EXPECT().
-		UpdateByID(movie_inst.ContentID, content_inst).
-		Return(content_inst, nil)
+		UpdateByID(movieInst.ContentID, contentInst).
+		Return(contentInst, nil)
 
-	response := &response.Response{Body: &response.Body{"movie": movie_inst}}
+	response := &response.Response{Body: &response.Body{"movie": movieInst}}
 
 	// Assertions
 	if assert.NoError(t, handleFunc(c)) {
@@ -296,7 +297,7 @@ func TestMovieHandler_DeleteMovieHandler(t *testing.T) {
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
 
-	var content_inst *models.Content = &models.Content{
+	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
 		OriginalName:     "Shrek",
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
@@ -308,12 +309,12 @@ func TestMovieHandler_DeleteMovieHandler(t *testing.T) {
 		Directors:        directors,
 	}
 
-	var movie_inst *models.Movie = &models.Movie{
-		Content: *content_inst,
+	var movieInst *models.Movie = &models.Movie{
+		Content: *contentInst,
 	}
 
 	e := echo.New()
-	strId := strconv.Itoa(int(movie_inst.ID))
+	strId := strconv.Itoa(int(movieInst.ID))
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/movies"+strId, strings.NewReader(""))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -328,17 +329,17 @@ func TestMovieHandler_DeleteMovieHandler(t *testing.T) {
 
 	movieUseCase.
 		EXPECT().
-		GetByID(movie_inst.ID).
-		Return(movie_inst, nil)
+		GetByID(movieInst.ID).
+		Return(movieInst, nil)
 
 	movieUseCase.
 		EXPECT().
-		DeleteByID(movie_inst.ID).
+		DeleteByID(movieInst.ID).
 		Return(nil)
 
 	contentUseCase.
 		EXPECT().
-		DeleteByID(movie_inst.ContentID).
+		DeleteByID(movieInst.ContentID).
 		Return(nil)
 
 	response := &response.Response{Message: "success"}
@@ -360,6 +361,7 @@ func TestMovieHandler_DeleteMovieHandler(t *testing.T) {
 
 func TestMovieHandler_DeleteMovieHandler_NoMovie(t *testing.T) {
 	t.Parallel()
+	logger.DisableLogger()
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -370,7 +372,7 @@ func TestMovieHandler_DeleteMovieHandler_NoMovie(t *testing.T) {
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
 
-	var content_inst *models.Content = &models.Content{
+	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
 		OriginalName:     "Shrek",
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
@@ -382,12 +384,12 @@ func TestMovieHandler_DeleteMovieHandler_NoMovie(t *testing.T) {
 		Directors:        directors,
 	}
 
-	var movie_inst *models.Movie = &models.Movie{
-		Content: *content_inst,
+	var movieInst *models.Movie = &models.Movie{
+		Content: *contentInst,
 	}
 
 	e := echo.New()
-	strId := strconv.Itoa(int(movie_inst.ID))
+	strId := strconv.Itoa(int(movieInst.ID))
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/movies"+strId, strings.NewReader(""))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -402,7 +404,7 @@ func TestMovieHandler_DeleteMovieHandler_NoMovie(t *testing.T) {
 
 	movieUseCase.
 		EXPECT().
-		GetByID(movie_inst.ID).
+		GetByID(movieInst.ID).
 		Return(nil, errors.Get(consts.CodeMovieDoesNotExist))
 
 	response := &response.Response{Error: errors.Get(consts.CodeMovieDoesNotExist)}
@@ -434,7 +436,7 @@ func TestMovieHandler_GetMovieHandler(t *testing.T) {
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
 
-	var content_inst *models.Content = &models.Content{
+	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
 		OriginalName:     "Shrek",
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
@@ -446,17 +448,18 @@ func TestMovieHandler_GetMovieHandler(t *testing.T) {
 		Directors:        directors,
 	}
 
-	var movie_inst *models.Movie = &models.Movie{
-		Content: *content_inst,
+	var movieInst *models.Movie = &models.Movie{
+		Content: *contentInst,
 	}
+	var userID uint64 = 0
 
 	e := echo.New()
-	strId := strconv.Itoa(int(movie_inst.ID))
+	strId := strconv.Itoa(int(movieInst.ID))
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/movies"+strId, strings.NewReader(""))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("mid")
 	c.SetParamValues(strId)
 
 	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
@@ -466,10 +469,10 @@ func TestMovieHandler_GetMovieHandler(t *testing.T) {
 
 	movieUseCase.
 		EXPECT().
-		GetFullByID(movie_inst.ID).
-		Return(movie_inst, nil)
+		GetFullByID(movieInst.ID, userID).
+		Return(movieInst, nil)
 
-	response := &response.Response{Body: &response.Body{"movie": movie_inst}}
+	response := &response.Response{Body: &response.Body{"movie": movieInst}}
 
 	// Assertions
 	if assert.NoError(t, handleFunc(c)) {
@@ -489,6 +492,7 @@ func TestMovieHandler_GetMovieHandler(t *testing.T) {
 func TestMovieHandler_UpdateMoviePostersHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	movieUseCase := movieMocks.NewMockMovieUsecase(ctrl)
@@ -538,6 +542,7 @@ func TestMovieHandler_UpdateMoviePostersHandler(t *testing.T) {
 func TestMovieHandler_UpdateMovieVideoHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
+	logger.DisableLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	movieUseCase := movieMocks.NewMockMovieUsecase(ctrl)
@@ -584,7 +589,7 @@ func TestMovieHandler_UpdateMovieVideoHandler(t *testing.T) {
 	}
 }
 
-func TestMovieHandler_GetMovieListByGenreHandler(t *testing.T) {
+func TestMovieHandler_GetMoviesHandler(t *testing.T) {
 	t.Parallel()
 	// Setup
 	ctrl := gomock.NewController(t)
@@ -596,22 +601,45 @@ func TestMovieHandler_GetMovieListByGenreHandler(t *testing.T) {
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
 
-	genre := &models.Genre{
-		ID:   1,
-		Name: "comedy",
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 0
+
+	params := &models.ContentFilter{
+		Year:     2001,
+		Genre:    1,
+		Country:  1,
+		Actor:    1,
+		Director: 1,
+	}
+
+	type Request struct {
+		models.ContentFilter
+		models.Pagination
+	}
+
+	reqest := &Request{
+		*params,
+		*pgnt,
+	}
+
+	reqJSON, err := converter.AnyToBytesBuffer(reqest)
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	e := echo.New()
-	genreID := strconv.Itoa(1)
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/movies?genre="+genreID, strings.NewReader(""))
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/movies", strings.NewReader(reqJSON.String()))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamValues(genreID)
+	c.Set("userID", userID)
 
 	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
 		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
-	handleFunc := movieHandler.GetMovieListByGenreHandler()
+	handleFunc := movieHandler.GetMoviesHandler()
 	movieHandler.Configure(e, nil)
 
 	content := []*models.Content{
@@ -628,7 +656,145 @@ func TestMovieHandler_GetMovieListByGenreHandler(t *testing.T) {
 
 	movieUseCase.
 		EXPECT().
-		ListByGenre(genre.ID).
+		ListByParams(params, pgnt, userID).
+		Return(movies, nil)
+
+	response := &response.Response{Body: &response.Body{"movies": movies}}
+
+	// Assertions
+	if assert.NoError(t, handleFunc(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+
+		expResBody, err := converter.AnyToBytesBuffer(response)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		bytes, _ := ioutil.ReadAll(rec.Body)
+
+		assert.JSONEq(t, expResBody.String(), string(bytes))
+	}
+}
+
+func TestMovieHandler_GetLatestMoviesHandler(t *testing.T) {
+	t.Parallel()
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	movieUseCase := movieMocks.NewMockMovieUsecase(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	countryUseCase := countryMocks.NewMockCountryUsecase(ctrl)
+	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
+	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
+	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 0
+
+	reqJSON, err := converter.AnyToBytesBuffer(pgnt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/movies/latest", strings.NewReader(reqJSON.String()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.Set("userID", userID)
+
+	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
+	handleFunc := movieHandler.GetLatestMoviesHandler()
+	movieHandler.Configure(e, nil)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	movies := []*models.Movie{
+		&models.Movie{
+			Content: *content[0],
+		},
+	}
+
+	movieUseCase.
+		EXPECT().
+		ListLatest(pgnt, userID).
+		Return(movies, nil)
+
+	response := &response.Response{Body: &response.Body{"movies": movies}}
+
+	// Assertions
+	if assert.NoError(t, handleFunc(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+
+		expResBody, err := converter.AnyToBytesBuffer(response)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		bytes, _ := ioutil.ReadAll(rec.Body)
+
+		assert.JSONEq(t, expResBody.String(), string(bytes))
+	}
+}
+
+func TestMovieHandler_GetMoviesByRatingHandler(t *testing.T) {
+	t.Parallel()
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	movieUseCase := movieMocks.NewMockMovieUsecase(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	countryUseCase := countryMocks.NewMockCountryUsecase(ctrl)
+	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
+	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
+	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 0
+
+	reqJSON, err := converter.AnyToBytesBuffer(pgnt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/movies/top", strings.NewReader(reqJSON.String()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.Set("userID", userID)
+
+	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
+	handleFunc := movieHandler.GetTopMovieListHandler()
+	movieHandler.Configure(e, nil)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	movies := []*models.Movie{
+		&models.Movie{
+			Content: *content[0],
+		},
+	}
+
+	movieUseCase.
+		EXPECT().
+		ListByRating(pgnt, userID).
 		Return(movies, nil)
 
 	response := &response.Response{Body: &response.Body{"movies": movies}}

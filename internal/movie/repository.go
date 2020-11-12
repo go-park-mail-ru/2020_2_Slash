@@ -14,5 +14,5 @@ type MovieRepository interface {
 	SelectByParams(params *models.ContentFilter, pgnt *models.Pagination,
 		curUserID uint64) ([]*models.Movie, error)
 	SelectLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, error)
-	SelectByRating(userID uint64, limit uint64, offset uint64) ([]*models.Movie, error)
+	SelectByRating(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, error)
 }

@@ -201,14 +201,16 @@ func getWhereQueryByParams(values []interface{}, params *models.ContentFilter) (
 func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 	pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, error) {
 
-	selectQuery := `SELECT m.id, m.video, c.id, c.name, c.original_name, c.description,
-		c.short_description, c.year, c.images, c.type, r.likes,
+	selectQuery := `
+		SELECT m.id, m.video, c.id, c.name, c.original_name, c.description,
+		c.short_description, c.rating, c.year, c.images, c.type, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content as c`
 
 	var values []interface{}
 
-	joinMovieQuery := `LEFT OUTER JOIN movies as m ON m.content_id=c.id
+	joinMovieQuery := `
+		LEFT OUTER JOIN movies as m ON m.content_id=c.id
 		LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
 		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id`
 	values = append(values, curUserID)
@@ -242,7 +244,7 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 		cnt := &models.Content{}
 
 		err := rows.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
-			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
+			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription, &cnt.Rating,
 			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err
@@ -261,14 +263,16 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 func (mr *MoviePgRepository) SelectLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, error) {
 	var values []interface{}
 
-	selectQuery := `SELECT m.id, m.video, c.id, c.name, c.original_name, c.description, c.short_description,
-	c.year, c.images, c.type, r.likes,
-	CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
-	FROM content AS c
-	LEFT OUTER JOIN movies as m ON m.content_id=c.id
-	LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
-	LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id
-	ORDER BY c.year DESC`
+	selectQuery := `
+		SELECT m.id, m.video, c.id, c.name, c.original_name,
+		c.description, c.short_description, c.rating,
+		c.year, c.images, c.type, r.likes,
+		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
+		FROM content AS c
+		LEFT OUTER JOIN movies as m ON m.content_id=c.id
+		LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
+		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id
+		ORDER BY c.year DESC`
 	values = append(values, curUserID)
 
 	var pgntQuery string
@@ -295,7 +299,7 @@ func (mr *MoviePgRepository) SelectLatest(pgnt *models.Pagination, curUserID uin
 		cnt := &models.Content{}
 
 		err := rows.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
-			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
+			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription, &cnt.Rating,
 			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err
@@ -311,8 +315,9 @@ func (mr *MoviePgRepository) SelectLatest(pgnt *models.Pagination, curUserID uin
 	return movies, nil
 }
 
-func (mr *MoviePgRepository) SelectByRating(userID uint64, limit uint64, offset uint64) ([]*models.Movie, error) {
+func (mr *MoviePgRepository) SelectByRating(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, error) {
 	var values []interface{}
+
 	selectQuery := `
 		SELECT m.id, m.video, c.id, c.name, c.original_name,
 		c.description, c.short_description,
@@ -323,12 +328,12 @@ func (mr *MoviePgRepository) SelectByRating(userID uint64, limit uint64, offset 
 		LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
 		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id
 		ORDER BY c.rating DESC`
-	values = append(values, userID)
+	values = append(values, curUserID)
 
 	var pgntQuery string
-	if limit != 0 {
+	if pgnt.Count != 0 {
 		pgntQuery = "LIMIT $2 OFFSET $3"
-		values = append(values, limit, offset)
+		values = append(values, pgnt.Count, pgnt.From)
 	}
 
 	resultQuery := strings.Join([]string{
