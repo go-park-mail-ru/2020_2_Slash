@@ -41,7 +41,7 @@ func (uh *UserHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 
 func (uh *UserHandler) RegisterUserHandler() echo.HandlerFunc {
 	type Request struct {
-		Nickname         string `json:"nickname" validate:"gte=3,lte=32"`
+		Nickname         string `json:"nickname" validate:"omitempty,gte=3,lte=32"`
 		Email            string `json:"email" validate:"required,email,lte=64"`
 		Password         string `json:"password" validate:"required,gte=6,lte=32"`
 		RepeatedPassword string `json:"repeated_password" validate:"eqfield=Password"`
