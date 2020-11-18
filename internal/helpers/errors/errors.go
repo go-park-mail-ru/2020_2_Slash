@@ -241,4 +241,16 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "season already exist in db",
 		UserMessage: "Такой сезон уже существует",
 	},
+	CodeEpisodeAlreadyExist: {
+		Code:        CodeEpisodeAlreadyExist,
+		HTTPCode:    http.StatusConflict,
+		Message:     "episode already exist in db",
+		UserMessage: "Такая серия уже существует",
+	},
+	CodeEpisodeDoesNotExist: {
+		Code:        CodeEpisodeDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "episode does not exist in db",
+		UserMessage: "Такой серии не существует",
+	},
 }
