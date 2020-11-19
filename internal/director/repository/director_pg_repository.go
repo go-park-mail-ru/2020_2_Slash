@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/director"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 )
@@ -52,7 +53,7 @@ func (dr *DirectorPgRepository) Update(director *models.Director) error {
 		director.ID, director.Name)
 	if err != nil {
 		_ = tx.Rollback()
-		return nil
+		return err
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -72,7 +73,7 @@ func (dr *DirectorPgRepository) DeleteById(id uint64) error {
 		WHERE id = $1`, id)
 	if err != nil {
 		_ = tx.Rollback()
-		return nil
+		return err
 	}
 
 	if err := tx.Commit(); err != nil {

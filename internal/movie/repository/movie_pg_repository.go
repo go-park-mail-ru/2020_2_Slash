@@ -57,7 +57,7 @@ func (mr *MoviePgRepository) Update(movie *models.Movie) error {
 		movie.ID, movie.Video, movie.ContentID)
 	if err != nil {
 		tx.Rollback()
-		return nil
+		return err
 	}
 
 	if err := tx.Commit(); err != nil {

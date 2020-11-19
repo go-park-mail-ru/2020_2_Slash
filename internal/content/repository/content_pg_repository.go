@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/lib/pq"
@@ -84,7 +85,7 @@ func (cr *ContentPgRepository) Update(content *models.Content) error {
 
 	if err != nil {
 		tx.Rollback()
-		return nil
+		return err
 	}
 
 	// Update countries
@@ -131,7 +132,7 @@ func (cr *ContentPgRepository) UpdateImages(content *models.Content) error {
 
 	if err != nil {
 		tx.Rollback()
-		return nil
+		return err
 	}
 
 	if err := tx.Commit(); err != nil {

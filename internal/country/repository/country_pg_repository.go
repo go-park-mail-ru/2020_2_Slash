@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/country"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 )
@@ -54,7 +55,7 @@ func (cr *CountryPgRepository) Update(country *models.Country) error {
 		country.ID, country.Name)
 	if err != nil {
 		tx.Rollback()
-		return nil
+		return err
 	}
 
 	if err := tx.Commit(); err != nil {
