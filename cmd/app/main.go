@@ -2,9 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"log"
+
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
-	"log"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/config"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
@@ -41,6 +42,11 @@ import (
 	movieHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/movie/delivery"
 	movieRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/movie/repository"
 	movieUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/movie/usecases"
+
+	tvshowHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/tvshow/delivery"
+	tvshowRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/tvshow/repository"
+	tvshowUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/tvshow/usecases"
+
 	ratingHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/rating/delivery"
 	ratingRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/rating/repository"
 	ratingUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/rating/usecases"
@@ -89,6 +95,7 @@ func main() {
 	directorRepo := directorRepo.NewDirectorPgRepository(dbConnection)
 	contentRepo := contentRepo.NewContentPgRepository(dbConnection)
 	movieRepo := movieRepo.NewMoviePgRepository(dbConnection)
+	tvshowRepo := tvshowRepo.NewTVShowPgRepository(dbConnection)
 	ratingRepo := ratingRepo.NewRatingPgRepository(dbConnection)
 	favouriteRepo := favouriteRepo.NewFavouritePgRepository(dbConnection)
 
@@ -101,6 +108,7 @@ func main() {
 	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo)
 	contentUcase := contentUsecase.NewContentUsecase(contentRepo, countryUcase, genreUcase, actorUcase, directorUcase)
 	movieUcase := movieUsecase.NewMovieUsecase(movieRepo, contentUcase)
+	tvshowUcase := tvshowUsecase.NewTVShowUsecase(tvshowRepo, contentUcase)
 	ratingUcase := ratingUsecase.NewRatingUseCase(ratingRepo, contentUcase)
 	favouriteUcase := favouriteUsecase.NewFavouriteUsecase(favouriteRepo)
 
@@ -121,6 +129,7 @@ func main() {
 	actorHandler := actorHandler.NewActorHandler(actorUcase)
 	directorHandler := directorHandler.NewDirectorHandler(directorUcase)
 	movieHandler := movieHandler.NewMovieHandler(movieUcase, contentUcase, countryUcase, genreUcase, actorUcase, directorUcase)
+	tvshowHandler := tvshowHandler.NewTVShowHandler(tvshowUcase, contentUcase, countryUcase, genreUcase, actorUcase, directorUcase)
 	ratingHandler := ratingHandler.NewRatingHandler(ratingUcase)
 	favouriteHandler := favouriteHandler.NewFavouriteHandler(favouriteUcase, contentUcase)
 
@@ -131,6 +140,7 @@ func main() {
 	actorHandler.Configure(e, mw)
 	directorHandler.Configure(e, mw)
 	movieHandler.Configure(e, mw)
+	tvshowHandler.Configure(e, mw)
 	ratingHandler.Configure(e, mw)
 	favouriteHandler.Configure(e, mw)
 

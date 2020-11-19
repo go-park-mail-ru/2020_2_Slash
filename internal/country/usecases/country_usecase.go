@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"database/sql"
+
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/country"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
