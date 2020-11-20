@@ -36,6 +36,7 @@ import (
 	directorRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/director/repository"
 	directorUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/director/usecases"
 
+	contentHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/content/delivery"
 	contentRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/content/repository"
 	contentUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/content/usecases"
 
@@ -128,6 +129,7 @@ func main() {
 	countryHandler := countryHandler.NewCountryHandler(countryUcase)
 	actorHandler := actorHandler.NewActorHandler(actorUcase)
 	directorHandler := directorHandler.NewDirectorHandler(directorUcase)
+	contentHandler := contentHandler.NewContentHandler(contentUcase)
 	movieHandler := movieHandler.NewMovieHandler(movieUcase, contentUcase, countryUcase, genreUcase, actorUcase, directorUcase)
 	tvshowHandler := tvshowHandler.NewTVShowHandler(tvshowUcase, contentUcase, countryUcase, genreUcase, actorUcase, directorUcase)
 	ratingHandler := ratingHandler.NewRatingHandler(ratingUcase)
@@ -139,6 +141,7 @@ func main() {
 	countryHandler.Configure(e, mw)
 	actorHandler.Configure(e, mw)
 	directorHandler.Configure(e, mw)
+	contentHandler.Configure(e, mw)
 	movieHandler.Configure(e, mw)
 	tvshowHandler.Configure(e, mw)
 	ratingHandler.Configure(e, mw)

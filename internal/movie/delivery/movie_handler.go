@@ -1,6 +1,11 @@
 package delivery
 
 import (
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor"
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
@@ -18,10 +23,6 @@ import (
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
-	"os"
-	"path/filepath"
-	"strconv"
 )
 
 type MovieHandler struct {
@@ -51,8 +52,6 @@ func (mh *MovieHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.PUT("/api/v1/movies/:mid", mh.UpdateMovieHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.DELETE("/api/v1/movies/:mid", mh.DeleteMovieHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.GET("/api/v1/movies/:mid", mh.GetMovieHandler(), mw.GetAuth)
-	e.PUT("/api/v1/movies/:mid/poster", mh.UpdateMoviePostersHandler(),
-		middleware.BodyLimit("10M"), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.PUT("/api/v1/movies/:mid/video", mh.UpdateMovieVideoHandler(),
 		middleware.BodyLimit("1000M"), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.GET("/api/v1/movies", mh.GetMoviesHandler(), mw.GetAuth)
@@ -255,91 +254,6 @@ func (mh *MovieHandler) GetMovieHandler() echo.HandlerFunc {
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
 				"movie": movie,
-			},
-		})
-	}
-}
-
-func (mh *MovieHandler) UpdateMoviePostersHandler() echo.HandlerFunc {
-	const postersDirRoot = "/images/"
-	const smallPosterName = "small.png"
-	const largePosterName = "large.png"
-
-	return func(cntx echo.Context) error {
-		smallImage, err := reader.NewRequestReader(cntx).ReadNotRequiredImage("small_poster")
-		if err != nil {
-			logger.Error(err.Message)
-			return cntx.JSON(err.HTTPCode, Response{Error: err})
-		}
-
-		largeImage, err := reader.NewRequestReader(cntx).ReadNotRequiredImage("large_poster")
-		if err != nil {
-			logger.Error(err.Message)
-			return cntx.JSON(err.HTTPCode, Response{Error: err})
-		}
-
-		// Check for passing at least one image
-		if smallImage == nil && largeImage == nil {
-			err := errors.Get(CodeBadRequest)
-			logger.Error(err.Message)
-			return cntx.JSON(err.HTTPCode, Response{Error: err})
-		}
-
-		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
-		movie, err := mh.movieUcase.GetWithContentByID(movieID)
-		if err != nil {
-			logger.Error(err.Message)
-			return cntx.JSON(err.HTTPCode, Response{Error: err})
-		}
-
-		path, osErr := os.Getwd()
-		if osErr != nil {
-			err := errors.New(CodeInternalError, osErr)
-			logger.Error(err.Message)
-			return cntx.JSON(err.HTTPCode, Response{Error: err})
-		}
-
-		// Create posters directory
-		postersDir := postersDirRoot + strconv.Itoa(int(movie.ContentID))
-		postersDirPath := filepath.Join(path, postersDir)
-		helpers.InitStorage(postersDirPath)
-
-		// Store small poster
-		if smallImage != nil {
-			smallPosterPath := filepath.Join(postersDirPath, smallPosterName)
-			if err := helpers.StoreFile(smallImage, smallPosterPath); err != nil {
-				if movie.Content.Images == "" {
-					os.RemoveAll(postersDirPath)
-				}
-				logger.Error(err.Message)
-				return cntx.JSON(err.HTTPCode, Response{Error: err})
-			}
-		}
-
-		// Store large poster
-		if largeImage != nil {
-			largePosterPath := filepath.Join(postersDirPath, largePosterName)
-			if err := helpers.StoreFile(largeImage, largePosterPath); err != nil {
-				if movie.Content.Images == "" {
-					os.RemoveAll(postersDirPath)
-				}
-				logger.Error(err.Message)
-				return cntx.JSON(err.HTTPCode, Response{Error: err})
-			}
-		}
-
-		// Update content
-		if err := mh.contentUcase.UpdatePosters(&movie.Content, postersDir); err != nil {
-			if movie.Content.Images == "" {
-				os.RemoveAll(postersDirPath)
-			}
-			logger.Error(err.Message)
-			return cntx.JSON(err.HTTPCode, Response{Error: err})
-		}
-
-		return cntx.JSON(http.StatusOK, Response{
-			Body: &Body{
-				"images": postersDir,
 			},
 		})
 	}

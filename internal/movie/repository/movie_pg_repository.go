@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/movie"
 	"strconv"
 	"strings"
+
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/movie"
 )
 
 type MoviePgRepository struct {

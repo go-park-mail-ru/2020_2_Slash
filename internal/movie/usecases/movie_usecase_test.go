@@ -2,6 +2,8 @@ package usecases
 
 import (
 	"database/sql"
+	"testing"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	contentMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/content/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
@@ -9,7 +11,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/movie/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var contentInst *models.Content = &models.Content{
@@ -122,49 +123,6 @@ func TestMovieUseCase_GetByID_Fail(t *testing.T) {
 		Return(nil, sql.ErrNoRows)
 
 	dbMovie, err := movieUseCase.GetByID(movieInst.ID)
-	assert.Equal(t, err, errors.Get(consts.CodeMovieDoesNotExist))
-	assert.Equal(t, dbMovie, (*models.Movie)(nil))
-}
-
-func TestMovieUseCase_GetWithContentByID_OK(t *testing.T) {
-	t.Parallel()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	movieRep := mocks.NewMockMovieRepository(ctrl)
-	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
-
-	movieRep.
-		EXPECT().
-		SelectByID(gomock.Eq(movieInst.ID)).
-		Return(movieInst, nil)
-
-	contentUseCase.
-		EXPECT().
-		GetByID(gomock.Eq(movieInst.ContentID)).
-		Return(contentInst, nil)
-
-	dbMovie, err := movieUseCase.GetWithContentByID(movieInst.ID)
-	assert.Equal(t, err, (*errors.Error)(nil))
-	assert.Equal(t, dbMovie, movieInst)
-}
-
-func TestMovieUseCase_GetWithContentByID_Fail(t *testing.T) {
-	t.Parallel()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	movieRep := mocks.NewMockMovieRepository(ctrl)
-	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
-
-	movieRep.
-		EXPECT().
-		SelectByID(gomock.Eq(movieInst.ID)).
-		Return(nil, sql.ErrNoRows)
-
-	dbMovie, err := movieUseCase.GetWithContentByID(movieInst.ID)
 	assert.Equal(t, err, errors.Get(consts.CodeMovieDoesNotExist))
 	assert.Equal(t, dbMovie, (*models.Movie)(nil))
 }

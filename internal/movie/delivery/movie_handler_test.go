@@ -1,6 +1,13 @@
 package delivery
 
 import (
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
+	"strings"
+	"testing"
+
 	actorMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/actor/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	contentMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/content/mocks"
@@ -16,12 +23,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"strconv"
-	"strings"
-	"testing"
 )
 
 var countries = []*models.Country{
@@ -477,56 +478,6 @@ func TestMovieHandler_GetMovieHandler(t *testing.T) {
 	// Assertions
 	if assert.NoError(t, handleFunc(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
-
-		expResBody, err := converter.AnyToBytesBuffer(response)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-		bytes, _ := ioutil.ReadAll(rec.Body)
-
-		assert.JSONEq(t, expResBody.String(), string(bytes))
-	}
-}
-
-func TestMovieHandler_UpdateMoviePostersHandler(t *testing.T) {
-	t.Parallel()
-	// Setup
-	logger.DisableLogger()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	movieUseCase := movieMocks.NewMockMovieUsecase(ctrl)
-	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	countryUseCase := countryMocks.NewMockCountryUsecase(ctrl)
-	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
-	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
-	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
-
-	e := echo.New()
-	strId := strconv.Itoa(1)
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/movies"+strId, strings.NewReader(""))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
-	c.SetParamValues(strId)
-
-	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
-		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
-	handleFunc := movieHandler.UpdateMoviePostersHandler()
-	movieHandler.Configure(e, nil)
-
-	response := map[string]interface{}{
-		"error": map[string]interface{}{
-			"code":         101,
-			"message":      "request Content-Type isn't multipart/form-data",
-			"user_message": "Неверный формат запроса",
-		},
-	}
-
-	// Assertions
-	if assert.NoError(t, handleFunc(c)) {
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
 
 		expResBody, err := converter.AnyToBytesBuffer(response)
 		if err != nil {
