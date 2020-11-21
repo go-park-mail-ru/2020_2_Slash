@@ -55,6 +55,10 @@ import (
 	favouriteHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/favourite/delivery"
 	favouriteRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/favourite/repository"
 	favouriteUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/favourite/usecases"
+
+	seasonHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/season/delivery"
+	seasonRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/season/repository"
+	seasonUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/season/usecases"
 )
 
 func main() {
@@ -99,6 +103,7 @@ func main() {
 	tvshowRepo := tvshowRepo.NewTVShowPgRepository(dbConnection)
 	ratingRepo := ratingRepo.NewRatingPgRepository(dbConnection)
 	favouriteRepo := favouriteRepo.NewFavouritePgRepository(dbConnection)
+	seasonRepo := seasonRepo.NewSeasonPgRepository(dbConnection)
 
 	// Usecases
 	sessUcase := sessionUsecase.NewSessionUsecase(sessRepo)
@@ -112,6 +117,7 @@ func main() {
 	tvshowUcase := tvshowUsecase.NewTVShowUsecase(tvshowRepo, contentUcase)
 	ratingUcase := ratingUsecase.NewRatingUseCase(ratingRepo, contentUcase)
 	favouriteUcase := favouriteUsecase.NewFavouriteUsecase(favouriteRepo)
+	seasonUcase := seasonUsecase.NewSeasonUsecase(seasonRepo, tvshowUcase)
 
 	// Middleware
 	e := echo.New()
@@ -134,6 +140,7 @@ func main() {
 	tvshowHandler := tvshowHandler.NewTVShowHandler(tvshowUcase, contentUcase, countryUcase, genreUcase, actorUcase, directorUcase)
 	ratingHandler := ratingHandler.NewRatingHandler(ratingUcase)
 	favouriteHandler := favouriteHandler.NewFavouriteHandler(favouriteUcase, contentUcase)
+	seasonHandler := seasonHandler.NewSeasonHandler(seasonUcase)
 
 	userHandler.Configure(e, mw)
 	sessionHandler.Configure(e, mw)
@@ -146,6 +153,7 @@ func main() {
 	tvshowHandler.Configure(e, mw)
 	ratingHandler.Configure(e, mw)
 	favouriteHandler.Configure(e, mw)
+	seasonHandler.Configure(e, mw)
 
 	log.Fatal(e.Start(config.GetServerConnString()))
 }
