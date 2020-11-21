@@ -63,6 +63,9 @@ import (
 	episodeHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/episode/delivery"
 	episodeRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/episode/repository"
 	episodeUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/episode/usecases"
+
+	searchHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/search/delivery"
+	searchUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/search/usecases"
 )
 
 func main() {
@@ -124,6 +127,7 @@ func main() {
 	favouriteUcase := favouriteUsecase.NewFavouriteUsecase(favouriteRepo)
 	seasonUcase := seasonUsecase.NewSeasonUsecase(seasonRepo, tvshowUcase)
 	episodeUcase := episodeUsecase.NewEpisodeUsecase(episodeRepo, seasonUcase)
+	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo)
 
 	// Middleware
 	e := echo.New()
@@ -148,6 +152,7 @@ func main() {
 	favouriteHandler := favouriteHandler.NewFavouriteHandler(favouriteUcase, contentUcase)
 	seasonHandler := seasonHandler.NewSeasonHandler(seasonUcase)
 	episodeHandler := episodeHandler.NewEpisodeHandler(episodeUcase)
+	searchHandler := searchHandler.NewSearchHandler(searchUcase)
 
 	userHandler.Configure(e, mw)
 	sessionHandler.Configure(e, mw)
@@ -162,6 +167,7 @@ func main() {
 	favouriteHandler.Configure(e, mw)
 	seasonHandler.Configure(e, mw)
 	episodeHandler.Configure(e, mw)
+	searchHandler.Configure(e, mw)
 
 	log.Fatal(e.Start(config.GetServerConnString()))
 }
