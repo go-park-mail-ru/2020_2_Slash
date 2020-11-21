@@ -7,4 +7,5 @@ type ActorRepository interface {
 	Update(actor *models.Actor) error
 	DeleteById(id uint64) error
 	SelectById(id uint64) (*models.Actor, error)
+	SelectWhereNameLike(name string, limit, offset uint64) ([]*models.Actor, error)
 }

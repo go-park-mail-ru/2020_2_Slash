@@ -89,3 +89,18 @@ func (mr *MockActorRepositoryMockRecorder) SelectById(id interface{}) *gomock.Ca
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectById", reflect.TypeOf((*MockActorRepository)(nil).SelectById), id)
 }
+
+// SelectWhereNameLike mocks base method
+func (m *MockActorRepository) SelectWhereNameLike(name string, limit, offset uint64) ([]*models.Actor, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelectWhereNameLike", name, limit, offset)
+	ret0, _ := ret[0].([]*models.Actor)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SelectWhereNameLike indicates an expected call of SelectWhereNameLike
+func (mr *MockActorRepositoryMockRecorder) SelectWhereNameLike(name, limit, offset interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectWhereNameLike", reflect.TypeOf((*MockActorRepository)(nil).SelectWhereNameLike), name, limit, offset)
+}
