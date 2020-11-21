@@ -221,12 +221,24 @@ var Errors = map[ErrorCode]*Error{
 		Code:        CodeTVShowContentAlreadyExists,
 		HTTPCode:    http.StatusBadRequest,
 		Message:     "tvshow with this content already exists",
-		UserMessage: "Данный контент фильма уже существует",
+		UserMessage: "Данный контент сериала уже существует",
 	},
 	CodeTVShowDoesNotExist: {
 		Code:        CodeTVShowDoesNotExist,
 		HTTPCode:    http.StatusBadRequest,
 		Message:     "tvshow does not exist",
-		UserMessage: "Такого фильма не существует",
+		UserMessage: "Такого сериала не существует",
+	},
+	CodeSeasonDoesNotExist: {
+		Code:        CodeSeasonDoesNotExist,
+		HTTPCode:    http.StatusNotFound,
+		Message:     "season doesn't exist in db",
+		UserMessage: "Такого сезона не существует",
+	},
+	CodeSeasonAlreadyExist: {
+		Code:        CodeSeasonAlreadyExist,
+		HTTPCode:    http.StatusConflict,
+		Message:     "season already exist in db",
+		UserMessage: "Такой сезон уже существует",
 	},
 }
