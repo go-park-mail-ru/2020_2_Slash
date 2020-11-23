@@ -1,8 +1,9 @@
 package errors
 
 import (
-	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"net/http"
+
+	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 )
 
 type Error struct {
@@ -215,5 +216,17 @@ var Errors = map[ErrorCode]*Error{
 		HTTPCode:    http.StatusBadRequest,
 		Message:     "passwords does not match",
 		UserMessage: "Пароли не совпадают",
+	},
+	CodeTVShowContentAlreadyExists: {
+		Code:        CodeTVShowContentAlreadyExists,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "tvshow with this content already exists",
+		UserMessage: "Данный контент фильма уже существует",
+	},
+	CodeTVShowDoesNotExist: {
+		Code:        CodeTVShowDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "tvshow does not exist",
+		UserMessage: "Такого фильма не существует",
 	},
 }

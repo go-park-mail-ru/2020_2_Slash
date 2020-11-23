@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 
 DO $$ BEGIN
-    CREATE TYPE content_type AS ENUM ('movie', 'twshow');
+    CREATE TYPE content_type AS ENUM ('movie', 'tvshow');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;

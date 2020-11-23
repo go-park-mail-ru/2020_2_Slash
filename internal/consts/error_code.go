@@ -34,4 +34,6 @@ const (
 	CodeErrorInEmail
 	CodeErrorInPassword
 	CodePasswordsDoesNotMatch
+	CodeTVShowContentAlreadyExists
+	CodeTVShowDoesNotExist
 )

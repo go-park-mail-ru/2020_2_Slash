@@ -91,21 +91,6 @@ func (mr *MockMovieUsecaseMockRecorder) GetByID(movieID interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockMovieUsecase)(nil).GetByID), movieID)
 }
 
-// GetWithContentByID mocks base method
-func (m *MockMovieUsecase) GetWithContentByID(movieID uint64) (*models.Movie, *errors.Error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetWithContentByID", movieID)
-	ret0, _ := ret[0].(*models.Movie)
-	ret1, _ := ret[1].(*errors.Error)
-	return ret0, ret1
-}
-
-// GetWithContentByID indicates an expected call of GetWithContentByID
-func (mr *MockMovieUsecaseMockRecorder) GetWithContentByID(movieID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWithContentByID", reflect.TypeOf((*MockMovieUsecase)(nil).GetWithContentByID), movieID)
-}
-
 // GetFullByID mocks base method
 func (m *MockMovieUsecase) GetFullByID(movieID, curUserID uint64) (*models.Movie, *errors.Error) {
 	m.ctrl.T.Helper()

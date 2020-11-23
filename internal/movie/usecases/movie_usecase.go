@@ -2,13 +2,14 @@ package usecases
 
 import (
 	"database/sql"
+	"os"
+	"path/filepath"
+
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/movie"
-	"os"
-	"path/filepath"
 )
 
 type MovieUsecase struct {
@@ -90,19 +91,6 @@ func (mu *MovieUsecase) GetByID(movieID uint64) (*models.Movie, *errors.Error) {
 	case err != nil:
 		return nil, errors.New(CodeInternalError, err)
 	}
-	return movie, nil
-}
-
-func (mu *MovieUsecase) GetWithContentByID(movieID uint64) (*models.Movie, *errors.Error) {
-	movie, err := mu.GetByID(movieID)
-	if err != nil {
-		return nil, err
-	}
-	content, err := mu.contentUcase.GetByID(movie.ContentID)
-	if err != nil {
-		return nil, err
-	}
-	movie.Content = *content
 	return movie, nil
 }
 
