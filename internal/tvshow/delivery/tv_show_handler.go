@@ -47,6 +47,7 @@ func (th *TVShowHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.GET("/api/v1/tvshows/:tid", th.GetTVShowHandler(), mw.GetAuth)
 	e.GET("/api/v1/tvshows", th.GetTVShowsHandler(), mw.GetAuth)
 	e.GET("/api/v1/tvshows/latest", th.GetLatestTVShowsHandler(), mw.GetAuth)
+	e.GET("/api/v1/tvshows/top", th.GetTopTVShowListHandler(), mw.GetAuth)
 }
 
 func (th *TVShowHandler) CreateTVShowHandler() echo.HandlerFunc {
@@ -208,6 +209,33 @@ func (th *TVShowHandler) GetLatestTVShowsHandler() echo.HandlerFunc {
 
 		userID, _ := cntx.Get("userID").(uint64)
 		tvshows, err := th.tvshowUcase.ListLatest(&req.Pagination, userID)
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"tvshows": tvshows,
+			},
+		})
+	}
+}
+
+func (th *TVShowHandler) GetTopTVShowListHandler() echo.HandlerFunc {
+	type Request struct {
+		models.Pagination
+	}
+
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if customErr := reader.NewRequestReader(cntx).Read(req); customErr != nil {
+			logger.Error(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		userID, _ := cntx.Get("userID").(uint64)
+		tvshows, err := th.tvshowUcase.ListByRating(&req.Pagination, userID)
 		if err != nil {
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})

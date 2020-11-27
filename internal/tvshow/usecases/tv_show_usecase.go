@@ -99,6 +99,19 @@ func (tu *TVShowUsecase) ListLatest(pgnt *models.Pagination, curUserID uint64) (
 	return tvshows, nil
 }
 
+func (tu *TVShowUsecase) ListByRating(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error) {
+	tvshows, err := tu.tvshowRepo.SelectByRating(pgnt, curUserID)
+	if err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+
+	if len(tvshows) == 0 {
+		return []*models.TVShow{}, nil
+	}
+
+	return tvshows, nil
+}
+
 func (tu *TVShowUsecase) checkByContentID(contentID uint64) *errors.Error {
 	_, err := tu.GetByContentID(contentID)
 	return err

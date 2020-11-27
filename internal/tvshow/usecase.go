@@ -13,4 +13,5 @@ type TVShowUsecase interface {
 	ListByParams(params *models.ContentFilter, pgnt *models.Pagination,
 		curUserID uint64) ([]*models.TVShow, *errors.Error)
 	ListLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error)
+	ListByRating(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error)
 }
