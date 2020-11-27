@@ -149,3 +149,133 @@ func TestTVShowUseCase_GetByContentID_Fail(t *testing.T) {
 	assert.Equal(t, err, errors.Get(consts.CodeTVShowDoesNotExist))
 	assert.Equal(t, dbTVShow, (*models.TVShow)(nil))
 }
+
+func TestTVShowUseCase_ListByParams_OK(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+
+	var contentInst *models.Content = &models.Content{
+		Name:             "Шрек",
+		OriginalName:     "Shrek",
+		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
+		ShortDescription: "Полная сюрпризов сказка об ужасном болотном огре",
+		Year:             2001,
+		Countries:        nil,
+		Genres:           nil,
+		Actors:           nil,
+		Directors:        nil,
+		Type:             "tvshow",
+	}
+
+	content := []*models.Content{
+		contentInst,
+	}
+
+	tvshows := []*models.TVShow{
+		&models.TVShow{
+			Content: *content[0],
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 1
+
+	params := &models.ContentFilter{
+		Year:     2001,
+		Genre:    1,
+		Country:  1,
+		Actor:    1,
+		Director: 1,
+	}
+
+	tvshowRep.
+		EXPECT().
+		SelectByParams(gomock.Eq(params), gomock.Eq(pgnt), gomock.Eq(userID)).
+		Return(tvshows, nil)
+
+	dbTVShows, err := tvshowUseCase.ListByParams(params, pgnt, userID)
+	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbTVShows, tvshows)
+}
+
+func TestTVShowUseCase_ListLatest_OK(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	tvshows := []*models.TVShow{
+		&models.TVShow{
+			Content: *content[0],
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 1
+
+	tvshowRep.
+		EXPECT().
+		SelectLatest(gomock.Eq(pgnt), gomock.Eq(userID)).
+		Return(tvshows, nil)
+
+	dbTVShows, err := tvshowUseCase.ListLatest(pgnt, userID)
+	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbTVShows, tvshows)
+}
+
+func TestTVShowUseCase_ListByRating_OK(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	tvshows := []*models.TVShow{
+		&models.TVShow{
+			Content: *content[0],
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 1
+
+	tvshowRep.
+		EXPECT().
+		SelectByRating(gomock.Eq(pgnt), gomock.Eq(userID)).
+		Return(tvshows, nil)
+
+	dbTVShows, err := tvshowUseCase.ListByRating(pgnt, userID)
+	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbTVShows, tvshows)
+}

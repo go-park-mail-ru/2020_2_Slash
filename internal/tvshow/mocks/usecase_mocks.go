@@ -92,3 +92,48 @@ func (mr *MockTVShowUsecaseMockRecorder) GetByContentID(contentID interface{}) *
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByContentID", reflect.TypeOf((*MockTVShowUsecase)(nil).GetByContentID), contentID)
 }
+
+// ListByParams mocks base method
+func (m *MockTVShowUsecase) ListByParams(params *models.ContentFilter, pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListByParams", params, pgnt, curUserID)
+	ret0, _ := ret[0].([]*models.TVShow)
+	ret1, _ := ret[1].(*errors.Error)
+	return ret0, ret1
+}
+
+// ListByParams indicates an expected call of ListByParams
+func (mr *MockTVShowUsecaseMockRecorder) ListByParams(params, pgnt, curUserID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByParams", reflect.TypeOf((*MockTVShowUsecase)(nil).ListByParams), params, pgnt, curUserID)
+}
+
+// ListLatest mocks base method
+func (m *MockTVShowUsecase) ListLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListLatest", pgnt, curUserID)
+	ret0, _ := ret[0].([]*models.TVShow)
+	ret1, _ := ret[1].(*errors.Error)
+	return ret0, ret1
+}
+
+// ListLatest indicates an expected call of ListLatest
+func (mr *MockTVShowUsecaseMockRecorder) ListLatest(pgnt, curUserID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListLatest", reflect.TypeOf((*MockTVShowUsecase)(nil).ListLatest), pgnt, curUserID)
+}
+
+// ListByRating mocks base method
+func (m *MockTVShowUsecase) ListByRating(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListByRating", pgnt, curUserID)
+	ret0, _ := ret[0].([]*models.TVShow)
+	ret1, _ := ret[1].(*errors.Error)
+	return ret0, ret1
+}
+
+// ListByRating indicates an expected call of ListByRating
+func (mr *MockTVShowUsecaseMockRecorder) ListByRating(pgnt, curUserID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByRating", reflect.TypeOf((*MockTVShowUsecase)(nil).ListByRating), pgnt, curUserID)
+}
