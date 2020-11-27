@@ -11,4 +11,6 @@ type TVShowRepository interface {
 	SelectByContentID(contentID uint64) (*models.TVShow, error)
 	SelectWhereNameLike(name string, pgnt *models.Pagination,
 		curUserID uint64) ([]*models.TVShow, error)
+	SelectByParams(params *models.ContentFilter, pgnt *models.Pagination,
+		curUserID uint64) ([]*models.TVShow, error)
 }

@@ -10,4 +10,6 @@ type TVShowUsecase interface {
 	GetByID(tvshowID uint64) (*models.TVShow, *errors.Error)
 	GetFullByID(tvshowID uint64, curUserID uint64) (*models.TVShow, *errors.Error)
 	GetByContentID(contentID uint64) (*models.TVShow, *errors.Error)
+	ListByParams(params *models.ContentFilter, pgnt *models.Pagination,
+		curUserID uint64) ([]*models.TVShow, *errors.Error)
 }

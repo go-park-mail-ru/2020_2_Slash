@@ -45,6 +45,7 @@ func (th *TVShowHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/tvshows", th.CreateTVShowHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.DELETE("/api/v1/tvshows/:tid", th.DeleteTVShowHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.GET("/api/v1/tvshows/:tid", th.GetTVShowHandler(), mw.GetAuth)
+	e.GET("/api/v1/tvshows", th.GetTVShowsHandler(), mw.GetAuth)
 }
 
 func (th *TVShowHandler) CreateTVShowHandler() echo.HandlerFunc {
@@ -158,6 +159,35 @@ func (th *TVShowHandler) GetTVShowHandler() echo.HandlerFunc {
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
 				"tvshow": tvshow,
+			},
+		})
+	}
+}
+
+func (th *TVShowHandler) GetTVShowsHandler() echo.HandlerFunc {
+	type Request struct {
+		models.ContentFilter
+		models.Pagination
+	}
+
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		userID, _ := cntx.Get("userID").(uint64)
+		tvshows, err := th.tvshowUcase.ListByParams(&req.ContentFilter,
+			&req.Pagination, userID)
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"tvshows": tvshows,
 			},
 		})
 	}
