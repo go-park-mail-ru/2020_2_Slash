@@ -154,7 +154,7 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 	var values []interface{}
 
 	joinMovieQuery := `
-		LEFT OUTER JOIN movies as m ON m.content_id=c.id
+		JOIN movies as m ON m.content_id=c.id
 		LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
 		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id`
 	values = append(values, curUserID)
@@ -213,7 +213,7 @@ func (mr *MoviePgRepository) SelectLatest(pgnt *models.Pagination, curUserID uin
 		c.year, c.images, c.type, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content AS c
-		LEFT OUTER JOIN movies as m ON m.content_id=c.id
+		JOIN movies as m ON m.content_id=c.id
 		LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
 		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id
 		ORDER BY c.year DESC`
@@ -268,7 +268,7 @@ func (mr *MoviePgRepository) SelectByRating(pgnt *models.Pagination, curUserID u
 		c.rating, c.year, c.images, c.type, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content AS c
-		LEFT OUTER JOIN movies as m ON m.content_id=c.id
+		JOIN movies as m ON m.content_id=c.id
 		LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
 		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id
 		ORDER BY c.rating DESC`
