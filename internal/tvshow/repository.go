@@ -13,4 +13,5 @@ type TVShowRepository interface {
 		curUserID uint64) ([]*models.TVShow, error)
 	SelectByParams(params *models.ContentFilter, pgnt *models.Pagination,
 		curUserID uint64) ([]*models.TVShow, error)
+	SelectLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, error)
 }

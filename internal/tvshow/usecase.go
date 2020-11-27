@@ -12,4 +12,5 @@ type TVShowUsecase interface {
 	GetByContentID(contentID uint64) (*models.TVShow, *errors.Error)
 	ListByParams(params *models.ContentFilter, pgnt *models.Pagination,
 		curUserID uint64) ([]*models.TVShow, *errors.Error)
+	ListLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error)
 }

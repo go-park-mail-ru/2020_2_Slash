@@ -88,6 +88,17 @@ func (tu *TVShowUsecase) ListByParams(params *models.ContentFilter, pgnt *models
 	return tvshows, nil
 }
 
+func (tu *TVShowUsecase) ListLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error) {
+	tvshows, err := tu.tvshowRepo.SelectLatest(pgnt, curUserID)
+	if err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+	if len(tvshows) == 0 {
+		return []*models.TVShow{}, nil
+	}
+	return tvshows, nil
+}
+
 func (tu *TVShowUsecase) checkByContentID(contentID uint64) *errors.Error {
 	_, err := tu.GetByContentID(contentID)
 	return err
