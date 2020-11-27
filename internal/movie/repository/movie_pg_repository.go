@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"strconv"
 	"strings"
 
+	queryBuilder "github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/query_builder"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/movie"
 )
@@ -57,7 +57,7 @@ func (mr *MoviePgRepository) Update(movie *models.Movie) error {
 		movie.ID, movie.Video, movie.ContentID)
 	if err != nil {
 		tx.Rollback()
-		return nil
+		return err
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -142,63 +142,6 @@ func (mr *MoviePgRepository) SelectByContentID(contentID uint64) (*models.Movie,
 	return movie, nil
 }
 
-func buildJoinContentFilter(entity string, valInd int) string {
-	entityTable := "content_" + entity                  // content_genre
-	entityID := entityTable + "." + entity + "_id"      // content.genre_id
-	entityContentID := entityTable + "." + "content_id" // content_genre.content_id
-
-	// JOIN content_genre ON c.id=cg.content_id AND cg.genre_id=$1
-	filter := "JOIN " + entityTable + " ON " + "c.id=" +
-		entityContentID + " AND " + entityID + "=$" + strconv.Itoa(valInd)
-
-	return filter
-}
-
-func getJoinFiltersByParams(values []interface{}, params *models.ContentFilter) (string, []interface{}) {
-	var filters []string
-
-	if params.Genre != 0 {
-		filter := buildJoinContentFilter("genre", len(values)+1)
-		filters = append(filters, filter)
-		values = append(values, params.Genre)
-	}
-
-	if params.Country != 0 {
-		filter := buildJoinContentFilter("country", len(values)+1)
-		filters = append(filters, filter)
-		values = append(values, params.Country)
-	}
-
-	if params.Actor != 0 {
-		filter := buildJoinContentFilter("actor", len(values)+1)
-		filters = append(filters, filter)
-		values = append(values, params.Actor)
-	}
-
-	if params.Director != 0 {
-		filter := buildJoinContentFilter("director", len(values)+1)
-		filters = append(filters, filter)
-		values = append(values, params.Director)
-	}
-
-	filtersQuery := strings.Join(filters, " ")
-	return filtersQuery, values
-}
-
-func getWhereQueryByParams(values []interface{}, params *models.ContentFilter) (string, []interface{}) {
-	var filters []string
-
-	if params.Year != 0 {
-		ind := len(values) + 1
-		filter := `WHERE c.year=$` + strconv.Itoa(ind)
-		filters = append(filters, filter)
-		values = append(values, params.Year)
-	}
-
-	filtersQuery := strings.Join(filters, " ")
-	return filtersQuery, values
-}
-
 func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 	pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, error) {
 
@@ -222,8 +165,8 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 		values = append(values, pgnt.Count, pgnt.From)
 	}
 
-	filtersJoinQuery, values := getJoinFiltersByParams(values, params)
-	filtersWhereQuery, values := getWhereQueryByParams(values, params)
+	filtersJoinQuery, values := queryBuilder.GetContentJoinFiltersByParams(values, params)
+	filtersWhereQuery, values := queryBuilder.GetContentWhereQueryByParams(values, params)
 
 	resultQuery := strings.Join([]string{
 		selectQuery,

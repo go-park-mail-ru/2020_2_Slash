@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 )
@@ -23,7 +24,7 @@ func (ur *UserPgRepository) Insert(user *models.User) error {
 		return err
 	}
 
-	row := ur.dbConn.QueryRow(
+	row := tx.QueryRow(
 		`INSERT INTO users(nickname, email, password, avatar, role)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id`,
@@ -31,7 +32,7 @@ func (ur *UserPgRepository) Insert(user *models.User) error {
 
 	err = row.Scan(&user.ID)
 	if err != nil {
-		_ = tx.Rollback()
+		tx.Rollback()
 		return err
 	}
 
@@ -76,14 +77,14 @@ func (ur *UserPgRepository) Update(user *models.User) error {
 		return err
 	}
 
-	_, err = ur.dbConn.Exec(
+	_, err = tx.Exec(
 		`UPDATE users
 		SET nickname = $2, email = $3, password = $4, avatar = $5, role = $6
 		WHERE id = $1;`,
 		user.ID, user.Nickname, user.Email, user.Password, user.Avatar, user.Role)
 	if err != nil {
-		_ = tx.Rollback()
-		return nil
+		tx.Rollback()
+		return err
 	}
 
 	if err := tx.Commit(); err != nil {

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/genre"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 )
@@ -54,7 +55,7 @@ func (gr *GenrePgRepository) Update(genre *models.Genre) error {
 		genre.ID, genre.Name)
 	if err != nil {
 		tx.Rollback()
-		return nil
+		return err
 	}
 
 	if err := tx.Commit(); err != nil {

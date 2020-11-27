@@ -3,9 +3,10 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"strings"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/favourite"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
-	"strings"
 )
 
 type FavouritePgRepository struct {
@@ -115,7 +116,7 @@ func (rep *FavouritePgRepository) Delete(favourite *models.Favourite) error {
 		favourite.UserID, favourite.ContentID)
 	if err != nil {
 		_ = tx.Rollback()
-		return nil
+		return err
 	}
 
 	if err := tx.Commit(); err != nil {
