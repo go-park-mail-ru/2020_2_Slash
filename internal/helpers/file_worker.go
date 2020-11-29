@@ -76,6 +76,11 @@ func InitStorage(path string) {
 	os.Mkdir(path, os.FileMode(mode))
 }
 
+func InitTree(path string) {
+	mode := int(0777)
+	os.MkdirAll(path, os.FileMode(mode))
+}
+
 func checkFileContentType(file *multipart.FileHeader, allowedContentTypes map[string]string) *cstm_errors.Error {
 	// Check content type from header
 	if !isAllowedFileHeader(file, allowedContentTypes) {

@@ -259,6 +259,93 @@ func (mh *MovieHandler) GetMovieHandler() echo.HandlerFunc {
 	}
 }
 
+func (mh *MovieHandler) UpdateMoviePostersHandler() echo.HandlerFunc {
+	const postersDirRoot = "/images/"
+	const smallPosterName = "small.png"
+	const largePosterName = "large.png"
+
+	return func(cntx echo.Context) error {
+		smallImage, err := reader.NewRequestReader(cntx).ReadNotRequiredImage("small_poster")
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		largeImage, err := reader.NewRequestReader(cntx).ReadNotRequiredImage("large_poster")
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		// Check for passing at least one image
+		if smallImage == nil && largeImage == nil {
+			err := errors.Get(CodeBadRequest)
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		userID, _ := cntx.Get("userID").(uint64)
+		movie, err := mh.movieUcase.GetFullByID(movieID, userID)
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		path, osErr := os.Getwd()
+		if osErr != nil {
+			err := errors.New(CodeInternalError, osErr)
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		// Create posters directory
+		directoryTitle := helpers.GetContentDirTitle(movie.OriginalName, movie.ContentID)
+		postersDir := postersDirRoot + directoryTitle
+		postersDirPath := filepath.Join(path, postersDir)
+		helpers.InitStorage(postersDirPath)
+
+		// Store small poster
+		if smallImage != nil {
+			smallPosterPath := filepath.Join(postersDirPath, smallPosterName)
+			if err := helpers.StoreFile(smallImage, smallPosterPath); err != nil {
+				if movie.Content.Images == "" {
+					os.RemoveAll(postersDirPath)
+				}
+				logger.Error(err.Message)
+				return cntx.JSON(err.HTTPCode, Response{Error: err})
+			}
+		}
+
+		// Store large poster
+		if largeImage != nil {
+			largePosterPath := filepath.Join(postersDirPath, largePosterName)
+			if err := helpers.StoreFile(largeImage, largePosterPath); err != nil {
+				if movie.Content.Images == "" {
+					os.RemoveAll(postersDirPath)
+				}
+				logger.Error(err.Message)
+				return cntx.JSON(err.HTTPCode, Response{Error: err})
+			}
+		}
+
+		// Update content
+		if err := mh.contentUcase.UpdatePosters(&movie.Content, postersDir); err != nil {
+			if movie.Content.Images == "" {
+				os.RemoveAll(postersDirPath)
+			}
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"images": postersDir,
+			},
+		})
+	}
+}
+
 func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 	const videosDirRoot = "/videos/"
 	const videoName = "movie.mp4"
@@ -270,8 +357,9 @@ func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
+		userID, _ := cntx.Get("userID").(uint64)
 		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
-		movie, err := mh.movieUcase.GetByID(movieID)
+		movie, err := mh.movieUcase.GetFullByID(movieID, userID)
 		if err != nil {
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -285,7 +373,8 @@ func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 		}
 
 		// Create videos directory
-		videosDir := videosDirRoot + strconv.Itoa(int(movie.ContentID))
+		directoryTitle := helpers.GetContentDirTitle(movie.OriginalName, movie.ContentID)
+		videosDir := videosDirRoot + directoryTitle
 		videosDirPath := filepath.Join(path, videosDir)
 		helpers.InitStorage(videosDirPath)
 

@@ -1,5 +1,7 @@
 DROP TRIGGER IF EXISTS seasons_inc on seasons;
+DROP TRIGGER IF EXISTS seasons_dec on seasons;
 DROP TRIGGER IF EXISTS episodes_inc on episodes;
+DROP TRIGGER IF exists episodes_dec on episodes;
 DROP TRIGGER IF EXISTS rating_ins_upd on rates;
 DROP TRIGGER IF EXISTS rating_del on rates;
 DROP TABLE IF EXISTS
@@ -49,7 +51,7 @@ CREATE TABLE IF NOT EXISTS content (
     rating int DEFAULT 0, -- триггер на каждый лайк/дизлайк
     year smallint NOT NULL, -- если сериал, то год выхода 1 сезона
     images varchar(128) NOT NULL, -- путь к папке с постерами (/images/witcher), в которой лежит small.png и large.png
-    type content_type NOT NULL -- movie, tvshow
+    type content_type NOT NULL -- movie, tv_show
 
     -- TODO трейлер позже решить
 );
@@ -157,6 +159,7 @@ CREATE TABLE IF NOT EXISTS episodes (
     poster varchar(128) NOT NULL, -- путь к папке с постерами (/images/witcher/s1 /s2 ...), в которой лежит e1.png e2.png ...
     season_id int NOT NULL,
 
+    UNIQUE (number, season_id),
     FOREIGN KEY (season_id) REFERENCES seasons(id) ON DELETE CASCADE
 );
 
@@ -237,7 +240,7 @@ CREATE TRIGGER rating_del BEFORE DELETE ON rates
     FOR EACH ROW EXECUTE PROCEDURE rating_del();
 
 
--- Triger for increment seasons number in tw_show
+-- Trigger for increment seasons number in tv_show
 CREATE OR REPLACE FUNCTION seasons_inc() RETURNS trigger AS
 $seasons_inc$
     BEGIN
@@ -252,8 +255,21 @@ LANGUAGE plpgsql;
 CREATE TRIGGER seasons_inc AFTER INSERT ON seasons
     FOR EACH ROW EXECUTE PROCEDURE seasons_inc();
 
+CREATE OR REPLACE FUNCTION seasons_dec() RETURNS trigger AS
+$seasons_dec$
+BEGIN
+    UPDATE tv_shows
+    SET seasons = seasons - 1
+    WHERE id=OLD.tv_show_id;
+    RETURN OLD;
+END;
+$seasons_dec$
+    LANGUAGE plpgsql;
 
--- Triger for increment episodes number in seasons
+CREATE TRIGGER seasons_dec BEFORE DELETE ON seasons
+    FOR EACH ROW EXECUTE PROCEDURE seasons_dec();
+
+-- Trigger for increment episodes number in seasons
 CREATE OR REPLACE FUNCTION episodes_inc() RETURNS trigger AS
 $episodes_inc$
     BEGIN
@@ -264,6 +280,18 @@ $episodes_inc$
     END;
 $episodes_inc$
 LANGUAGE plpgsql;
-
 CREATE TRIGGER episodes_inc AFTER INSERT ON episodes
     FOR EACH ROW EXECUTE PROCEDURE episodes_inc();
+
+CREATE OR REPLACE FUNCTION episodes_dec() RETURNS trigger AS
+$episodes_dec$
+BEGIN
+    UPDATE seasons
+    SET episodes = episodes - 1
+    WHERE id=OLD.season_id;
+    RETURN OLD;
+END;
+$episodes_dec$
+LANGUAGE plpgsql;
+CREATE TRIGGER episodes_dec BEFORE DELETE ON episodes
+    FOR EACH ROW EXECUTE PROCEDURE episodes_dec();

@@ -38,4 +38,6 @@ const (
 	CodeTVShowDoesNotExist
 	CodeSeasonDoesNotExist
 	CodeSeasonAlreadyExist
+	CodeEpisodeDoesNotExist
+	CodeEpisodeAlreadyExist
 )
