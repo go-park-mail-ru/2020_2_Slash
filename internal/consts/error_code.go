@@ -36,4 +36,6 @@ const (
 	CodePasswordsDoesNotMatch
 	CodeTVShowContentAlreadyExists
 	CodeTVShowDoesNotExist
+	CodeSeasonDoesNotExist
+	CodeSeasonAlreadyExist
 )
