@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/season"
 )
@@ -140,4 +141,30 @@ func (rep *SeasonPgRepository) SelectEpisodes(id uint64) ([]*models.Episode, err
 	}
 
 	return episodes, nil
+}
+
+func (rep *SeasonPgRepository) SelectByTVShow(tvshowID uint64) ([]*models.Season, error) {
+	rows, err := rep.db.Query(`
+		SELECT id, number, episodes, tv_show_id
+		FROM seasons
+		WHERE tv_show_id=$1`, tvshowID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var seasons []*models.Season
+	for rows.Next() {
+		season := &models.Season{}
+		err := rows.Scan(&season.ID, &season.Number, &season.EpisodesNumber, &season.TVShowID)
+		if err != nil {
+			return nil, err
+		}
+		seasons = append(seasons, season)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return seasons, nil
 }

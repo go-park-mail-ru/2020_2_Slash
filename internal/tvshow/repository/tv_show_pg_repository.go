@@ -59,6 +59,25 @@ func (tr *TVShowPgRepository) SelectByID(tvshowID uint64) (*models.TVShow, error
 	return tvshow, nil
 }
 
+func (tr *TVShowPgRepository) SelectShortByID(tvshowID uint64) (*models.TVShow, error) {
+	tvshow := &models.TVShow{}
+	cnt := &models.Content{}
+
+	row := tr.dbConn.QueryRow(
+		`SELECT tv.id, c.name
+		FROM content AS c
+		JOIN tv_shows as tv ON tv.content_id=c.id AND tv.id=$1`,
+		tvshowID)
+
+	err := row.Scan(&tvshow.ID, &cnt.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	tvshow.Content = *cnt
+	return tvshow, nil
+}
+
 func (tr *TVShowPgRepository) SelectFullByID(tvshowID uint64, curUserID uint64) (*models.TVShow, error) {
 	tvshow := &models.TVShow{}
 	cnt := &models.Content{}

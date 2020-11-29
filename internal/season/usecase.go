@@ -11,4 +11,5 @@ type SeasonUsecase interface {
 	Get(id uint64) (*models.Season, *errors.Error)
 	GetEpisodes(id uint64) ([]*models.Episode, *errors.Error)
 	Delete(id uint64) *errors.Error
+	ListByTVShow(tvshowID uint64) ([]*models.Season, *errors.Error)
 }

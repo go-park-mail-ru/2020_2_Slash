@@ -49,6 +49,17 @@ func (tu *TVShowUsecase) GetByID(tvshowID uint64) (*models.TVShow, *errors.Error
 	return tvshow, nil
 }
 
+func (tu *TVShowUsecase) GetShortByID(tvshowID uint64) (*models.TVShow, *errors.Error) {
+	tvshow, err := tu.tvshowRepo.SelectShortByID(tvshowID)
+	switch {
+	case err == sql.ErrNoRows:
+		return nil, errors.Get(CodeTVShowDoesNotExist)
+	case err != nil:
+		return nil, errors.New(CodeInternalError, err)
+	}
+	return tvshow, nil
+}
+
 func (tu *TVShowUsecase) GetFullByID(tvshowID uint64, curUserID uint64) (*models.TVShow, *errors.Error) {
 	tvshow, err := tu.tvshowRepo.SelectFullByID(tvshowID, curUserID)
 	switch {
