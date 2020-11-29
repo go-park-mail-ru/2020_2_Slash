@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"strings"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/tvshow"
@@ -95,4 +96,63 @@ func (tr *TVShowPgRepository) SelectByContentID(contentID uint64) (*models.TVSho
 		return nil, err
 	}
 	return tvshow, nil
+}
+
+func (tr *TVShowPgRepository) SelectWhereNameLike(name string,
+	pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, error) {
+	var values []interface{}
+
+	selectQuery := `
+		SELECT tv.id, tv.seasons, c.id, c.name, c.original_name,
+		c.description, c.short_description, c.rating,
+		c.year, c.images, c.type, r.likes,
+		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
+		FROM content AS c
+		JOIN tv_shows as tv ON tv.content_id=c.id
+		LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
+		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id
+		WHERE c.name ILIKE $2 OR c.original_name ILIKE $2
+		ORDER BY c.year DESC`
+	values = append(values, curUserID)
+	searchName := "%" + name + "%"
+	values = append(values, searchName)
+
+	var pgntQuery string
+	if pgnt.Count != 0 {
+		pgntQuery = "LIMIT $3 OFFSET $4"
+		values = append(values, pgnt.Count, pgnt.From)
+	}
+
+	resultQuery := strings.Join([]string{
+		selectQuery,
+		pgntQuery,
+	}, " ")
+
+	rows, err := tr.dbConn.Query(resultQuery, values...)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tvshows []*models.TVShow
+	for rows.Next() {
+		tvshow := &models.TVShow{}
+		cnt := &models.Content{}
+
+		err := rows.Scan(&tvshow.ID, &tvshow.Seasons, &cnt.ContentID, &cnt.Name,
+			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription, &cnt.Rating,
+			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
+		if err != nil {
+			return nil, err
+		}
+
+		tvshow.Content = *cnt
+		tvshows = append(tvshows, tvshow)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return tvshows, nil
 }
