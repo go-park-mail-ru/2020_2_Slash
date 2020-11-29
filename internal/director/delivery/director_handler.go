@@ -1,6 +1,9 @@
 package delivery
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/director"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
@@ -10,8 +13,6 @@ import (
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strconv"
 )
 
 type DirectorHandler struct {
@@ -27,7 +28,7 @@ func NewDirectorHandler(directorUseCase director.DirectorUseCase) *DirectorHandl
 func (dh *DirectorHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/directors", dh.CreateDirectorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.PUT("/api/v1/directors/:id", dh.ChangeDirectorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
-	e.GET("/api/v1/directors/:id", dh.GetDirectorHandler(), mw.CheckAuth)
+	e.GET("/api/v1/directors/:id", dh.GetDirectorHandler())
 	e.DELETE("/api/v1/directors/:id", dh.DeleteDirectorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 }
 

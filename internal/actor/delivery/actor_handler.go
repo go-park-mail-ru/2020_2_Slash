@@ -1,6 +1,9 @@
 package delivery
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
@@ -10,8 +13,6 @@ import (
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strconv"
 )
 
 type ActorHandler struct {
@@ -27,7 +28,7 @@ func NewActorHandler(actorUseCase actor.ActorUseCase) *ActorHandler {
 func (ah *ActorHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/actors", ah.CreateActorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.PUT("/api/v1/actors/:id", ah.ChangeActorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
-	e.GET("/api/v1/actors/:id", ah.GetActorHandler(), mw.CheckAuth)
+	e.GET("/api/v1/actors/:id", ah.GetActorHandler())
 	e.DELETE("/api/v1/actors/:id", ah.DeleteActorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 }
 
