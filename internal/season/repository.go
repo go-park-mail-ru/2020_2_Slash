@@ -9,4 +9,5 @@ type SeasonRepository interface {
 	Select(season *models.Season) (*models.Season, error)
 	SelectEpisodes(id uint64) ([]*models.Episode, error)
 	Delete(id uint64) error
+	SelectByTVShow(tvshowID uint64) ([]*models.Season, error)
 }

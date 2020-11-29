@@ -57,64 +57,64 @@ func MockTVShowRepoSelectByContentIDReturnErrNoRows(mock sqlmock.Sqlmock, tvshow
 	mock.ExpectQuery(`SELECT`).WithArgs(tvshow.ContentID).WillReturnError(sql.ErrNoRows)
 }
 
-// func MockTVShowRepoSelectByGenreReturnRows(mock sqlmock.Sqlmock, genreID uint64, tv_shows []*models.TVShow) {
-// 	rows := sqlmock.NewRows([]string{"id", "seasons", "id", "name", "original_name",
-// 		"description", "short_description", "year", "images", "type"})
-// 	for _, tvshow := range tv_shows {
-// 		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name, tvshow.OriginalName, tvshow.Description,
-// 			tvshow.ShortDescription, tvshow.Year, tvshow.Images, tvshow.Type)
-// 	}
-// 	mock.ExpectQuery(`SELECT tv.id, tv.seasons, c.id`).WithArgs(genreID).WillReturnRows(rows)
-// }
+func MockTVShowRepoSelectByGenreReturnRows(mock sqlmock.Sqlmock, genreID uint64, tv_shows []*models.TVShow) {
+	rows := sqlmock.NewRows([]string{"id", "seasons", "id", "name", "original_name",
+		"description", "short_description", "year", "images", "type"})
+	for _, tvshow := range tv_shows {
+		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name, tvshow.OriginalName, tvshow.Description,
+			tvshow.ShortDescription, tvshow.Year, tvshow.Images, tvshow.Type)
+	}
+	mock.ExpectQuery(`SELECT tv.id, tv.seasons, c.id`).WithArgs(genreID).WillReturnRows(rows)
+}
 
-// func MockTVShowRepoSelectByParamsReturnRows(mock sqlmock.Sqlmock, params *models.ContentFilter,
-// 	pgnt *models.Pagination, curUserID uint64, tv_shows []*models.TVShow) {
+func MockTVShowRepoSelectByParamsReturnRows(mock sqlmock.Sqlmock, params *models.ContentFilter,
+	pgnt *models.Pagination, curUserID uint64, tv_shows []*models.TVShow) {
 
-// 	rows := sqlmock.NewRows([]string{"tv.id", "tv.seasons", "c.id", "c.name",
-// 		"c.original_name", "c.description", "c.short_description", "c.rating",
-// 		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
-// 	for _, tvshow := range tv_shows {
-// 		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name,
-// 			tvshow.OriginalName, tvshow.Description, tvshow.ShortDescription, tvshow.Rating,
-// 			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsLiked, tvshow.IsFavourite)
-// 	}
-// 	query := `
-// 		SELECT tv.id, tv.seasons, c.id, c.name`
+	rows := sqlmock.NewRows([]string{"tv.id", "tv.seasons", "c.id", "c.name",
+		"c.original_name", "c.description", "c.short_description", "c.rating",
+		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+	for _, tvshow := range tv_shows {
+		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name,
+			tvshow.OriginalName, tvshow.Description, tvshow.ShortDescription, tvshow.Rating,
+			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsLiked, tvshow.IsFavourite)
+	}
+	query := `
+		SELECT tv.id, tv.seasons, c.id, c.name`
 
-// 	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From, params.Genre,
-// 		params.Country, params.Actor, params.Director, params.Year).WillReturnRows(rows)
-// }
+	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From, params.Genre,
+		params.Country, params.Actor, params.Director, params.Year).WillReturnRows(rows)
+}
 
-// func MockTVShowRepoSelectLatestReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pagination, curUserID uint64,
-// 	tv_shows []*models.TVShow) {
+func MockTVShowRepoSelectLatestReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pagination, curUserID uint64,
+	tv_shows []*models.TVShow) {
 
-// 	rows := sqlmock.NewRows([]string{"tv.id", "tv.seasons", "c.id", "c.name",
-// 		"c.original_name", "c.description", "c.short_description", "c.rating",
-// 		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
-// 	for _, tvshow := range tv_shows {
-// 		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name,
-// 			tvshow.OriginalName, tvshow.Description, tvshow.ShortDescription, tvshow.Rating,
-// 			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsLiked, tvshow.IsFavourite)
-// 	}
-// 	query := `
-// 		SELECT tv.id, tv.seasons, c.id, c.name`
+	rows := sqlmock.NewRows([]string{"tv.id", "tv.seasons", "c.id", "c.name",
+		"c.original_name", "c.description", "c.short_description", "c.rating",
+		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+	for _, tvshow := range tv_shows {
+		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name,
+			tvshow.OriginalName, tvshow.Description, tvshow.ShortDescription, tvshow.Rating,
+			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsLiked, tvshow.IsFavourite)
+	}
+	query := `
+		SELECT tv.id, tv.seasons, c.id, c.name`
 
-// 	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From).WillReturnRows(rows)
-// }
+	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From).WillReturnRows(rows)
+}
 
-// func MockTVShowRepoSelectByRatingReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pagination, curUserID uint64,
-// 	tv_shows []*models.TVShow) {
+func MockTVShowRepoSelectByRatingReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pagination, curUserID uint64,
+	tv_shows []*models.TVShow) {
 
-// 	rows := sqlmock.NewRows([]string{"tv.id", "tv.seasons", "c.id", "c.name",
-// 		"c.original_name", "c.description", "c.short_description", "c.rating",
-// 		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
-// 	for _, tvshow := range tv_shows {
-// 		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name,
-// 			tvshow.OriginalName, tvshow.Description, tvshow.ShortDescription, tvshow.Rating,
-// 			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsLiked, tvshow.IsFavourite)
-// 	}
-// 	query := `
-// 		SELECT tv.id, tv.seasons, c.id, c.name`
+	rows := sqlmock.NewRows([]string{"tv.id", "tv.seasons", "c.id", "c.name",
+		"c.original_name", "c.description", "c.short_description", "c.rating",
+		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+	for _, tvshow := range tv_shows {
+		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name,
+			tvshow.OriginalName, tvshow.Description, tvshow.ShortDescription, tvshow.Rating,
+			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsLiked, tvshow.IsFavourite)
+	}
+	query := `
+		SELECT tv.id, tv.seasons, c.id, c.name`
 
-// 	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From).WillReturnRows(rows)
-// }
+	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From).WillReturnRows(rows)
+}

@@ -147,7 +147,7 @@ func main() {
 	directorHandler := directorHandler.NewDirectorHandler(directorUcase)
 	contentHandler := contentHandler.NewContentHandler(contentUcase)
 	movieHandler := movieHandler.NewMovieHandler(movieUcase, contentUcase, countryUcase, genreUcase, actorUcase, directorUcase)
-	tvshowHandler := tvshowHandler.NewTVShowHandler(tvshowUcase, contentUcase, countryUcase, genreUcase, actorUcase, directorUcase)
+	tvshowHandler := tvshowHandler.NewTVShowHandler(tvshowUcase, contentUcase, countryUcase, genreUcase, actorUcase, directorUcase, seasonUcase)
 	ratingHandler := ratingHandler.NewRatingHandler(ratingUcase)
 	favouriteHandler := favouriteHandler.NewFavouriteHandler(favouriteUcase, contentUcase)
 	seasonHandler := seasonHandler.NewSeasonHandler(seasonUcase)

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/episode"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 )
@@ -70,7 +71,6 @@ func (rep *EpisodeRepository) SelectByNumberAndSeason(number int,
 
 	return dbEpisode, nil
 }
-
 
 func (rep *EpisodeRepository) Update(newEpisode *models.Episode) error {
 	tx, err := rep.db.BeginTx(context.Background(), &sql.TxOptions{})

@@ -1,6 +1,11 @@
 package delivery
 
 import (
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/episode"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
@@ -12,10 +17,6 @@ import (
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
-	"os"
-	"path/filepath"
-	"strconv"
 )
 
 type EpisodeHandler struct {

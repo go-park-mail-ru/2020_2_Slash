@@ -305,3 +305,228 @@ func TestTVShowHandler_GetTVShowHandler(t *testing.T) {
 		assert.JSONEq(t, expResBody.String(), string(bytes))
 	}
 }
+
+func TestTVShowHandler_GetTVShowsHandler(t *testing.T) {
+	t.Parallel()
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	tvshowUseCase := tvshowMocks.NewMockTVShowUsecase(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	countryUseCase := countryMocks.NewMockCountryUsecase(ctrl)
+	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
+	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
+	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 0
+
+	params := &models.ContentFilter{
+		Year:     2001,
+		Genre:    1,
+		Country:  1,
+		Actor:    1,
+		Director: 1,
+	}
+
+	type Request struct {
+		models.ContentFilter
+		models.Pagination
+	}
+
+	reqest := &Request{
+		*params,
+		*pgnt,
+	}
+
+	reqJSON, err := converter.AnyToBytesBuffer(reqest)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/tvshows", strings.NewReader(reqJSON.String()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.Set("userID", userID)
+
+	tvshowHandler := NewTVShowHandler(tvshowUseCase, contentUseCase,
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
+	handleFunc := tvshowHandler.GetTVShowsHandler()
+	tvshowHandler.Configure(e, nil)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	tvshows := []*models.TVShow{
+		&models.TVShow{
+			Content: *content[0],
+		},
+	}
+
+	tvshowUseCase.
+		EXPECT().
+		ListByParams(params, pgnt, userID).
+		Return(tvshows, nil)
+
+	response := &response.Response{Body: &response.Body{"tvshows": tvshows}}
+
+	// Assertions
+	if assert.NoError(t, handleFunc(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+
+		expResBody, err := converter.AnyToBytesBuffer(response)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		bytes, _ := ioutil.ReadAll(rec.Body)
+
+		assert.JSONEq(t, expResBody.String(), string(bytes))
+	}
+}
+
+func TestTVShowHandler_GetLatestTVShowsHandler(t *testing.T) {
+	t.Parallel()
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	tvshowUseCase := tvshowMocks.NewMockTVShowUsecase(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	countryUseCase := countryMocks.NewMockCountryUsecase(ctrl)
+	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
+	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
+	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 0
+
+	reqJSON, err := converter.AnyToBytesBuffer(pgnt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/tvshows/latest", strings.NewReader(reqJSON.String()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.Set("userID", userID)
+
+	tvshowHandler := NewTVShowHandler(tvshowUseCase, contentUseCase,
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
+	handleFunc := tvshowHandler.GetLatestTVShowsHandler()
+	tvshowHandler.Configure(e, nil)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	tvshows := []*models.TVShow{
+		&models.TVShow{
+			Content: *content[0],
+		},
+	}
+
+	tvshowUseCase.
+		EXPECT().
+		ListLatest(pgnt, userID).
+		Return(tvshows, nil)
+
+	response := &response.Response{Body: &response.Body{"tvshows": tvshows}}
+
+	// Assertions
+	if assert.NoError(t, handleFunc(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+
+		expResBody, err := converter.AnyToBytesBuffer(response)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		bytes, _ := ioutil.ReadAll(rec.Body)
+
+		assert.JSONEq(t, expResBody.String(), string(bytes))
+	}
+}
+
+func TestTVShowHandler_GetTVShowsByRatingHandler(t *testing.T) {
+	t.Parallel()
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	tvshowUseCase := tvshowMocks.NewMockTVShowUsecase(ctrl)
+	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
+	countryUseCase := countryMocks.NewMockCountryUsecase(ctrl)
+	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
+	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
+	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 0
+
+	reqJSON, err := converter.AnyToBytesBuffer(pgnt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/tvshows/top", strings.NewReader(reqJSON.String()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.Set("userID", userID)
+
+	tvshowHandler := NewTVShowHandler(tvshowUseCase, contentUseCase,
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
+	handleFunc := tvshowHandler.GetTopTVShowListHandler()
+	tvshowHandler.Configure(e, nil)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	tvshows := []*models.TVShow{
+		&models.TVShow{
+			Content: *content[0],
+		},
+	}
+
+	tvshowUseCase.
+		EXPECT().
+		ListByRating(pgnt, userID).
+		Return(tvshows, nil)
+
+	response := &response.Response{Body: &response.Body{"tvshows": tvshows}}
+
+	// Assertions
+	if assert.NoError(t, handleFunc(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+
+		expResBody, err := converter.AnyToBytesBuffer(response)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		bytes, _ := ioutil.ReadAll(rec.Body)
+
+		assert.JSONEq(t, expResBody.String(), string(bytes))
+	}
+}

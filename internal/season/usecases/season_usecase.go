@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
@@ -124,4 +125,15 @@ func (uc *SeasonUsecase) Delete(id uint64) *errors.Error {
 	}
 
 	return nil
+}
+
+func (uc *SeasonUsecase) ListByTVShow(tvshowID uint64) ([]*models.Season, *errors.Error) {
+	seasons, err := uc.rep.SelectByTVShow(tvshowID)
+	if err != nil {
+		return nil, errors.New(consts.CodeInternalError, err)
+	}
+	if len(seasons) == 0 {
+		return []*models.Season{}, nil
+	}
+	return seasons, nil
 }

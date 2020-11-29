@@ -49,6 +49,17 @@ func (tu *TVShowUsecase) GetByID(tvshowID uint64) (*models.TVShow, *errors.Error
 	return tvshow, nil
 }
 
+func (tu *TVShowUsecase) GetShortByID(tvshowID uint64) (*models.TVShow, *errors.Error) {
+	tvshow, err := tu.tvshowRepo.SelectShortByID(tvshowID)
+	switch {
+	case err == sql.ErrNoRows:
+		return nil, errors.Get(CodeTVShowDoesNotExist)
+	case err != nil:
+		return nil, errors.New(CodeInternalError, err)
+	}
+	return tvshow, nil
+}
+
 func (tu *TVShowUsecase) GetFullByID(tvshowID uint64, curUserID uint64) (*models.TVShow, *errors.Error) {
 	tvshow, err := tu.tvshowRepo.SelectFullByID(tvshowID, curUserID)
 	switch {
@@ -73,6 +84,43 @@ func (tu *TVShowUsecase) GetByContentID(contentID uint64) (*models.TVShow, *erro
 		return nil, errors.New(CodeInternalError, err)
 	}
 	return tvshow, nil
+}
+
+func (tu *TVShowUsecase) ListByParams(params *models.ContentFilter, pgnt *models.Pagination,
+	curUserID uint64) ([]*models.TVShow, *errors.Error) {
+
+	tvshows, err := tu.tvshowRepo.SelectByParams(params, pgnt, curUserID)
+	if err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+	if len(tvshows) == 0 {
+		return []*models.TVShow{}, nil
+	}
+	return tvshows, nil
+}
+
+func (tu *TVShowUsecase) ListLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error) {
+	tvshows, err := tu.tvshowRepo.SelectLatest(pgnt, curUserID)
+	if err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+	if len(tvshows) == 0 {
+		return []*models.TVShow{}, nil
+	}
+	return tvshows, nil
+}
+
+func (tu *TVShowUsecase) ListByRating(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error) {
+	tvshows, err := tu.tvshowRepo.SelectByRating(pgnt, curUserID)
+	if err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+
+	if len(tvshows) == 0 {
+		return []*models.TVShow{}, nil
+	}
+
+	return tvshows, nil
 }
 
 func (tu *TVShowUsecase) checkByContentID(contentID uint64) *errors.Error {
