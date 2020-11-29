@@ -9,4 +9,6 @@ type TVShowRepository interface {
 	SelectByID(tvshowID uint64) (*models.TVShow, error)
 	SelectFullByID(tvshowID uint64, curUserID uint64) (*models.TVShow, error)
 	SelectByContentID(contentID uint64) (*models.TVShow, error)
+	SelectWhereNameLike(name string, pgnt *models.Pagination,
+		curUserID uint64) ([]*models.TVShow, error)
 }

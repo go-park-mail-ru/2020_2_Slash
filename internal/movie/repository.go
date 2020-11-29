@@ -15,4 +15,5 @@ type MovieRepository interface {
 		curUserID uint64) ([]*models.Movie, error)
 	SelectLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, error)
 	SelectByRating(pgnt *models.Pagination, curUserID uint64) ([]*models.Movie, error)
+	SelectWhereNameLike(curUserID uint64, name string, limit, offset uint64) ([]*models.Movie, error)
 }
