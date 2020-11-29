@@ -28,12 +28,6 @@ func (sh *SearchHandler) SearchHandler() echo.HandlerFunc {
 		Query string `query:"q"`
 		models.Pagination
 	}
-	
-	type Result struct {
-		//TODO: tvshows
-		Movies []*models.Movie `json:"movies"`
-		Actors []*models.Actor `json:"actors"`
-	}
 
 	return func(cntx echo.Context) error {
 		req := &Request{}
@@ -43,14 +37,10 @@ func (sh *SearchHandler) SearchHandler() echo.HandlerFunc {
 		}
 
 		userID := cntx.Get("userID").(uint64)
-		movies, actors, customErr := sh.searchUsecase.Search(userID, req.Query, &req.Pagination)
+		result, customErr := sh.searchUsecase.Search(userID, req.Query, &req.Pagination)
 		if customErr != nil {
 			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
-		}
-		result := Result{
-			Movies: movies,
-			Actors: actors,
 		}
 
 		return cntx.JSON(http.StatusOK, Response{

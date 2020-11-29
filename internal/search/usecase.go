@@ -7,5 +7,5 @@ import (
 
 type SearchUsecase interface {
 	Search(curUserID uint64, query string, pagination *models.Pagination) (
-		[]*models.Movie, []*models.Actor, *errors.Error)
+		*models.SearchResult, *errors.Error)
 }

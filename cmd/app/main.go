@@ -127,7 +127,7 @@ func main() {
 	favouriteUcase := favouriteUsecase.NewFavouriteUsecase(favouriteRepo)
 	seasonUcase := seasonUsecase.NewSeasonUsecase(seasonRepo, tvshowUcase)
 	episodeUcase := episodeUsecase.NewEpisodeUsecase(episodeRepo, seasonUcase)
-	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo)
+	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo, tvshowRepo)
 
 	// Middleware
 	e := echo.New()
