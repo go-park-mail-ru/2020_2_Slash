@@ -76,6 +76,21 @@ func (mr *MockFavouriteRepositoryMockRecorder) SelectFavouriteMovies(userID, lim
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectFavouriteMovies", reflect.TypeOf((*MockFavouriteRepository)(nil).SelectFavouriteMovies), userID, limit, offset)
 }
 
+// SelectFavouriteTVShows mocks base method
+func (m *MockFavouriteRepository) SelectFavouriteTVShows(userID, limit, offset uint64) ([]*models.TVShow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelectFavouriteTVShows", userID, limit, offset)
+	ret0, _ := ret[0].([]*models.TVShow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SelectFavouriteTVShows indicates an expected call of SelectFavouriteTVShows
+func (mr *MockFavouriteRepositoryMockRecorder) SelectFavouriteTVShows(userID, limit, offset interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectFavouriteTVShows", reflect.TypeOf((*MockFavouriteRepository)(nil).SelectFavouriteTVShows), userID, limit, offset)
+}
+
 // Delete mocks base method
 func (m *MockFavouriteRepository) Delete(favourite *models.Favourite) error {
 	m.ctrl.T.Helper()

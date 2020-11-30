@@ -115,7 +115,7 @@ func (fh *FavouriteHandler) GetFavouritesHandler() echo.HandlerFunc {
 
 		userID := cntx.Get("userID").(uint64)
 
-		favouriteMovies, customErr := fh.favouriteUseCase.GetUserFavouriteMovies(userID, &req.Pagination)
+		favourites, customErr := fh.favouriteUseCase.GetUserFavourites(userID, &req.Pagination)
 		if customErr != nil {
 			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
@@ -123,7 +123,7 @@ func (fh *FavouriteHandler) GetFavouritesHandler() echo.HandlerFunc {
 
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
-				"favourites": favouriteMovies,
+				"favourites": favourites,
 			},
 		})
 	}

@@ -141,15 +141,20 @@ func TestFavouriteHandler_GetFavouritesHandler_Success(t *testing.T) {
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
 
 	var userID uint64 = 3
-	expectReturn := []*models.Movie{
-		{
-			ID: 2,
+
+	expectReturn := &models.FavouritesResult{
+		Movies: []*models.Movie{
+			&models.Movie{
+				ID: 2,
+			},
+			&models.Movie{
+				ID: 4,
+			},
 		},
-		{
-			ID: 4,
-		},
-		{
-			ID: 421,
+		TVShows: []*models.TVShow{
+			&models.TVShow{
+				ID: 1,
+			},
 		},
 	}
 
@@ -170,7 +175,7 @@ func TestFavouriteHandler_GetFavouritesHandler_Success(t *testing.T) {
 
 	favouriteUseCase.
 		EXPECT().
-		GetUserFavouriteMovies(userID, paginate).
+		GetUserFavourites(userID, paginate).
 		Return(expectReturn, nil)
 
 	response := &response.Response{Body: &response.Body{"favourites": expectReturn}}

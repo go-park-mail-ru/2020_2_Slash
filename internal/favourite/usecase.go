@@ -7,6 +7,7 @@ import (
 
 type FavouriteUsecase interface {
 	Create(favourite *models.Favourite) *errors.Error
-	GetUserFavouriteMovies(userID uint64, pagination *models.Pagination) ([]*models.Movie, *errors.Error)
+	GetUserFavourites(userID uint64,
+		pagination *models.Pagination) (*models.FavouritesResult, *errors.Error)
 	Delete(favourite *models.Favourite) *errors.Error
 }

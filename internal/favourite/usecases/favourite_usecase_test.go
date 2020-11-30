@@ -123,21 +123,39 @@ func TestFavouriteUsecase_GetUserFavourites_Success(t *testing.T) {
 		Count: 2,
 	}
 
-	expectReturn := []*models.Movie{
-		{
+	movies := []*models.Movie{
+		&models.Movie{
 			ID: 2,
 		},
-		{
+		&models.Movie{
 			ID: 4,
 		},
+	}
+
+	tvShows := []*models.TVShow{
+		&models.TVShow{
+			ID: 1,
+		},
+		&models.TVShow{
+			ID: 3,
+		},
+	}
+
+	expectReturn := &models.FavouritesResult{
+		Movies:  movies,
+		TVShows: tvShows,
 	}
 
 	favouriteRep.
 		EXPECT().
 		SelectFavouriteMovies(gomock.Eq(userID), pagination.Count, pagination.From).
-		Return(expectReturn, nil)
+		Return(movies, nil)
+	favouriteRep.
+		EXPECT().
+		SelectFavouriteTVShows(gomock.Eq(userID), pagination.Count, pagination.From).
+		Return(tvShows, nil)
 
-	res, err := favouriteUseCase.GetUserFavouriteMovies(userID, &pagination)
+	res, err := favouriteUseCase.GetUserFavourites(userID, &pagination)
 	assert.Equal(t, expectReturn, res)
 	assert.Equal(t, (*errors.Error)(nil), err)
 }
@@ -155,14 +173,22 @@ func TestFavouriteUsecase_GetUserFavourites_Empty(t *testing.T) {
 		Count: 2,
 	}
 
-	var expectReturn []*models.Movie
+	expectReturn := &models.FavouritesResult{
+		Movies:  []*models.Movie{},
+		TVShows: []*models.TVShow{},
+	}
 
 	favouriteRep.
 		EXPECT().
 		SelectFavouriteMovies(gomock.Eq(userID), pagination.Count, pagination.From).
 		Return(nil, sql.ErrNoRows)
 
-	res, err := favouriteUseCase.GetUserFavouriteMovies(userID, &pagination)
+	favouriteRep.
+		EXPECT().
+		SelectFavouriteTVShows(gomock.Eq(userID), pagination.Count, pagination.From).
+		Return(nil, sql.ErrNoRows)
+
+	res, err := favouriteUseCase.GetUserFavourites(userID, &pagination)
 	assert.Equal(t, expectReturn, res)
 	assert.Equal(t, (*errors.Error)(nil), err)
 }
