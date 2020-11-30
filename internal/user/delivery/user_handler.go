@@ -120,15 +120,16 @@ func (uh *UserHandler) UpdateUserProfileHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
+		userID := cntx.Get("userID").(uint64)
 		userData := &models.User{
+			ID:       userID,
 			Nickname: req.Nickname,
 			Email:    req.Email,
 			Password: req.Password,
 			Role:     User,
 		}
 
-		userID := cntx.Get("userID").(uint64)
-		user, err := uh.userUcase.UpdateProfile(userID, userData)
+		user, err := uh.userUcase.UpdateProfile(userData)
 		if err != nil {
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
