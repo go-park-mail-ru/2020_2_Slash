@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package protobuf_session;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+message Session {
+    uint64 ID = 1;
+    string Value = 2;
+    uint64 UserID = 3;
+    google.protobuf.Timestamp ExpiresAt = 4;
+}
+
+message SessionValue {
+    string Value = 1;
+}
+
+service SessionBlock {
+    rpc Create(Session) returns (google.protobuf.Empty) {}
+    rpc Get(SessionValue) returns (Session) {}
+    rpc Delete(SessionValue) returns (google.protobuf.Empty) {}
+    rpc Check(SessionValue) returns (Session) {}
+}
