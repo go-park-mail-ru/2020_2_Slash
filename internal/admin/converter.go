@@ -196,3 +196,49 @@ func TVShowGRPCToModel(tvShow *TVShow) *models.TVShow {
 		Content: *content,
 	}
 }
+
+func SeasonModelToGRPC(season *models.Season) *Season {
+	var episodes []*Episode
+	for _, grcpEpisode := range season.Episodes {
+		modelEpisode := &Episode{
+			ID:          grcpEpisode.ID,
+			Name:        grcpEpisode.Name,
+			Number:      int64(grcpEpisode.Number),
+			Video:       grcpEpisode.Video,
+			Description: grcpEpisode.Description,
+			Poster:      grcpEpisode.Poster,
+			SeasonID:    grcpEpisode.SeasonID,
+		}
+		episodes = append(episodes, modelEpisode)
+	}
+	return &Season{
+		ID:             season.ID,
+		Number:         int64(season.Number),
+		EpisodesNumber: int64(season.EpisodesNumber),
+		TVShowID:       season.TVShowID,
+		Episodes:       episodes,
+	}
+}
+
+func SeasonGRPCToModel(season *Season) *models.Season {
+	var episodes []*models.Episode
+	for _, grcpEpisode := range season.Episodes {
+		modelEpisode := &models.Episode{
+			ID:          grcpEpisode.ID,
+			Name:        grcpEpisode.Name,
+			Number:      int(grcpEpisode.Number),
+			Video:       grcpEpisode.Video,
+			Description: grcpEpisode.Description,
+			Poster:      grcpEpisode.Poster,
+			SeasonID:    grcpEpisode.SeasonID,
+		}
+		episodes = append(episodes, modelEpisode)
+	}
+	return &models.Season{
+		ID:             season.ID,
+		Number:         int(season.Number),
+		EpisodesNumber: int(season.EpisodesNumber),
+		TVShowID:       season.TVShowID,
+		Episodes:       episodes,
+	}
+}

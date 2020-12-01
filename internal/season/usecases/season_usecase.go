@@ -1,7 +1,10 @@
 package usecases
 
 import (
+	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
+	"github.com/jinzhu/copier"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
@@ -11,66 +14,44 @@ import (
 )
 
 type SeasonUsecase struct {
-	rep           season.SeasonRepository
-	tvShowUseCase tvshow.TVShowUsecase
+	rep              season.SeasonRepository
+	tvShowUseCase    tvshow.TVShowUsecase
+	adminPanelClient admin.AdminPanelClient
 }
 
 func NewSeasonUsecase(rep season.SeasonRepository,
-	tvShowUseCase tvshow.TVShowUsecase) season.SeasonUsecase {
+	tvShowUseCase tvshow.TVShowUsecase, client admin.AdminPanelClient) season.SeasonUsecase {
 	return &SeasonUsecase{
-		rep:           rep,
-		tvShowUseCase: tvShowUseCase,
+		rep:              rep,
+		tvShowUseCase:    tvShowUseCase,
+		adminPanelClient: client,
 	}
 }
 
 func (uc *SeasonUsecase) Create(season *models.Season) *errors.Error {
-	_, customErr := uc.tvShowUseCase.GetByID(season.TVShowID)
-	if customErr != nil {
-		return customErr
-	}
-
-	isConflicts, customErr := uc.isConflicts(season)
-	if customErr != nil {
-		return customErr
-	}
-	if isConflicts {
-		return errors.Get(consts.CodeSeasonAlreadyExist)
-	}
-
-	err := uc.rep.Insert(season)
+	grcpSeason, err := uc.adminPanelClient.CreateSeason(context.Background(),
+		admin.SeasonModelToGRPC(season))
 	if err != nil {
+		customErr := errors.GetCustomErr(err)
+		return customErr
+	}
+
+	if err := copier.Copy(season, admin.SeasonGRPCToModel(grcpSeason)); err != nil {
 		return errors.New(consts.CodeInternalError, err)
 	}
+
 	return nil
 }
 
-func (uc *SeasonUsecase) Change(season *models.Season) *errors.Error {
-	_, customErr := uc.tvShowUseCase.GetByID(season.TVShowID)
-	if customErr != nil {
-		return customErr
-	}
+func (uc *SeasonUsecase) Change(newSeason *models.Season) *errors.Error {
+	_, err := uc.adminPanelClient.ChangeSeason(context.Background(),
+		admin.SeasonModelToGRPC(newSeason))
 
-	seasonDB, customErr := uc.Get(season.ID)
-	if customErr != nil {
-		return customErr
-	}
-	if seasonDB.Number == season.Number &&
-		seasonDB.TVShowID == season.TVShowID {
-		return nil
-	}
-
-	isConflicts, customErr := uc.isConflicts(season)
-	if customErr != nil {
-		return customErr
-	}
-	if isConflicts {
-		return errors.Get(consts.CodeSeasonAlreadyExist)
-	}
-
-	err := uc.rep.Update(season)
 	if err != nil {
-		return errors.New(consts.CodeInternalError, err)
+		customErr := errors.GetCustomErr(err)
+		return customErr
 	}
+
 	return nil
 }
 
@@ -116,12 +97,12 @@ func (uc *SeasonUsecase) isConflicts(season *models.Season) (bool, *errors.Error
 }
 
 func (uc *SeasonUsecase) Delete(id uint64) *errors.Error {
-	if _, customErr := uc.isExist(id); customErr != nil {
-		return customErr
-	}
+	_, err := uc.adminPanelClient.DeleteSeasonsByID(context.Background(),
+		&admin.ID{ID: id})
 
-	if err := uc.rep.Delete(id); err != nil {
-		return errors.New(consts.CodeInternalError, err)
+	if err != nil {
+		customErr := errors.GetCustomErr(err)
+		return customErr
 	}
 
 	return nil

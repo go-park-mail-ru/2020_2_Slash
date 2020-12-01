@@ -151,7 +151,7 @@ func main() {
 	tvshowUcase := tvshowUsecase.NewTVShowUsecase(tvshowRepo, contentUcase, adminPanelClient)
 	ratingUcase := ratingUsecase.NewRatingUseCase(ratingRepo, contentUcase)
 	favouriteUcase := favouriteUsecase.NewFavouriteUsecase(favouriteRepo)
-	seasonUcase := seasonUsecase.NewSeasonUsecase(seasonRepo, tvshowUcase)
+	seasonUcase := seasonUsecase.NewSeasonUsecase(seasonRepo, tvshowUcase, adminPanelClient)
 	episodeUcase := episodeUsecase.NewEpisodeUsecase(episodeRepo, seasonUcase)
 	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo, tvshowRepo)
 
