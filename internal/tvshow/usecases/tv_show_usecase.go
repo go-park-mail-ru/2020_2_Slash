@@ -1,7 +1,10 @@
 package usecases
 
 import (
+	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
+	"github.com/jinzhu/copier"
 
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
@@ -11,30 +14,33 @@ import (
 )
 
 type TVShowUsecase struct {
-	tvshowRepo   tvshow.TVShowRepository
-	contentUcase content.ContentUsecase
+	tvshowRepo       tvshow.TVShowRepository
+	contentUcase     content.ContentUsecase
+	adminPanelClient admin.AdminPanelClient
 }
 
 func NewTVShowUsecase(repo tvshow.TVShowRepository,
-	contentUcase content.ContentUsecase) tvshow.TVShowUsecase {
+	contentUcase content.ContentUsecase, client admin.AdminPanelClient) tvshow.TVShowUsecase {
 	return &TVShowUsecase{
-		tvshowRepo:   repo,
-		contentUcase: contentUcase,
+		tvshowRepo:       repo,
+		contentUcase:     contentUcase,
+		adminPanelClient: client,
 	}
 }
 
 func (tu *TVShowUsecase) Create(tvshow *models.TVShow) *errors.Error {
-	if err := tu.checkByContentID(tvshow.ContentID); err == nil {
-		return errors.Get(CodeTVShowContentAlreadyExists)
+	grpcTvShow, err := tu.adminPanelClient.CreateTVShow(context.Background(),
+		admin.TVShowModelToGRPC(tvshow))
+
+	if err != nil {
+		customErr := errors.GetCustomErr(err)
+		return customErr
 	}
 
-	if err := tu.contentUcase.Create(&tvshow.Content); err != nil {
-		return err
-	}
-
-	if err := tu.tvshowRepo.Insert(tvshow); err != nil {
+	if err := copier.Copy(tvshow, admin.TVShowGRPCToModel(grpcTvShow)); err != nil {
 		return errors.New(CodeInternalError, err)
 	}
+
 	return nil
 }
 

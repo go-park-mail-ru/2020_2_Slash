@@ -97,6 +97,14 @@ func ContentModelToGRPC(content *models.Content) *Content {
 		directors = append(directors, grpcDirector)
 	}
 
+	var isLiked, isFavourite bool
+	if content.IsLiked != nil {
+		isLiked = *content.IsLiked
+	}
+	if content.IsFavourite != nil {
+		isFavourite = *content.IsFavourite
+	}
+
 	return &Content{
 		ID:               content.ContentID,
 		Name:             content.Name,
@@ -111,8 +119,8 @@ func ContentModelToGRPC(content *models.Content) *Content {
 		Genres:           genres,
 		Actors:           actors,
 		Directors:        directors,
-		IsLiked:          *content.IsLiked,
-		IsFavourite:      *content.IsFavourite,
+		IsLiked:          isLiked,
+		IsFavourite:      isFavourite,
 	}
 }
 
@@ -169,5 +177,22 @@ func ContentGRPCToModel(content *Content) *models.Content {
 		Directors:        directors,
 		IsLiked:          &content.IsLiked,
 		IsFavourite:      &content.IsFavourite,
+	}
+}
+
+func TVShowModelToGRPC(tvShow *models.TVShow) *TVShow {
+	return &TVShow{
+		ID:      tvShow.ID,
+		Seasons: int64(tvShow.Seasons),
+		Content: ContentModelToGRPC(&tvShow.Content),
+	}
+}
+
+func TVShowGRPCToModel(tvShow *TVShow) *models.TVShow {
+	content := ContentGRPCToModel(tvShow.GetContent())
+	return &models.TVShow{
+		ID:      tvShow.ID,
+		Seasons: int(tvShow.Seasons),
+		Content: *content,
 	}
 }

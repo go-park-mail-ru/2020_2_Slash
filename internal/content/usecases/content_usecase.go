@@ -12,8 +12,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/genre"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
-	"os"
-	"path/filepath"
 )
 
 type ContentUsecase struct {
@@ -73,27 +71,14 @@ func (cu *ContentUsecase) UpdatePosters(content *models.Content, newPostersDir s
 }
 
 func (cu *ContentUsecase) DeleteByID(contentID uint64) *errors.Error {
-	content, err := cu.GetByID(contentID)
+	_, err := cu.adminPanelClient.DeleteContentByID(context.Background(),
+		&admin.ID{ID: contentID})
+
 	if err != nil {
-		return errors.Get(CodeContentDoesNotExist)
+		customErr := errors.GetCustomErr(err)
+		return customErr
 	}
 
-	// Delete posters dir
-	if content.Images != "" {
-		path, err := os.Getwd()
-		if err != nil {
-			return errors.New(CodeInternalError, err)
-		}
-		postersDirPath := filepath.Join(path, content.Images)
-
-		if err := os.RemoveAll(postersDirPath); err != nil {
-			return errors.New(CodeInternalError, err)
-		}
-	}
-
-	if err := cu.contentRepo.DeleteByID(contentID); err != nil {
-		return errors.New(CodeInternalError, err)
-	}
 	return nil
 }
 

@@ -8,6 +8,8 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"os"
+	"path/filepath"
 )
 
 func (am *AdminMicroservice) ChangePosters(ctx context.Context, contentPostersDir *ContentPostersDir) (*Content, error) {
@@ -43,8 +45,40 @@ func (am *AdminMicroservice) ChangeContent(ctx context.Context, newContentData *
 	return &empty.Empty{}, nil
 }
 
+func (am *AdminMicroservice) DeleteContentByID(ctx context.Context, contentID *ID) (*empty.Empty, error) {
+	content, err := am.GetContentByID(contentID.GetID())
+	if err != nil {
+		return &empty.Empty{}, status.Error(codes.Code(consts.CodeContentDoesNotExist), err.Error())
+	}
+
+	// Delete posters dir
+	if content.Images != "" {
+		path, err := os.Getwd()
+		if err != nil {
+			return &empty.Empty{}, status.Error(codes.Code(consts.CodeInternalError), err.Error())
+		}
+		postersDirPath := filepath.Join(path, content.Images)
+
+		if err := os.RemoveAll(postersDirPath); err != nil {
+			return &empty.Empty{}, status.Error(codes.Code(consts.CodeInternalError), err.Error())
+		}
+	}
+
+	if err := am.contentRep.DeleteByID(contentID.GetID()); err != nil {
+		return &empty.Empty{}, status.Error(codes.Code(consts.CodeInternalError), err.Error())
+	}
+	return &empty.Empty{}, nil
+}
+
+func (am *AdminMicroservice) CreateContent(content *models.Content) error {
+	if err := am.contentRep.Insert(content); err != nil {
+		return status.Error(codes.Code(consts.CodeInternalError), err.Error())
+	}
+	return nil
+}
+
 func (am *AdminMicroservice) GetFullByID(contentID uint64) (*models.Content, error) {
-	content, err := am.GetByID(contentID)
+	content, err := am.GetContentByID(contentID)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +88,7 @@ func (am *AdminMicroservice) GetFullByID(contentID uint64) (*models.Content, err
 	return content, nil
 }
 
-func (am *AdminMicroservice) GetByID(contentID uint64) (*models.Content, error) {
+func (am *AdminMicroservice) GetContentByID(contentID uint64) (*models.Content, error) {
 	content, err := am.contentRep.SelectByID(contentID)
 	switch {
 	case err == sql.ErrNoRows:

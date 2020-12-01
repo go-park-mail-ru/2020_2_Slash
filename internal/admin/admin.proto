@@ -114,11 +114,11 @@ service AdminPanel {
 
   // tvshows
   rpc CreateTVShow (TVShow) returns (TVShow) {}
-  rpc DeleteTVShowByID (ID) returns (google.protobuf.Empty) {}
 
   // content
   rpc ChangePosters (ContentPostersDir) returns (Content) {}
   rpc ChangeContent (Content) returns (google.protobuf.Empty) {}
+  rpc DeleteContentByID (ID) returns (google.protobuf.Empty) {}
 
   // seasons
   rpc CreateSeason (Season) returns (Season) {}
