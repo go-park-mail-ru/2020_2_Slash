@@ -31,3 +31,17 @@ func DirectorGRPCToModel(director *Director) *models.Director {
 		Name: director.GetName(),
 	}
 }
+
+func CountryModelToGRPC(country *models.Country) *Country {
+	return &Country{
+		ID:   country.ID,
+		Name: country.Name,
+	}
+}
+
+func CountryGRPCToModel(country *Country) *models.Country {
+	return &models.Country{
+		ID:   country.GetID(),
+		Name: country.GetName(),
+	}
+}

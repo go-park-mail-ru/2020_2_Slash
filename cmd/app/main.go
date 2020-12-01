@@ -125,7 +125,7 @@ func main() {
 
 	// Usecases
 	genreUcase := genreUsecase.NewGenreUsecase(genreRepo)
-	countryUcase := countryUsecase.NewCountryUsecase(countryRepo)
+	countryUcase := countryUsecase.NewCountryUsecase(countryRepo, adminPanelClient)
 	actorUcase := actorUsecase.NewActorUseCase(actorRepo, adminPanelClient)
 	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo, adminPanelClient)
 	contentUcase := contentUsecase.NewContentUsecase(contentRepo, countryUcase, genreUcase, actorUcase, directorUcase)

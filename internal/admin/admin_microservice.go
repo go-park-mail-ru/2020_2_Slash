@@ -48,18 +48,6 @@ func NewAdminMicroservice(actorsRep actor.ActorRepository,
 	}
 }
 
-func (am *AdminMicroservice) CreateCountry(ctx context.Context, c *Country) (*Country, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) ChangeCountry(ctx context.Context, c *Country) (*empty.Empty, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) DeleteCountryByID(ctx context.Context, id *ID) (*empty.Empty, error) {
-	panic("implement me")
-}
-
 func (am *AdminMicroservice) CreateGenre(ctx context.Context, g *Genre) (*Genre, error) {
 	panic("implement me")
 }

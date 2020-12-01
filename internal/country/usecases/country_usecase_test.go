@@ -88,7 +88,7 @@ func TestCountryUseCase_Update_OK(t *testing.T) {
 		Update(gomock.Eq(country)).
 		Return(nil)
 
-	dbCountry, err := countryUseCase.UpdateByID(country.ID, newCountryData)
+	dbCountry, err := countryUseCase.Update(country.ID, newCountryData)
 	assert.Equal(t, err, (*errors.Error)(nil))
 	assert.Equal(t, dbCountry, newCountryData)
 }
