@@ -2,14 +2,15 @@ package usecases
 
 import (
 	"database/sql"
+	"os"
+	"strings"
+
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 	"github.com/go-park-mail-ru/2020_2_Slash/pkg/sanitizer"
 	"golang.org/x/crypto/bcrypt"
-	"os"
-	"strings"
 )
 
 type UserUsecase struct {

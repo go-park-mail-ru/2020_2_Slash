@@ -2,6 +2,9 @@ package usecases
 
 import (
 	"database/sql"
+	"testing"
+	"time"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
@@ -9,8 +12,6 @@ import (
 	"github.com/golang/mock/gomock"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestSessionUseCase_Create_OK(t *testing.T) {
@@ -137,4 +138,3 @@ func TestSessionUsecase_Check_Expired(t *testing.T) {
 	_, err := sessionUseCase.Check(session.Value)
 	assert.Equal(t, err, errors.Get(consts.CodeSessionExpired))
 }
-

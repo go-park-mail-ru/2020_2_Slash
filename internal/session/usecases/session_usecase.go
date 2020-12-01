@@ -1,71 +1,58 @@
 package usecases
 
 import (
-	"database/sql"
+	"context"
+
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
-	"time"
+	sessGRPC "github.com/go-park-mail-ru/2020_2_Slash/internal/session/delivery/grpc"
+	"google.golang.org/grpc/status"
 )
 
 type SessionUsecase struct {
-	sessRepo session.SessionRepository
+	sessBlockClient sessGRPC.SessionBlockClient
 }
 
-func NewSessionUsecase(repo session.SessionRepository) session.SessionUsecase {
+func NewSessionUsecase(client sessGRPC.SessionBlockClient) session.SessionUsecase {
 	return &SessionUsecase{
-		sessRepo: repo,
+		sessBlockClient: client,
 	}
 }
 
 func (su *SessionUsecase) Create(sess *models.Session) *errors.Error {
-	if err := su.sessRepo.Insert(sess); err != nil {
-		return errors.New(CodeInternalError, err)
+	_, err := su.sessBlockClient.Create(context.Background(), sessGRPC.ModelSessionToGrpc(sess))
+	if err != nil {
+		customErr := errors.Get(ErrorCode(status.Code(err)))
+		return customErr
 	}
 	return nil
 }
 
 func (su *SessionUsecase) Get(sessValue string) (*models.Session, *errors.Error) {
-	sess, err := su.sessRepo.SelectByValue(sessValue)
-	switch {
-	case err == sql.ErrNoRows:
-		return nil, errors.Get(CodeUserUnauthorized)
-	case err != nil:
-		return nil, errors.New(CodeInternalError, err)
+	sess, err := su.sessBlockClient.Get(context.Background(), &sessGRPC.SessionValue{Value: sessValue})
+	if err != nil {
+		customErr := errors.Get(ErrorCode(status.Code(err)))
+		return nil, customErr
 	}
-	return sess, nil
-}
-
-func (su *SessionUsecase) IsExist(sessValue string) bool {
-	_, err := su.Get(sessValue)
-	return err == nil
+	return sessGRPC.GrpcSessionToModel(sess), nil
 }
 
 func (su *SessionUsecase) Delete(sessValue string) *errors.Error {
-	if !su.IsExist(sessValue) {
-		return errors.Get(CodeSessionDoesNotExist)
+	_, err := su.sessBlockClient.Delete(context.Background(), &sessGRPC.SessionValue{Value: sessValue})
+	if err != nil {
+		customErr := errors.Get(ErrorCode(status.Code(err)))
+		return customErr
 	}
-
-	if err := su.sessRepo.DeleteByValue(sessValue); err != nil {
-		return errors.New(CodeInternalError, err)
-	}
-
 	return nil
 }
 
 func (su *SessionUsecase) Check(sessValue string) (*models.Session, *errors.Error) {
-	sess, customErr := su.Get(sessValue)
-	if customErr != nil {
+	sess, err := su.sessBlockClient.Check(context.Background(), &sessGRPC.SessionValue{Value: sessValue})
+	if err != nil {
+		customErr := errors.Get(ErrorCode(status.Code(err)))
 		return nil, customErr
 	}
-	if sess.ExpiresAt.Before(time.Now()) {
-		deleteErr := su.Delete(sessValue)
-		if deleteErr != nil {
-			return nil, deleteErr
-		}
-		customErr = errors.Get(CodeSessionExpired)
-		return nil, customErr
-	}
-	return sess, nil
+	return sessGRPC.GrpcSessionToModel(sess), nil
 }

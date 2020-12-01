@@ -1,6 +1,10 @@
 package delivery
 
 import (
+	"io"
+	"net/http"
+	"os"
+
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
@@ -15,9 +19,6 @@ import (
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"io"
-	"net/http"
-	"os"
 )
 
 type UserHandler struct {

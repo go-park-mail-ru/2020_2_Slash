@@ -6,15 +6,17 @@ import (
 
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
+	"google.golang.org/grpc"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/config"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares/monitoring"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	sessionHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/session/delivery"
-	sessionRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/session/repository"
+	sessionGRPC "github.com/go-park-mail-ru/2020_2_Slash/internal/session/delivery/grpc"
 	sessionUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/session/usecases"
 
 	userHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery"
@@ -100,7 +102,6 @@ func main() {
 	}
 
 	// Repository
-	sessRepo := sessionRepo.NewSessionPgRepository(dbConnection)
 	userRepo := userRepo.NewUserPgRepository(dbConnection)
 	genreRepo := genreRepo.NewGenrePgRepository(dbConnection)
 	countryRepo := countryRepo.NewCountryPgRepository(dbConnection)
@@ -115,7 +116,6 @@ func main() {
 	episodeRepo := episodeRepo.NewEpisodeRepository(dbConnection)
 
 	// Usecases
-	sessUcase := sessionUsecase.NewSessionUsecase(sessRepo)
 	userUcase := userUsecase.NewUserUsecase(userRepo)
 	genreUcase := genreUsecase.NewGenreUsecase(genreRepo)
 	countryUcase := countryUsecase.NewCountryUsecase(countryRepo)
@@ -129,6 +129,15 @@ func main() {
 	seasonUcase := seasonUsecase.NewSeasonUsecase(seasonRepo, tvshowUcase)
 	episodeUcase := episodeUsecase.NewEpisodeUsecase(episodeRepo, seasonUcase)
 	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo, tvshowRepo)
+
+	// Session microservice
+	grpcConn, err := grpc.Dial(consts.SessionblockAddress, grpc.WithInsecure())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer grpcConn.Close()
+	sessBlockClient := sessionGRPC.NewSessionBlockClient(grpcConn)
+	sessUcase := sessionUsecase.NewSessionUsecase(sessBlockClient)
 
 	// Monitoring
 	e := echo.New()

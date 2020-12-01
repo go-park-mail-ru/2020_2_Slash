@@ -63,20 +63,6 @@ func (mr *MockSessionUsecaseMockRecorder) Get(sessValue interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockSessionUsecase)(nil).Get), sessValue)
 }
 
-// IsExist mocks base method
-func (m *MockSessionUsecase) IsExist(sessionValue string) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsExist", sessionValue)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// IsExist indicates an expected call of IsExist
-func (mr *MockSessionUsecaseMockRecorder) IsExist(sessionValue interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsExist", reflect.TypeOf((*MockSessionUsecase)(nil).IsExist), sessionValue)
-}
-
 // Delete mocks base method
 func (m *MockSessionUsecase) Delete(sessionValue string) *errors.Error {
 	m.ctrl.T.Helper()
