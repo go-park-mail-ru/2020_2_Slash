@@ -242,3 +242,27 @@ func SeasonGRPCToModel(season *Season) *models.Season {
 		Episodes:       episodes,
 	}
 }
+
+func EpisodeModelToGRPC(episode *models.Episode) *Episode {
+	return &Episode{
+		ID:          episode.ID,
+		Name:        episode.Name,
+		Number:      int64(episode.Number),
+		Video:       episode.Video,
+		Description: episode.Description,
+		Poster:      episode.Poster,
+		SeasonID:    episode.SeasonID,
+	}
+}
+
+func EpisodeGRPCToModel(episode *Episode) *models.Episode {
+	return &models.Episode{
+		ID:          episode.ID,
+		Name:        episode.Name,
+		Number:      int(episode.Number),
+		Video:       episode.Video,
+		Description: episode.Description,
+		Poster:      episode.Poster,
+		SeasonID:    episode.SeasonID,
+	}
+}

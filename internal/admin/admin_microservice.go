@@ -26,6 +26,7 @@ type AdminMicroservice struct {
 	tvshowsRep   tvshow.TVShowRepository
 }
 
+
 func NewAdminMicroservice(actorsRep actor.ActorRepository,
 	directorsRep director.DirectorRepository,
 	countriesRep country.CountryRepository,
@@ -57,17 +58,5 @@ func (am *AdminMicroservice) ChangeVideo(ctx context.Context, videoMovie *VideoM
 }
 
 func (am *AdminMicroservice) DeleteMovieByID(ctx context.Context, id *ID) (*empty.Empty, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) CreateEpisode(ctx context.Context, e *Episode) (*Episode, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) ChangeEpisode(ctx context.Context, e *Episode) (*empty.Empty, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) DeleteEpisodeByID(ctx context.Context, id *ID) (*empty.Empty, error) {
 	panic("implement me")
 }
