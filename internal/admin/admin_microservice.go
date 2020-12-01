@@ -48,18 +48,6 @@ func NewAdminMicroservice(actorsRep actor.ActorRepository,
 	}
 }
 
-func (am *AdminMicroservice) CreateDirector(ctx context.Context, d *Director) (*Director, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) ChangeDirector(ctx context.Context, d *Director) (*empty.Empty, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) DeleteDirectorByID(ctx context.Context, id *ID) (*empty.Empty, error) {
-	panic("implement me")
-}
-
 func (am *AdminMicroservice) CreateCountry(ctx context.Context, c *Country) (*Country, error) {
 	panic("implement me")
 }

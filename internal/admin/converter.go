@@ -17,3 +17,17 @@ func ActorGRPCToModel(actor *Actor) *models.Actor {
 		Name: actor.GetName(),
 	}
 }
+
+func DirectorModelToGRPC(director *models.Director) *Director {
+	return &Director{
+		ID:   director.ID,
+		Name: director.Name,
+	}
+}
+
+func DirectorGRPCToModel(director *Director) *models.Director {
+	return &models.Director{
+		ID:   director.GetID(),
+		Name: director.GetName(),
+	}
+}
