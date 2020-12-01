@@ -123,20 +123,6 @@ func main() {
 	defer grpcConn.Close()
 	adminPanelClient := admin.NewAdminPanelClient(grpcConn)
 
-	// Usecases
-	genreUcase := genreUsecase.NewGenreUsecase(genreRepo)
-	countryUcase := countryUsecase.NewCountryUsecase(countryRepo, adminPanelClient)
-	actorUcase := actorUsecase.NewActorUseCase(actorRepo, adminPanelClient)
-	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo, adminPanelClient)
-	contentUcase := contentUsecase.NewContentUsecase(contentRepo, countryUcase, genreUcase, actorUcase, directorUcase)
-	movieUcase := movieUsecase.NewMovieUsecase(movieRepo, contentUcase)
-	tvshowUcase := tvshowUsecase.NewTVShowUsecase(tvshowRepo, contentUcase)
-	ratingUcase := ratingUsecase.NewRatingUseCase(ratingRepo, contentUcase)
-	favouriteUcase := favouriteUsecase.NewFavouriteUsecase(favouriteRepo)
-	seasonUcase := seasonUsecase.NewSeasonUsecase(seasonRepo, tvshowUcase)
-	episodeUcase := episodeUsecase.NewEpisodeUsecase(episodeRepo, seasonUcase)
-	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo, tvshowRepo)
-
 	// Session microservice
 	sessionGrpcConn, err := grpc.Dial(consts.SessionblockAddress, grpc.WithInsecure())
 	if err != nil {
@@ -154,6 +140,20 @@ func main() {
 	defer userblockGrpcConn.Close()
 	userBlockClient := user.NewUserBlockClient(userblockGrpcConn)
 	userUcase := userUsecase.NewUserUsecase(userBlockClient)
+
+	// Usecases
+	genreUcase := genreUsecase.NewGenreUsecase(genreRepo, adminPanelClient)
+	countryUcase := countryUsecase.NewCountryUsecase(countryRepo, adminPanelClient)
+	actorUcase := actorUsecase.NewActorUseCase(actorRepo, adminPanelClient)
+	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo, adminPanelClient)
+	contentUcase := contentUsecase.NewContentUsecase(contentRepo, countryUcase, genreUcase, actorUcase, directorUcase)
+	movieUcase := movieUsecase.NewMovieUsecase(movieRepo, contentUcase)
+	tvshowUcase := tvshowUsecase.NewTVShowUsecase(tvshowRepo, contentUcase)
+	ratingUcase := ratingUsecase.NewRatingUseCase(ratingRepo, contentUcase)
+	favouriteUcase := favouriteUsecase.NewFavouriteUsecase(favouriteRepo)
+	seasonUcase := seasonUsecase.NewSeasonUsecase(seasonRepo, tvshowUcase)
+	episodeUcase := episodeUsecase.NewEpisodeUsecase(episodeRepo, seasonUcase)
+	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo, tvshowRepo)
 
 	// Monitoring
 	e := echo.New()

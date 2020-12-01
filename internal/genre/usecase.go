@@ -7,7 +7,7 @@ import (
 
 type GenreUsecase interface {
 	Create(genre *models.Genre) *errors.Error
-	UpdateByID(genreID uint64, newGenreData *models.Genre) (*models.Genre, *errors.Error)
+	Update(newGenreData *models.Genre) *errors.Error
 	DeleteByID(genreID uint64) *errors.Error
 	GetByID(genreID uint64) (*models.Genre, *errors.Error)
 	GetByName(name string) (*models.Genre, *errors.Error)

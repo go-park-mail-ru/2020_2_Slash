@@ -45,3 +45,17 @@ func CountryGRPCToModel(country *Country) *models.Country {
 		Name: country.GetName(),
 	}
 }
+
+func GenreModelToGRPC(genre *models.Genre) *Genre {
+	return &Genre{
+		ID:   genre.ID,
+		Name: genre.Name,
+	}
+}
+
+func GenreGRPCToModel(genre *Genre) *models.Genre {
+	return &models.Genre{
+		ID:   genre.GetID(),
+		Name: genre.GetName(),
+	}
+}

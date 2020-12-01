@@ -11,7 +11,7 @@ import (
 )
 
 func (am *AdminMicroservice) CreateCountry(ctx context.Context, country *Country) (*Country, error) {
-	if err := am.checkByName(country.Name); err == nil {
+	if err := am.checkCountryByName(country.Name); err == nil {
 		return &Country{}, status.Error(codes.Code(consts.CodeCountryNameAlreadyExists), "")
 	}
 
@@ -36,7 +36,7 @@ func (am *AdminMicroservice) ChangeCountry(ctx context.Context,
 		return &empty.Empty{}, nil
 	}
 
-	if err := am.checkByName(newCountryData.Name); err == nil {
+	if err := am.checkCountryByName(newCountryData.Name); err == nil {
 		return &empty.Empty{}, status.Error(codes.Code(consts.CodeCountryNameAlreadyExists), "")
 	}
 
@@ -48,7 +48,7 @@ func (am *AdminMicroservice) ChangeCountry(ctx context.Context,
 }
 
 func (am *AdminMicroservice) DeleteCountryByID(ctx context.Context, countryID *ID) (*empty.Empty, error) {
-	if err := am.checkByID(countryID.GetID()); err != nil {
+	if err := am.checkCountryByID(countryID.GetID()); err != nil {
 		return &empty.Empty{}, status.Error(codes.Code(consts.CodeCountryDoesNotExist), "")
 	}
 
@@ -80,12 +80,12 @@ func (am *AdminMicroservice) GetCountryByName(name string) (*models.Country, err
 	return country, nil
 }
 
-func (am *AdminMicroservice) checkByID(countryID uint64) error {
+func (am *AdminMicroservice) checkCountryByID(countryID uint64) error {
 	_, err := am.GetCountryByID(countryID)
 	return err
 }
 
-func (am *AdminMicroservice) checkByName(name string) error {
+func (am *AdminMicroservice) checkCountryByName(name string) error {
 	_, err := am.GetCountryByName(name)
 	return err
 }

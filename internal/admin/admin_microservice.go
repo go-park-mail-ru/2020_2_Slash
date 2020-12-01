@@ -48,18 +48,6 @@ func NewAdminMicroservice(actorsRep actor.ActorRepository,
 	}
 }
 
-func (am *AdminMicroservice) CreateGenre(ctx context.Context, g *Genre) (*Genre, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) ChangeGenre(ctx context.Context, g *Genre) (*empty.Empty, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) DeleteGenreByID(ctx context.Context, id *ID) (*empty.Empty, error) {
-	panic("implement me")
-}
-
 func (am *AdminMicroservice) CreateMovie(ctx context.Context, m *Movie) (*Movie, error) {
 	panic("implement me")
 }
