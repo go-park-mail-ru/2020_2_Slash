@@ -54,3 +54,15 @@ func (am *AdminMicroservice) getDirector(id uint64) (*models.Director, error) {
 	}
 	return dbDirector, nil
 }
+
+func (am *AdminMicroservice) ListDirectorsByID(directorsID []uint64) ([]*models.Director, error) {
+	var directors []*models.Director
+	for _, directorID := range directorsID {
+		director, err := am.getDirector(directorID)
+		if err != nil {
+			return nil, err
+		}
+		directors = append(directors, director)
+	}
+	return directors, nil
+}

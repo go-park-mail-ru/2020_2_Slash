@@ -88,3 +88,15 @@ func (am *AdminMicroservice) checkGenreByName(name string) error {
 	_, err := am.getGenreByName(name)
 	return err
 }
+
+func (am *AdminMicroservice) ListGenresByID(genresID []uint64) ([]*models.Genre, error) {
+	var genres []*models.Genre
+	for _, genreID := range genresID {
+		genre, err := am.getGenreByID(genreID)
+		if err != nil {
+			return nil, err
+		}
+		genres = append(genres, genre)
+	}
+	return genres, nil
+}

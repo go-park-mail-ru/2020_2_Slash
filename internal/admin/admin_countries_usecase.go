@@ -89,3 +89,15 @@ func (am *AdminMicroservice) checkCountryByName(name string) error {
 	_, err := am.GetCountryByName(name)
 	return err
 }
+
+func (am *AdminMicroservice) ListCountriesByID(countriesID []uint64) ([]*models.Country, error) {
+	var countries []*models.Country
+	for _, countryID := range countriesID {
+		country, err := am.GetCountryByID(countryID)
+		if err != nil {
+			return nil, err
+		}
+		countries = append(countries, country)
+	}
+	return countries, nil
+}

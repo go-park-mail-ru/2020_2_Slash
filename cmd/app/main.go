@@ -146,7 +146,7 @@ func main() {
 	countryUcase := countryUsecase.NewCountryUsecase(countryRepo, adminPanelClient)
 	actorUcase := actorUsecase.NewActorUseCase(actorRepo, adminPanelClient)
 	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo, adminPanelClient)
-	contentUcase := contentUsecase.NewContentUsecase(contentRepo, countryUcase, genreUcase, actorUcase, directorUcase)
+	contentUcase := contentUsecase.NewContentUsecase(contentRepo, countryUcase, genreUcase, actorUcase, directorUcase, adminPanelClient)
 	movieUcase := movieUsecase.NewMovieUsecase(movieRepo, contentUcase)
 	tvshowUcase := tvshowUsecase.NewTVShowUsecase(tvshowRepo, contentUcase)
 	ratingUcase := ratingUsecase.NewRatingUseCase(ratingRepo, contentUcase)

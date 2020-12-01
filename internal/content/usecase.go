@@ -7,7 +7,7 @@ import (
 
 type ContentUsecase interface {
 	Create(content *models.Content) *errors.Error
-	UpdateByID(contentID uint64, newContentData *models.Content) (*models.Content, *errors.Error)
+	Update(newContentData *models.Content) *errors.Error
 	UpdatePosters(content *models.Content, newPostersDir string) *errors.Error
 	DeleteByID(contentID uint64) *errors.Error
 	GetByID(contentID uint64) (*models.Content, *errors.Error)

@@ -54,3 +54,15 @@ func (am *AdminMicroservice) getActor(id uint64) (*models.Actor, error) {
 	}
 	return dbActor, nil
 }
+
+func (am *AdminMicroservice) ListActorsByID(actorsID []uint64) ([]*models.Actor, error) {
+	var actors []*models.Actor
+	for _, actorID := range actorsID {
+		actor, err := am.getActor(actorID)
+		if err != nil {
+			return nil, err
+		}
+		actors = append(actors, actor)
+	}
+	return actors, nil
+}

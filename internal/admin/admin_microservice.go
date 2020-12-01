@@ -68,14 +68,6 @@ func (am *AdminMicroservice) DeleteTVShowByID(ctx context.Context, id *ID) (*emp
 	panic("implement me")
 }
 
-func (am *AdminMicroservice) ChangePosters(ctx context.Context, dir *ContentPostersDir) (*Content, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) ChangeContent(ctx context.Context, c *Content) (*empty.Empty, error) {
-	panic("implement me")
-}
-
 func (am *AdminMicroservice) CreateSeason(ctx context.Context, s *Season) (*Season, error) {
 	panic("implement me")
 }
