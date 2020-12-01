@@ -1,28 +1,65 @@
 package usecases
 
 import (
+	"context"
 	"database/sql"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+	"github.com/jinzhu/copier"
 )
 
 type ActorUseCase struct {
-	actorRepo actor.ActorRepository
+	actorRepo        actor.ActorRepository
+	adminPanelClient admin.AdminPanelClient
 }
 
-func NewActorUseCase(repo actor.ActorRepository) actor.ActorUseCase {
+func NewActorUseCase(repo actor.ActorRepository,
+	client admin.AdminPanelClient) actor.ActorUseCase {
 	return &ActorUseCase{
-		actorRepo: repo,
+		actorRepo:        repo,
+		adminPanelClient: client,
 	}
 }
 
 func (au *ActorUseCase) Create(actor *models.Actor) *errors.Error {
-	err := au.actorRepo.Insert(actor)
+	grpcActor, err := au.adminPanelClient.CreateActor(context.Background(),
+		admin.ActorModelToGRPC(actor))
 	if err != nil {
+		customErr := errors.GetCustomErr(err)
+		return customErr
+	}
+
+	if err := copier.Copy(actor, admin.ActorGRPCToModel(grpcActor)); err != nil {
 		return errors.New(CodeInternalError, err)
 	}
+
+	return nil
+}
+
+func (au *ActorUseCase) Change(newActor *models.Actor) *errors.Error {
+	_, err := au.adminPanelClient.ChangeActor(context.Background(),
+		admin.ActorModelToGRPC(newActor))
+
+	if err != nil {
+		customErr := errors.GetCustomErr(err)
+		return customErr
+	}
+
+	return nil
+}
+
+func (au *ActorUseCase) DeleteById(id uint64) *errors.Error {
+	_, err := au.adminPanelClient.DeleteActorByID(context.Background(),
+		&admin.ID{ID: id})
+
+	if err != nil {
+		customErr := errors.GetCustomErr(err)
+		return customErr
+	}
+
 	return nil
 }
 
@@ -34,30 +71,6 @@ func (au *ActorUseCase) Get(id uint64) (*models.Actor, *errors.Error) {
 		return nil, errors.New(CodeInternalError, err)
 	}
 	return dbActor, nil
-}
-
-func (au *ActorUseCase) Change(newActor *models.Actor) *errors.Error {
-	if _, customErr := au.Get(newActor.ID); customErr != nil {
-		return customErr
-	}
-
-	if err := au.actorRepo.Update(newActor); err != nil {
-		return errors.New(CodeInternalError, err)
-	}
-
-	return nil
-}
-
-func (au *ActorUseCase) DeleteById(id uint64) *errors.Error {
-	if _, customErr := au.Get(id); customErr != nil {
-		return customErr
-	}
-
-	if err := au.actorRepo.DeleteById(id); err != nil {
-		return errors.New(CodeInternalError, err)
-	}
-
-	return nil
 }
 
 func (au *ActorUseCase) ListByID(actorsID []uint64) ([]*models.Actor, *errors.Error) {
