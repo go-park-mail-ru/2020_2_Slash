@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 	"google.golang.org/grpc"
@@ -114,10 +115,18 @@ func main() {
 	seasonRepo := seasonRepo.NewSeasonPgRepository(dbConnection)
 	episodeRepo := episodeRepo.NewEpisodeRepository(dbConnection)
 
+	// AdminPanel Microservice
+	grpcConn, err := grpc.Dial(consts.AdminPanelAddress, grpc.WithInsecure())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer grpcConn.Close()
+	adminPanelClient := admin.NewAdminPanelClient(grpcConn)
+
 	// Usecases
 	genreUcase := genreUsecase.NewGenreUsecase(genreRepo)
 	countryUcase := countryUsecase.NewCountryUsecase(countryRepo)
-	actorUcase := actorUsecase.NewActorUseCase(actorRepo)
+	actorUcase := actorUsecase.NewActorUseCase(actorRepo, adminPanelClient)
 	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo)
 	contentUcase := contentUsecase.NewContentUsecase(contentRepo, countryUcase, genreUcase, actorUcase, directorUcase)
 	movieUcase := movieUsecase.NewMovieUsecase(movieRepo, contentUcase)
