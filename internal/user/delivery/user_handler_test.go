@@ -131,7 +131,7 @@ func TestUserHandler_UpdateUserHandler(t *testing.T) {
 
 	userUseCase.
 		EXPECT().
-		UpdateProfile(userInst.ID, userInst).
+		UpdateProfile(userInst).
 		Return(userInst, nil)
 
 	response := &response.Response{Body: &response.Body{"user": userInst}}

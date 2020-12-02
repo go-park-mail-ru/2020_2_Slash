@@ -2,14 +2,15 @@ package main
 
 import (
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
+	"google.golang.org/grpc"
 	"log"
 
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
-	"google.golang.org/grpc"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/config"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares/monitoring"
@@ -20,7 +21,6 @@ import (
 	sessionUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/session/usecases"
 
 	userHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery"
-	userRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/user/repository"
 	userUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/user/usecases"
 
 	genreHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/genre/delivery"
@@ -102,7 +102,6 @@ func main() {
 	}
 
 	// Repository
-	userRepo := userRepo.NewUserPgRepository(dbConnection)
 	genreRepo := genreRepo.NewGenrePgRepository(dbConnection)
 	countryRepo := countryRepo.NewCountryPgRepository(dbConnection)
 	actorRepo := actorRepo.NewActorPgRepository(dbConnection)
@@ -116,7 +115,6 @@ func main() {
 	episodeRepo := episodeRepo.NewEpisodeRepository(dbConnection)
 
 	// Usecases
-	userUcase := userUsecase.NewUserUsecase(userRepo)
 	genreUcase := genreUsecase.NewGenreUsecase(genreRepo)
 	countryUcase := countryUsecase.NewCountryUsecase(countryRepo)
 	actorUcase := actorUsecase.NewActorUseCase(actorRepo)
@@ -131,13 +129,22 @@ func main() {
 	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo, tvshowRepo)
 
 	// Session microservice
-	grpcConn, err := grpc.Dial(consts.SessionblockAddress, grpc.WithInsecure())
+	sessionGrpcConn, err := grpc.Dial(consts.SessionblockAddress, grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer grpcConn.Close()
-	sessBlockClient := sessionGRPC.NewSessionBlockClient(grpcConn)
+	defer sessionGrpcConn.Close()
+	sessBlockClient := sessionGRPC.NewSessionBlockClient(sessionGrpcConn)
 	sessUcase := sessionUsecase.NewSessionUsecase(sessBlockClient)
+
+	// Userblock microservice
+	userblockGrpcConn, err := grpc.Dial(consts.UserblockAddress, grpc.WithInsecure())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer userblockGrpcConn.Close()
+	userBlockClient := user.NewUserBlockClient(userblockGrpcConn)
+	userUcase := userUsecase.NewUserUsecase(userBlockClient)
 
 	// Monitoring
 	e := echo.New()

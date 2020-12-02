@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package user;
+
+message User {
+  uint64 ID = 1;
+  string Nickname = 2;
+  string Email = 3;
+  string Password = 4;
+  string Avatar = 5;
+  string Role = 6;
+}
+
+message Avatar {
+  string avatar = 1;
+}
+
+message IdAvatar {
+  ID id = 1;
+  Avatar avatar = 2;
+}
+
+message Email {
+  string email = 1;
+}
+
+message ID {
+  uint64 ID = 1;
+}
+
+message Password {
+  string password = 1;
+}
+
+message UserPassword {
+  User user = 1;
+  Password password = 2;
+}
+
+message Nothing {}
+
+// grpc-сервис пользовательского блока
+service UserBlock {
+  rpc Create (User) returns (User) {}
+  rpc GetByEmail (Email) returns (User) {}
+  rpc GetByID (ID) returns (User) {}
+  rpc UpdateProfile (User) returns (User) {}
+  rpc UpdateAvatar (IdAvatar) returns (User) {}
+}

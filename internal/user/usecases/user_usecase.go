@@ -1,134 +1,87 @@
 package usecases
 
 import (
-	"database/sql"
-	"os"
-	"strings"
-
+	"context"
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
-	"github.com/go-park-mail-ru/2020_2_Slash/pkg/sanitizer"
+	"github.com/jinzhu/copier"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc/status"
 )
 
 type UserUsecase struct {
-	userRepo user.UserRepository
+	userBlockClient user.UserBlockClient
 }
 
-func NewUserUsecase(repo user.UserRepository) user.UserUsecase {
+func NewUserUsecase(client user.UserBlockClient) *UserUsecase {
 	return &UserUsecase{
-		userRepo: repo,
+		userBlockClient: client,
 	}
 }
 
-func (uu *UserUsecase) Create(user *models.User) *errors.Error {
-	sanitizer.Sanitize(user)
-	if err := uu.checkByEmail(user.Email); err == nil {
-		return errors.Get(CodeEmailAlreadyExists)
+func (uu *UserUsecase) Create(modelUser *models.User) *errors.Error {
+	grpcUser, err := uu.userBlockClient.Create(context.Background(),
+		user.ModelUserToGrpc(modelUser))
+	if err != nil {
+		customErr := errors.Get(ErrorCode(status.Code(err)))
+		return customErr
 	}
 
-	// If nickname wasn't sent, set nickname as email before @
-	if user.Nickname == "" {
-		user.Nickname = strings.Split(user.Email, "@")[0]
-	}
-
-	// Hash password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	err = copier.Copy(modelUser, user.GrpcUserToModel(grpcUser))
 	if err != nil {
 		return errors.New(CodeInternalError, err)
 	}
-	user.Password = string(hashedPassword)
 
-	if err := uu.userRepo.Insert(user); err != nil {
-		return errors.New(CodeInternalError, err)
-	}
 	return nil
 }
 
 func (uu *UserUsecase) GetByEmail(email string) (*models.User, *errors.Error) {
-	user, err := uu.userRepo.SelectByEmail(email)
-	switch {
-	case err == sql.ErrNoRows:
-		return nil, errors.Get(CodeEmailDoesNotExist)
-	case err != nil:
-		return nil, errors.New(CodeInternalError, err)
-	}
-	return user, nil
-}
-
-func (uu *UserUsecase) GetByID(userID uint64) (*models.User, *errors.Error) {
-	user, err := uu.userRepo.SelectByID(userID)
-	switch {
-	case err == sql.ErrNoRows:
-		return nil, errors.Get(CodeUserDoesNotExist)
-	case err != nil:
-		return nil, errors.New(CodeInternalError, err)
-	}
-	return user, nil
-}
-
-func (uu *UserUsecase) UpdateProfile(userID uint64, newUserData *models.User) (*models.User, *errors.Error) {
-	sanitizer.Sanitize(newUserData)
-	user, err := uu.GetByID(userID)
+	grpcUser, err := uu.userBlockClient.GetByEmail(context.Background(),
+		&user.Email{Email: email})
 	if err != nil {
-		return nil, err
-	}
-
-	// Update email
-	if newUserData.Email != "" && user.Email != newUserData.Email {
-		if err := uu.checkByEmail(newUserData.Email); err == nil {
-			return nil, errors.Get(CodeEmailAlreadyExists)
-		}
-		user.Email = newUserData.Email
-	}
-
-	// Update nickname
-	if newUserData.Nickname != "" {
-		user.Nickname = newUserData.Nickname
-	}
-
-	// Update password
-	if newUserData.Password != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUserData.Password), bcrypt.DefaultCost)
-		if err != nil {
-			return nil, errors.New(CodeInternalError, err)
-		}
-		user.Password = string(hashedPassword)
-	}
-
-	if err := uu.userRepo.Update(user); err != nil {
-		return nil, errors.New(CodeInternalError, err)
-	}
-	return user, nil
-}
-
-func (uu *UserUsecase) UpdateAvatar(userID uint64, newAvatar string) (*models.User, *errors.Error) {
-	user, customErr := uu.GetByID(userID)
-	if customErr != nil {
+		customErr := errors.Get(ErrorCode(status.Code(err)))
 		return nil, customErr
 	}
 
-	// Update user avatar
-	prevAvatar := user.Avatar
-	user.Avatar = newAvatar
-	if err := uu.userRepo.Update(user); err != nil {
-		return nil, errors.New(CodeInternalError, err)
-	}
-
-	// Delete prev avatar image
-	if prevAvatar != "" {
-		if err := os.Remove("." + prevAvatar); err != nil {
-			return nil, errors.New(CodeInternalError, err)
-		}
-	}
-	return user, nil
+	return user.GrpcUserToModel(grpcUser), nil
 }
 
-func (uu *UserUsecase) checkByEmail(email string) *errors.Error {
-	_, err := uu.GetByEmail(email)
-	return err
+func (uu *UserUsecase) GetByID(userID uint64) (*models.User, *errors.Error) {
+	grpcUser, err := uu.userBlockClient.GetByID(context.Background(),
+		&user.ID{ID: userID})
+	if err != nil {
+		customErr := errors.Get(ErrorCode(status.Code(err)))
+		return nil, customErr
+	}
+
+	return user.GrpcUserToModel(grpcUser), nil
+}
+
+func (uu *UserUsecase) UpdateProfile(newUserData *models.User) (*models.User, *errors.Error) {
+	grpcUser, err := uu.userBlockClient.UpdateProfile(context.Background(),
+		user.ModelUserToGrpc(newUserData))
+	if err != nil {
+		customErr := errors.Get(ErrorCode(status.Code(err)))
+		return nil, customErr
+	}
+
+	return user.GrpcUserToModel(grpcUser), nil
+}
+
+func (uu *UserUsecase) UpdateAvatar(userID uint64, newAvatar string) (*models.User, *errors.Error) {
+	grpcUser, err := uu.userBlockClient.UpdateAvatar(context.Background(),
+		&user.IdAvatar{
+			Id:     &user.ID{ID: userID},
+			Avatar: &user.Avatar{Avatar: newAvatar},
+		})
+	if err != nil {
+		customErr := errors.New(ErrorCode(status.Code(err)), err)
+		return nil, customErr
+	}
+
+	return user.GrpcUserToModel(grpcUser), nil
 }
 
 func (uu *UserUsecase) CheckPassword(user *models.User, password string) *errors.Error {
