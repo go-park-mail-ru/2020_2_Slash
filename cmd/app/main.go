@@ -10,6 +10,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/config"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares/monitoring"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	sessionHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/session/delivery"
@@ -129,9 +130,12 @@ func main() {
 	episodeUcase := episodeUsecase.NewEpisodeUsecase(episodeRepo, seasonUcase)
 	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo, tvshowRepo)
 
-	// Middleware
+	// Monitoring
 	e := echo.New()
-	mw := mwares.NewMiddlewareManager(sessUcase, userUcase)
+	mntng := monitoring.NewMonitoring(e)
+
+	// Middleware
+	mw := mwares.NewMiddlewareManager(sessUcase, userUcase, mntng)
 	e.Use(mw.PanicRecovering, mw.AccessLog, mw.CORS)
 
 	e.Static("/avatars", avatarsPath)

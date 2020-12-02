@@ -1,9 +1,10 @@
 package models
 
 import (
+	"time"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 type Session struct {
