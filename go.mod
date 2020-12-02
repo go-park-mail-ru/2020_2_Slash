@@ -11,9 +11,11 @@ require (
 	github.com/labstack/echo/v4 v4.1.17
 	github.com/lib/pq v1.8.0
 	github.com/microcosm-cc/bluemonday v1.0.4
+	github.com/prometheus/client_golang v1.8.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897
+	google.golang.org/genproto v0.0.0-20201201144952-b05cb90ed32e
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )

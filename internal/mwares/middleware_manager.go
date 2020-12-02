@@ -1,41 +1,55 @@
 package mwares
 
 import (
+	"net/http"
+	"strconv"
+	"time"
+
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares/monitoring"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/CSRFManager"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"time"
 )
 
 type MiddlewareManager struct {
 	sessUcase session.SessionUsecase
 	userUcase user.UserUsecase
+	mntng     *monitoring.Monitoring
 	origins   []string
 }
 
 func NewMiddlewareManager(sessUcase session.SessionUsecase,
-	userUcase user.UserUsecase) *MiddlewareManager {
+	userUcase user.UserUsecase, mntng *monitoring.Monitoring) *MiddlewareManager {
 	return &MiddlewareManager{
 		sessUcase: sessUcase,
 		userUcase: userUcase,
+		mntng:     mntng,
 		origins:   []string{"http://www.flicksbox.ru"},
 	}
 }
 
 func (m *MiddlewareManager) PanicRecovering(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		defer func() {
+		defer func() error {
 			if err := recover(); err != nil {
-				logger.Warn(err)
-			}
-		}()
+				status := strconv.Itoa(cntx.Response().Status)
+				path := cntx.Request().URL.Path
+				method := cntx.Request().Method
 
+				m.mntng.Hits.WithLabelValues(status, path, method).Inc()
+				m.mntng.Duration.WithLabelValues(status, path, method).Observe(0)
+
+				logger.Warn(err)
+				customErr := errors.Get(CodeInternalError)
+				return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+			}
+			return nil
+		}()
 		return next(cntx)
 	}
 }
@@ -47,8 +61,16 @@ func (m *MiddlewareManager) AccessLog(next echo.HandlerFunc) echo.HandlerFunc {
 		start := time.Now()
 		err := next(cntx)
 		end := time.Now()
+		workTime := end.Sub(start)
 
-		logger.Info("Status: ", cntx.Response().Status, " Work time: ", end.Sub(start))
+		status := strconv.Itoa(cntx.Response().Status)
+		path := cntx.Request().URL.Path
+		method := cntx.Request().Method
+
+		m.mntng.Hits.WithLabelValues(status, path, method).Inc()
+		m.mntng.Duration.WithLabelValues(status, path, method).Observe(workTime.Seconds())
+
+		logger.Info("Status: ", cntx.Response().Status, " Work time: ", workTime)
 		logger.Println()
 
 		return err
