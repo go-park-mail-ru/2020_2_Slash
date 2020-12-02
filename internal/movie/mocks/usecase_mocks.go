@@ -11,18 +11,18 @@ import (
 	reflect "reflect"
 )
 
-// MockMovieUsecase is a mock of MovieUsecase interface
+// MockMovieUsecase is a mocks of MovieUsecase interface
 type MockMovieUsecase struct {
 	ctrl     *gomock.Controller
 	recorder *MockMovieUsecaseMockRecorder
 }
 
-// MockMovieUsecaseMockRecorder is the mock recorder for MockMovieUsecase
+// MockMovieUsecaseMockRecorder is the mocks recorder for MockMovieUsecase
 type MockMovieUsecaseMockRecorder struct {
 	mock *MockMovieUsecase
 }
 
-// NewMockMovieUsecase creates a new mock instance
+// NewMockMovieUsecase creates a new mocks instance
 func NewMockMovieUsecase(ctrl *gomock.Controller) *MockMovieUsecase {
 	mock := &MockMovieUsecase{ctrl: ctrl}
 	mock.recorder = &MockMovieUsecaseMockRecorder{mock}
