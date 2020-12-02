@@ -1,7 +1,12 @@
 package usecases
 
 import (
+	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
+	adminMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/admin/mocks"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"testing"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
@@ -29,22 +34,14 @@ func TestTVShowUseCase_Create_OK(t *testing.T) {
 
 	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase, adminPanelClient)
 
-	tvshowRep.
+	grpcTVshow := admin.TVShowModelToGRPC(tvshowInst)
+	adminPanelClient.
 		EXPECT().
-		SelectByContentID(gomock.Eq(tvshowInst.ContentID)).
-		Return(nil, sql.ErrNoRows)
-
-	contentUseCase.
-		EXPECT().
-		Create(gomock.Eq(contentInst)).
-		Return(nil)
-
-	tvshowRep.
-		EXPECT().
-		Insert(gomock.Eq(tvshowInst)).
-		Return(nil)
+		CreateTVShow(context.Background(), grpcTVshow).
+		Return(grpcTVshow, nil)
 
 	err := tvshowUseCase.Create(tvshowInst)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -57,12 +54,14 @@ func TestTVShowUseCase_Create_Fail(t *testing.T) {
 
 	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase, adminPanelClient)
 
-	tvshowRep.
+	grpcTVshow := admin.TVShowModelToGRPC(tvshowInst)
+	adminPanelClient.
 		EXPECT().
-		SelectByContentID(gomock.Eq(tvshowInst.ContentID)).
-		Return(tvshowInst, nil)
+		CreateTVShow(context.Background(), grpcTVshow).
+		Return(&admin.TVShow{}, status.Error(codes.Code(consts.CodeTVShowContentAlreadyExists), ""))
 
 	err := tvshowUseCase.Create(tvshowInst)
 	assert.Equal(t, err, errors.Get(consts.CodeTVShowContentAlreadyExists))
@@ -75,7 +74,8 @@ func TestTVShowUseCase_GetByID_OK(t *testing.T) {
 
 	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase, adminPanelClient)
 
 	tvshowRep.
 		EXPECT().
@@ -94,7 +94,8 @@ func TestTVShowUseCase_GetByID_Fail(t *testing.T) {
 
 	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase, adminPanelClient)
 
 	tvshowRep.
 		EXPECT().
@@ -113,7 +114,9 @@ func TestTVShowUseCase_GetFullByID_OK(t *testing.T) {
 
 	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase, adminPanelClient)
+
 	var userID uint64 = 1
 
 	tvshowRep.
@@ -138,7 +141,8 @@ func TestTVShowUseCase_GetByContentID_Fail(t *testing.T) {
 
 	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase, adminPanelClient)
 
 	tvshowRep.
 		EXPECT().
@@ -157,7 +161,8 @@ func TestTVShowUseCase_ListByParams_OK(t *testing.T) {
 
 	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase, adminPanelClient)
 
 	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
@@ -213,7 +218,8 @@ func TestTVShowUseCase_ListLatest_OK(t *testing.T) {
 
 	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase, adminPanelClient)
 
 	content := []*models.Content{
 		&models.Content{
@@ -250,7 +256,8 @@ func TestTVShowUseCase_ListByRating_OK(t *testing.T) {
 
 	tvshowRep := mocks.NewMockTVShowRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	tvshowUseCase := NewTVShowUsecase(tvshowRep, contentUseCase, adminPanelClient)
 
 	content := []*models.Content{
 		&models.Content{
