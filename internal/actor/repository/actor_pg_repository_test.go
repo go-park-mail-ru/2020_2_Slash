@@ -201,3 +201,36 @@ func TestActorPgRepository_SelectById_NoActorWithThisID(t *testing.T) {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
+
+func TestActorPgRepository_SelectWhereNameLike_OK(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	query := "pi"
+	actors := []*models.Actor{
+		&models.Actor{
+			ID:   3,
+			Name: "Brad Pitt",
+		},
+		&models.Actor{
+			ID:   5,
+			Name: "Pitt Davidson",
+		},
+	}
+
+	actorPgRep := NewActorPgRepository(db)
+
+	mocks.MockActorRepoSelectWhereNameLikeReturnRows(mock, query, actors)
+	dbActors, err := actorPgRep.SelectWhereNameLike(query, 0, 0)
+
+	assert.Equal(t, actors, dbActors)
+	assert.NoError(t, err)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
