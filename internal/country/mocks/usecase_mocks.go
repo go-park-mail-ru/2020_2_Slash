@@ -11,18 +11,18 @@ import (
 	reflect "reflect"
 )
 
-// MockCountryUsecase is a mock of CountryUsecase interface
+// MockCountryUsecase is a mocks of CountryUsecase interface
 type MockCountryUsecase struct {
 	ctrl     *gomock.Controller
 	recorder *MockCountryUsecaseMockRecorder
 }
 
-// MockCountryUsecaseMockRecorder is the mock recorder for MockCountryUsecase
+// MockCountryUsecaseMockRecorder is the mocks recorder for MockCountryUsecase
 type MockCountryUsecaseMockRecorder struct {
 	mock *MockCountryUsecase
 }
 
-// NewMockCountryUsecase creates a new mock instance
+// NewMockCountryUsecase creates a new mocks instance
 func NewMockCountryUsecase(ctrl *gomock.Controller) *MockCountryUsecase {
 	mock := &MockCountryUsecase{ctrl: ctrl}
 	mock.recorder = &MockCountryUsecaseMockRecorder{mock}
