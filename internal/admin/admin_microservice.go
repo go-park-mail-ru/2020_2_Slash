@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"context"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/country"
@@ -11,7 +10,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/movie"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/season"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/tvshow"
-	"github.com/golang/protobuf/ptypes/empty"
 )
 
 type AdminMicroservice struct {
@@ -25,7 +23,6 @@ type AdminMicroservice struct {
 	episodesRep  episode.EpisodeRepository
 	tvshowsRep   tvshow.TVShowRepository
 }
-
 
 func NewAdminMicroservice(actorsRep actor.ActorRepository,
 	directorsRep director.DirectorRepository,
@@ -47,16 +44,4 @@ func NewAdminMicroservice(actorsRep actor.ActorRepository,
 		episodesRep:  episodesRep,
 		tvshowsRep:   tvshowsRep,
 	}
-}
-
-func (am *AdminMicroservice) CreateMovie(ctx context.Context, m *Movie) (*Movie, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) ChangeVideo(ctx context.Context, videoMovie *VideoMovie) (*empty.Empty, error) {
-	panic("implement me")
-}
-
-func (am *AdminMicroservice) DeleteMovieByID(ctx context.Context, id *ID) (*empty.Empty, error) {
-	panic("implement me")
 }

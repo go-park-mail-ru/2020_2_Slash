@@ -197,6 +197,23 @@ func TVShowGRPCToModel(tvShow *TVShow) *models.TVShow {
 	}
 }
 
+func MovieModelToGRPC(movie *models.Movie) *Movie {
+	return &Movie{
+		ID:      movie.ID,
+		Video:   movie.Video,
+		Content: ContentModelToGRPC(&movie.Content),
+	}
+}
+
+func MovieGRPCToModel(movie *Movie) *models.Movie {
+	content := ContentGRPCToModel(movie.GetContent())
+	return &models.Movie{
+		ID:      movie.ID,
+		Video:   movie.Video,
+		Content: *content,
+	}
+}
+
 func SeasonModelToGRPC(season *models.Season) *Season {
 	var episodes []*Episode
 	for _, grcpEpisode := range season.Episodes {
