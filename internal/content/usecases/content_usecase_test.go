@@ -1,7 +1,10 @@
 package usecases
 
 import (
+	"context"
 	actorMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/actor/mocks"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
+	adminMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/admin/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content/mocks"
 	countryMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/country/mocks"
 	directorMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/director/mocks"
@@ -9,6 +12,7 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -69,9 +73,10 @@ func TestContentUseCase_Create_OK(t *testing.T) {
 	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
 
 	contentUseCase := NewContentUsecase(contentRep, countryUseCase,
-		genreUseCase, actorUseCase, directorUseCase)
+		genreUseCase, actorUseCase, directorUseCase, adminPanelClient)
 
 	contentRep.
 		EXPECT().
@@ -91,68 +96,17 @@ func TestContentUseCase_Update_OK(t *testing.T) {
 	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
-
-	countriesID := []uint64{1}
-	directorsID := []uint64{1, 2}
-	actorsID := []uint64{1, 2}
-	genresID := []uint64{1, 2}
-
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
 	contentUseCase := NewContentUsecase(contentRep, countryUseCase,
-		genreUseCase, actorUseCase, directorUseCase)
+		genreUseCase, actorUseCase, directorUseCase, adminPanelClient)
 
-	contentRep.
+	adminPanelClient.
 		EXPECT().
-		SelectByID(gomock.Eq(contentInst.ContentID)).
-		Return(contentInst, nil)
+		ChangeContent(context.Background(), admin.ContentModelToGRPC(contentInst)).
+		Return(&empty.Empty{}, nil)
 
-	contentRep.
-		EXPECT().
-		SelectCountriesByID(gomock.Eq(contentInst.ContentID)).
-		Return(countriesID, nil)
-
-	countryUseCase.
-		EXPECT().
-		ListByID(gomock.Eq(countriesID)).
-		Return(countries, nil)
-
-	contentRep.
-		EXPECT().
-		SelectGenresByID(gomock.Eq(contentInst.ContentID)).
-		Return(genresID, nil)
-
-	genreUseCase.
-		EXPECT().
-		ListByID(gomock.Eq(genresID)).
-		Return(genres, nil)
-
-	contentRep.
-		EXPECT().
-		SelectActorsByID(gomock.Eq(contentInst.ContentID)).
-		Return(actorsID, nil)
-
-	actorUseCase.
-		EXPECT().
-		ListByID(gomock.Eq(actorsID)).
-		Return(actors, nil)
-
-	contentRep.
-		EXPECT().
-		SelectDirectorsByID(gomock.Eq(contentInst.ContentID)).
-		Return(directorsID, nil)
-
-	directorUseCase.
-		EXPECT().
-		ListByID(gomock.Eq(directorsID)).
-		Return(directors, nil)
-
-	contentRep.
-		EXPECT().
-		Update(gomock.Eq(contentInst)).
-		Return(nil)
-
-	dbContent, err := contentUseCase.UpdateByID(contentInst.ContentID, contentInst)
+	err := contentUseCase.Update(contentInst)
 	assert.Equal(t, err, (*errors.Error)(nil))
-	assert.Equal(t, dbContent, contentInst)
 }
 
 func TestContentUseCase_UpdatePosters_OK(t *testing.T) {
@@ -164,16 +118,21 @@ func TestContentUseCase_UpdatePosters_OK(t *testing.T) {
 	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
 
 	newPostersDir := "/images/0"
 
 	contentUseCase := NewContentUsecase(contentRep, countryUseCase,
-		genreUseCase, actorUseCase, directorUseCase)
+		genreUseCase, actorUseCase, directorUseCase, adminPanelClient)
 
-	contentRep.
+	grpcContent := admin.ContentModelToGRPC(contentInst)
+	adminPanelClient.
 		EXPECT().
-		UpdateImages(gomock.Eq(contentInst)).
-		Return(nil)
+		ChangePosters(context.Background(), &admin.ContentPostersDir{
+			Content:    grpcContent,
+			PostersDir: newPostersDir,
+		}).
+		Return(grpcContent, nil)
 
 	err := contentUseCase.UpdatePosters(contentInst, newPostersDir)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -188,19 +147,15 @@ func TestContentUseCase_Delete_OK(t *testing.T) {
 	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
 
 	contentUseCase := NewContentUsecase(contentRep, countryUseCase,
-		genreUseCase, actorUseCase, directorUseCase)
+		genreUseCase, actorUseCase, directorUseCase, adminPanelClient)
 
-	contentRep.
+	adminPanelClient.
 		EXPECT().
-		SelectByID(gomock.Eq(contentInst.ContentID)).
-		Return(contentInst, nil)
-
-	contentRep.
-		EXPECT().
-		DeleteByID(gomock.Eq(contentInst.ContentID)).
-		Return(nil)
+		DeleteContentByID(context.Background(), &admin.ID{ID: contentInst.ContentID}).
+		Return(&empty.Empty{}, nil)
 
 	err := contentUseCase.DeleteByID(contentInst.ContentID)
 	assert.Equal(t, err, (*errors.Error)(nil))

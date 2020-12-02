@@ -1,8 +1,10 @@
 package usecases
 
 import (
+	"context"
 	"database/sql"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/country"
@@ -10,27 +12,27 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/genre"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
-	"os"
-	"path/filepath"
 )
 
 type ContentUsecase struct {
-	contentRepo   content.ContentRepository
-	countryUcase  country.CountryUsecase
-	genreUcase    genre.GenreUsecase
-	actorUcase    actor.ActorUseCase
-	directorUcase director.DirectorUseCase
+	contentRepo      content.ContentRepository
+	countryUcase     country.CountryUsecase
+	genreUcase       genre.GenreUsecase
+	actorUcase       actor.ActorUseCase
+	directorUcase    director.DirectorUseCase
+	adminPanelClient admin.AdminPanelClient
 }
 
 func NewContentUsecase(repo content.ContentRepository, countryUcase country.CountryUsecase,
 	genreUcase genre.GenreUsecase, actorUcase actor.ActorUseCase,
-	directorUcase director.DirectorUseCase) content.ContentUsecase {
+	directorUcase director.DirectorUseCase, client admin.AdminPanelClient) content.ContentUsecase {
 	return &ContentUsecase{
-		contentRepo:   repo,
-		countryUcase:  countryUcase,
-		genreUcase:    genreUcase,
-		actorUcase:    actorUcase,
-		directorUcase: directorUcase,
+		contentRepo:      repo,
+		countryUcase:     countryUcase,
+		genreUcase:       genreUcase,
+		actorUcase:       actorUcase,
+		directorUcase:    directorUcase,
+		adminPanelClient: client,
 	}
 }
 
@@ -41,58 +43,42 @@ func (cu *ContentUsecase) Create(content *models.Content) *errors.Error {
 	return nil
 }
 
-func (cu *ContentUsecase) UpdateByID(contentID uint64, newContentData *models.Content) (*models.Content, *errors.Error) {
-	content, err := cu.GetFullByID(contentID)
-	if err != nil {
-		return nil, err
-	}
-	content.ReplaceBy(newContentData)
+func (cu *ContentUsecase) Update(newContentData *models.Content) *errors.Error {
+	_, err := cu.adminPanelClient.ChangeContent(context.Background(),
+		admin.ContentModelToGRPC(newContentData))
 
-	if err := cu.contentRepo.Update(content); err != nil {
-		return nil, errors.New(CodeInternalError, err)
+	if err != nil {
+		customErr := errors.GetCustomErr(err)
+		return customErr
 	}
-	return content, nil
+
+	return nil
 }
 
 func (cu *ContentUsecase) UpdatePosters(content *models.Content, newPostersDir string) *errors.Error {
-	prevPostersDir := content.Images
-	if newPostersDir == prevPostersDir {
-		// Don't need to update
-		return nil
+	_, err := cu.adminPanelClient.ChangePosters(context.Background(),
+		&admin.ContentPostersDir{
+			Content:    admin.ContentModelToGRPC(content),
+			PostersDir: newPostersDir,
+		})
+
+	if err != nil {
+		customErr := errors.GetCustomErr(err)
+		return customErr
 	}
 
-	// Update images
-	content.Images = newPostersDir
-	if err := cu.contentRepo.UpdateImages(content); err != nil {
-		return errors.New(CodeInternalError, err)
-	}
-	// Don't need to delete prev directory,
-	// cause posters always store into dir with the same name
 	return nil
 }
 
 func (cu *ContentUsecase) DeleteByID(contentID uint64) *errors.Error {
-	content, err := cu.GetByID(contentID)
+	_, err := cu.adminPanelClient.DeleteContentByID(context.Background(),
+		&admin.ID{ID: contentID})
+
 	if err != nil {
-		return errors.Get(CodeContentDoesNotExist)
+		customErr := errors.GetCustomErr(err)
+		return customErr
 	}
 
-	// Delete posters dir
-	if content.Images != "" {
-		path, err := os.Getwd()
-		if err != nil {
-			return errors.New(CodeInternalError, err)
-		}
-		postersDirPath := filepath.Join(path, content.Images)
-
-		if err := os.RemoveAll(postersDirPath); err != nil {
-			return errors.New(CodeInternalError, err)
-		}
-	}
-
-	if err := cu.contentRepo.DeleteByID(contentID); err != nil {
-		return errors.New(CodeInternalError, err)
-	}
 	return nil
 }
 

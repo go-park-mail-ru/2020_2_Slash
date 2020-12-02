@@ -1,7 +1,13 @@
 package usecases
 
 import (
+	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
+	adminMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/admin/mocks"
+	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"testing"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
@@ -30,22 +36,14 @@ func TestMovieUseCase_Create_OK(t *testing.T) {
 
 	movieRep := mocks.NewMockMovieRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase, adminPanelClient)
 
-	movieRep.
+	grpcMovie := admin.MovieModelToGRPC(movieInst)
+	adminPanelClient.
 		EXPECT().
-		SelectByContentID(gomock.Eq(movieInst.ContentID)).
-		Return(nil, sql.ErrNoRows)
-
-	contentUseCase.
-		EXPECT().
-		Create(gomock.Eq(contentInst)).
-		Return(nil)
-
-	movieRep.
-		EXPECT().
-		Insert(gomock.Eq(movieInst)).
-		Return(nil)
+		CreateMovie(context.Background(), grpcMovie).
+		Return(grpcMovie, nil)
 
 	err := movieUseCase.Create(movieInst)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -58,12 +56,14 @@ func TestMovieUseCase_Create_Fail(t *testing.T) {
 
 	movieRep := mocks.NewMockMovieRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase, adminPanelClient)
 
-	movieRep.
+	grpcMovie := admin.MovieModelToGRPC(movieInst)
+	adminPanelClient.
 		EXPECT().
-		SelectByContentID(gomock.Eq(movieInst.ContentID)).
-		Return(movieInst, nil)
+		CreateMovie(context.Background(), grpcMovie).
+		Return(&admin.Movie{}, status.Error(codes.Code(consts.CodeMovieContentAlreadyExists), ""))
 
 	err := movieUseCase.Create(movieInst)
 	assert.Equal(t, err, errors.Get(consts.CodeMovieContentAlreadyExists))
@@ -76,14 +76,19 @@ func TestMovieUseCase_UpdateVideo_OK(t *testing.T) {
 
 	movieRep := mocks.NewMockMovieRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase, adminPanelClient)
 
 	newVideoPath := "video/movie.mp4"
 
-	movieRep.
+	grpcMovie := admin.MovieModelToGRPC(movieInst)
+	adminPanelClient.
 		EXPECT().
-		Update(gomock.Eq(movieInst)).
-		Return(nil)
+		ChangeVideo(context.Background(), &admin.VideoMovie{
+			Video: newVideoPath,
+			Movie: grpcMovie,
+		}).
+		Return(&empty.Empty{}, nil)
 
 	err := movieUseCase.UpdateVideo(movieInst, newVideoPath)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -96,7 +101,8 @@ func TestMovieUseCase_GetByID_OK(t *testing.T) {
 
 	movieRep := mocks.NewMockMovieRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase, adminPanelClient)
 
 	movieRep.
 		EXPECT().
@@ -115,7 +121,8 @@ func TestMovieUseCase_GetByID_Fail(t *testing.T) {
 
 	movieRep := mocks.NewMockMovieRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase, adminPanelClient)
 
 	movieRep.
 		EXPECT().
@@ -134,7 +141,8 @@ func TestMovieUseCase_GetFullByID_OK(t *testing.T) {
 
 	movieRep := mocks.NewMockMovieRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase, adminPanelClient)
 	var userID uint64 = 1
 
 	movieRep.
@@ -159,7 +167,8 @@ func TestMovieUseCase_GetByContentID_Fail(t *testing.T) {
 
 	movieRep := mocks.NewMockMovieRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase, adminPanelClient)
 
 	movieRep.
 		EXPECT().
@@ -178,7 +187,8 @@ func TestMovieUseCase_ListByParams_OK(t *testing.T) {
 
 	movieRep := mocks.NewMockMovieRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase, adminPanelClient)
 
 	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
@@ -234,7 +244,8 @@ func TestMovieUseCase_ListLatest_OK(t *testing.T) {
 
 	movieRep := mocks.NewMockMovieRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase, adminPanelClient)
 
 	content := []*models.Content{
 		&models.Content{
@@ -271,7 +282,8 @@ func TestMovieUseCase_ListByRating_OK(t *testing.T) {
 
 	movieRep := mocks.NewMockMovieRepository(ctrl)
 	contentUseCase := contentMocks.NewMockContentUsecase(ctrl)
-	movieUseCase := NewMovieUsecase(movieRep, contentUseCase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	movieUseCase := NewMovieUsecase(movieRep, contentUseCase, adminPanelClient)
 
 	content := []*models.Content{
 		&models.Content{

@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 	"google.golang.org/grpc"
@@ -114,19 +115,13 @@ func main() {
 	seasonRepo := seasonRepo.NewSeasonPgRepository(dbConnection)
 	episodeRepo := episodeRepo.NewEpisodeRepository(dbConnection)
 
-	// Usecases
-	genreUcase := genreUsecase.NewGenreUsecase(genreRepo)
-	countryUcase := countryUsecase.NewCountryUsecase(countryRepo)
-	actorUcase := actorUsecase.NewActorUseCase(actorRepo)
-	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo)
-	contentUcase := contentUsecase.NewContentUsecase(contentRepo, countryUcase, genreUcase, actorUcase, directorUcase)
-	movieUcase := movieUsecase.NewMovieUsecase(movieRepo, contentUcase)
-	tvshowUcase := tvshowUsecase.NewTVShowUsecase(tvshowRepo, contentUcase)
-	ratingUcase := ratingUsecase.NewRatingUseCase(ratingRepo, contentUcase)
-	favouriteUcase := favouriteUsecase.NewFavouriteUsecase(favouriteRepo)
-	seasonUcase := seasonUsecase.NewSeasonUsecase(seasonRepo, tvshowUcase)
-	episodeUcase := episodeUsecase.NewEpisodeUsecase(episodeRepo, seasonUcase)
-	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo, tvshowRepo)
+	// AdminPanel Microservice
+	grpcConn, err := grpc.Dial(consts.AdminPanelAddress, grpc.WithInsecure())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer grpcConn.Close()
+	adminPanelClient := admin.NewAdminPanelClient(grpcConn)
 
 	// Session microservice
 	sessionGrpcConn, err := grpc.Dial(consts.SessionblockAddress, grpc.WithInsecure())
@@ -145,6 +140,20 @@ func main() {
 	defer userblockGrpcConn.Close()
 	userBlockClient := user.NewUserBlockClient(userblockGrpcConn)
 	userUcase := userUsecase.NewUserUsecase(userBlockClient)
+
+	// Usecases
+	genreUcase := genreUsecase.NewGenreUsecase(genreRepo, adminPanelClient)
+	countryUcase := countryUsecase.NewCountryUsecase(countryRepo, adminPanelClient)
+	actorUcase := actorUsecase.NewActorUseCase(actorRepo, adminPanelClient)
+	directorUcase := directorUsecase.NewDirectorUseCase(directorRepo, adminPanelClient)
+	contentUcase := contentUsecase.NewContentUsecase(contentRepo, countryUcase, genreUcase, actorUcase, directorUcase, adminPanelClient)
+	movieUcase := movieUsecase.NewMovieUsecase(movieRepo, contentUcase, adminPanelClient)
+	tvshowUcase := tvshowUsecase.NewTVShowUsecase(tvshowRepo, contentUcase, adminPanelClient)
+	ratingUcase := ratingUsecase.NewRatingUseCase(ratingRepo, contentUcase)
+	favouriteUcase := favouriteUsecase.NewFavouriteUsecase(favouriteRepo)
+	seasonUcase := seasonUsecase.NewSeasonUsecase(seasonRepo, tvshowUcase, adminPanelClient)
+	episodeUcase := episodeUsecase.NewEpisodeUsecase(episodeRepo, seasonUcase, adminPanelClient)
+	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo, tvshowRepo)
 
 	// Monitoring
 	e := echo.New()

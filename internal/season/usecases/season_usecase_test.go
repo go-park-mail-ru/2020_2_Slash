@@ -1,14 +1,20 @@
 package usecases
 
 import (
+	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
+	adminMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/admin/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/season/mocks"
 	tvShowMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/tvshow/mocks"
 	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"testing"
 )
 
@@ -77,23 +83,15 @@ func TestSeasonUsecase_Create_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
-	tvShowUsecase.
+	grpcSeason := admin.SeasonModelToGRPC(testSeason)
+	adminPanelClient.
 		EXPECT().
-		GetByID(testSeason.TVShowID).
-		Return(testTvShow, nil)
-
-	rep.
-		EXPECT().
-		Select(testSeason).
-		Return(nil, sql.ErrNoRows)
-
-	rep.
-		EXPECT().
-		Insert(testSeason).
-		Return((error)(nil))
+		CreateSeason(context.Background(), grpcSeason).
+		Return(grpcSeason, nil)
 
 	customErr := seasonUsecase.Create(testSeason)
 	assert.Nil(t, customErr)
@@ -104,18 +102,15 @@ func TestSeasonUsecase_Create_Conflict(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
-	tvShowUsecase.
+	grpcSeason := admin.SeasonModelToGRPC(testSeason)
+	adminPanelClient.
 		EXPECT().
-		GetByID(testSeason.TVShowID).
-		Return(testTvShow, nil)
-
-	rep.
-		EXPECT().
-		Select(testSeason).
-		Return(testSeason, nil)
+		CreateSeason(context.Background(), grpcSeason).
+		Return(&admin.Season{}, status.Error(codes.Code(consts.CodeSeasonAlreadyExist), ""))
 
 	customErr := seasonUsecase.Create(testSeason)
 	assert.Equal(t, errors.Get(consts.CodeSeasonAlreadyExist), customErr)
@@ -126,29 +121,15 @@ func TestSeasonUsecase_Change_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
-	tvShowUsecase.
+	grpcSeason := admin.SeasonModelToGRPC(updTestSeason)
+	adminPanelClient.
 		EXPECT().
-		GetByID(testSeason.TVShowID).
-		Return(testTvShow, nil)
-
-	rep.
-		EXPECT().
-		SelectByID(updTestSeason.ID).
-		Return(testSeason, nil)
-
-	rep.
-		EXPECT().
-		Select(updTestSeason).
-		Return(nil, sql.ErrNoRows)
-
-	rep.
-		EXPECT().
-		Update(updTestSeason).
-		Return(nil)
-
+		ChangeSeason(context.Background(), grpcSeason).
+		Return(&empty.Empty{}, nil)
 	customErr := seasonUsecase.Change(updTestSeason)
 	assert.Nil(t, customErr)
 }
@@ -158,18 +139,15 @@ func TestSeasonUsecase_Change_NoSeason(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
-	tvShowUsecase.
+	grpcSeason := admin.SeasonModelToGRPC(updTestSeason)
+	adminPanelClient.
 		EXPECT().
-		GetByID(testSeason.TVShowID).
-		Return(testTvShow, nil)
-
-	rep.
-		EXPECT().
-		SelectByID(updTestSeason.ID).
-		Return(nil, sql.ErrNoRows)
+		ChangeSeason(context.Background(), grpcSeason).
+		Return(&empty.Empty{}, status.Error(codes.Code(consts.CodeSeasonDoesNotExist), ""))
 
 	customErr := seasonUsecase.Change(updTestSeason)
 	assert.Equal(t, errors.Get(consts.CodeSeasonDoesNotExist), customErr)
@@ -180,18 +158,15 @@ func TestSeasonUsecase_Change_Equal(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
-	tvShowUsecase.
+	grpcSeason := admin.SeasonModelToGRPC(updTestSeason)
+	adminPanelClient.
 		EXPECT().
-		GetByID(testSeason.TVShowID).
-		Return(testTvShow, nil)
-
-	rep.
-		EXPECT().
-		SelectByID(updTestSeason.ID).
-		Return(updTestSeason, nil)
+		ChangeSeason(context.Background(), grpcSeason).
+		Return(&empty.Empty{}, nil)
 
 	customErr := seasonUsecase.Change(updTestSeason)
 	assert.Nil(t, customErr)
@@ -201,23 +176,15 @@ func TestSeasonUsecase_Change_Conflict(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
-	tvShowUsecase.
+	grpcSeason := admin.SeasonModelToGRPC(updTestSeason)
+	adminPanelClient.
 		EXPECT().
-		GetByID(testSeason.TVShowID).
-		Return(testTvShow, nil)
-
-	rep.
-		EXPECT().
-		SelectByID(updTestSeason.ID).
-		Return(testSeason, nil)
-
-	rep.
-		EXPECT().
-		Select(updTestSeason).
-		Return(existedSeason, nil)
+		ChangeSeason(context.Background(), grpcSeason).
+		Return(&empty.Empty{}, status.Error(codes.Code(consts.CodeSeasonAlreadyExist), ""))
 
 	customErr := seasonUsecase.Change(updTestSeason)
 	assert.Equal(t, errors.Get(consts.CodeSeasonAlreadyExist), customErr)
@@ -228,18 +195,15 @@ func TestSeasonUsecase_Delete_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
-	rep.
+	grpcSeason := admin.SeasonModelToGRPC(updTestSeason)
+	adminPanelClient.
 		EXPECT().
-		SelectByID(testSeason.ID).
-		Return(testSeason, nil)
-
-	rep.
-		EXPECT().
-		Delete(testSeason.ID).
-		Return(nil)
+		DeleteSeasonsByID(context.Background(), &admin.ID{ID: grpcSeason.ID}).
+		Return(&empty.Empty{}, nil)
 
 	customErr := seasonUsecase.Delete(testSeason.ID)
 	assert.Nil(t, customErr)
@@ -250,7 +214,8 @@ func TestSeasonUsecase_Get_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
 	rep.
@@ -268,7 +233,8 @@ func TestSeasonUsecase_Get_NoRows(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
 	rep.
@@ -286,7 +252,8 @@ func TestSeasonUsecase_GetEpisodes_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
 	rep.
@@ -304,7 +271,8 @@ func TestSeasonUsecase_GetEpisodes_Nil(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
 	rep.
@@ -322,7 +290,8 @@ func TestSeasonUsecase_GetEpisodes_NoRows(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	rep := mocks.NewMockSeasonRepository(ctrl)
 	tvShowUsecase := tvShowMocks.NewMockTVShowUsecase(ctrl)
-	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	seasonUsecase := NewSeasonUsecase(rep, tvShowUsecase, adminPanelClient)
 	defer ctrl.Finish()
 
 	rep.

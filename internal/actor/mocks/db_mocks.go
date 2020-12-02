@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 )
 
 func MockActorRepoInsertReturnRows(mock sqlmock.Sqlmock, id uint64, name string) {
@@ -54,4 +55,12 @@ func MockActorRepoSelectReturnRows(mock sqlmock.Sqlmock, id uint64, name string)
 
 func MockActorRepoSelectReturnErrNoRows(mock sqlmock.Sqlmock, id uint64) {
 	mock.ExpectQuery(`SELECT`).WithArgs(id).WillReturnError(sql.ErrNoRows)
+}
+
+func MockActorRepoSelectWhereNameLikeReturnRows(mock sqlmock.Sqlmock, name string, actors []*models.Actor) {
+	rows := sqlmock.NewRows([]string{"id", "name"})
+	for _, actor := range actors {
+		rows.AddRow(actor.ID, actor.Name)
+	}
+	mock.ExpectQuery(`SELECT`).WithArgs("%" + name + "%").WillReturnRows(rows)
 }

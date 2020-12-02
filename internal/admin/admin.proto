@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+package admin;
+
+import "google/protobuf/empty.proto";
+message Actor {
+  uint64 ID = 1;
+  string Name = 2;
+}
+
+message Director {
+  uint64 ID = 1;
+  string Name = 2;
+}
+
+message Country {
+  uint64 ID = 1;
+  string Name = 2;
+}
+
+message Genre {
+  uint64 ID = 1;
+  string Name = 2;
+}
+
+message Content {
+  uint64 ID = 1;
+  string Name = 2;
+  string OriginalName = 3;
+  string Description = 4;
+  string ShortDescription = 5;
+  int64 Rating = 6;
+  int64 Year = 7;
+  string Images = 8;
+  string Type = 9;
+  repeated Country Countries = 10;
+  repeated Genre Genres = 11;
+  repeated Actor Actors = 12;
+  repeated Director Directors = 13;
+  bool IsLiked = 14;
+  bool IsFavourite = 15;
+}
+
+message Episode {
+  uint64 ID = 1;
+  string Name = 2;
+  int64 Number = 3;
+  string Video = 4;
+  string Description = 5;
+  string Poster = 6;
+  uint64 SeasonID = 7;
+}
+
+message Season {
+  uint64 ID = 1;
+  int64 Number = 2;
+  int64 EpisodesNumber = 3;
+  uint64 TVShowID = 4;
+  repeated Episode Episodes = 5;
+}
+
+message TVShow {
+  uint64 ID = 1;
+  int64 Seasons = 2;
+  Content Content = 3;
+}
+
+message Movie {
+  uint64 ID = 1;
+  string Video = 2;
+  Content Content = 3;
+}
+
+message VideoMovie {
+  string Video = 1;
+  Movie Movie = 2;
+}
+
+message ID {
+  uint64 ID = 1;
+}
+
+message ContentPostersDir {
+  Content Content = 1;
+  string PostersDir = 2;
+}
+
+message EpisodePostersDir {
+  Episode Episode = 1;
+  string PostersDir = 2;
+}
+
+message EpisodeVideo {
+  Episode Episode = 1;
+  string Video = 2;
+}
+
+// grpc-сервис админки
+service AdminPanel {
+  // actors
+  rpc CreateActor (Actor) returns (Actor) {}
+  rpc ChangeActor (Actor) returns (google.protobuf.Empty) {}
+  rpc DeleteActorByID (ID) returns (google.protobuf.Empty) {}
+
+  // directors
+  rpc CreateDirector (Director) returns (Director) {}
+  rpc ChangeDirector (Director) returns (google.protobuf.Empty) {}
+  rpc DeleteDirectorByID (ID) returns (google.protobuf.Empty) {}
+
+  // countries
+  rpc CreateCountry (Country) returns (Country) {}
+  rpc ChangeCountry (Country) returns (google.protobuf.Empty) {}
+  rpc DeleteCountryByID (ID) returns (google.protobuf.Empty) {}
+
+  // genres
+  rpc CreateGenre (Genre) returns (Genre) {}
+  rpc ChangeGenre (Genre) returns (google.protobuf.Empty) {}
+  rpc DeleteGenreByID (ID) returns (google.protobuf.Empty) {}
+
+  // movies
+  rpc CreateMovie (Movie) returns (Movie) {}
+  rpc ChangeVideo (VideoMovie) returns (google.protobuf.Empty) {}
+  rpc DeleteMovieByID (ID) returns (google.protobuf.Empty) {}
+
+  // tvshows
+  rpc CreateTVShow (TVShow) returns (TVShow) {}
+
+  // content
+  rpc ChangePosters (ContentPostersDir) returns (Content) {}
+  rpc ChangeContent (Content) returns (google.protobuf.Empty) {}
+  rpc DeleteContentByID (ID) returns (google.protobuf.Empty) {}
+
+  // seasons
+  rpc CreateSeason (Season) returns (Season) {}
+  rpc ChangeSeason (Season) returns (google.protobuf.Empty) {}
+  rpc DeleteSeasonsByID (ID) returns (google.protobuf.Empty) {}
+
+  // episodes
+  rpc CreateEpisode (Episode) returns (Episode) {}
+  rpc ChangeEpisode (Episode) returns (google.protobuf.Empty) {}
+  rpc UpdatePoster (EpisodePostersDir) returns (google.protobuf.Empty) {}
+  rpc UpdateVideo (EpisodeVideo) returns (google.protobuf.Empty) {}
+  rpc DeleteEpisodeByID (ID) returns (google.protobuf.Empty) {}
+}

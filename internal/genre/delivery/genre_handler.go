@@ -70,12 +70,13 @@ func (gh *GenreHandler) UpdateGenreHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
+		genreID, _ := strconv.ParseUint(cntx.Param("gid"), 10, 64)
 		genreData := &models.Genre{
+			ID:   genreID,
 			Name: req.Name,
 		}
 
-		genreID, _ := strconv.ParseUint(cntx.Param("gid"), 10, 64)
-		genre, err := gh.genreUcase.UpdateByID(genreID, genreData)
+		err := gh.genreUcase.Update(genreData)
 		if err != nil {
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -83,7 +84,7 @@ func (gh *GenreHandler) UpdateGenreHandler() echo.HandlerFunc {
 
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
-				"genre": genre,
+				"genre": genreData,
 			},
 		})
 	}

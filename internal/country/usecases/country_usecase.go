@@ -1,7 +1,10 @@
 package usecases
 
 import (
+	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
+	"github.com/jinzhu/copier"
 
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/country"
@@ -10,55 +13,54 @@ import (
 )
 
 type CountryUsecase struct {
-	countryRepo country.CountryRepository
+	countryRepo      country.CountryRepository
+	adminPanelClient admin.AdminPanelClient
 }
 
-func NewCountryUsecase(repo country.CountryRepository) country.CountryUsecase {
+func NewCountryUsecase(repo country.CountryRepository,
+	client admin.AdminPanelClient) country.CountryUsecase {
 	return &CountryUsecase{
-		countryRepo: repo,
+		countryRepo:      repo,
+		adminPanelClient: client,
 	}
 }
 
 func (cu *CountryUsecase) Create(country *models.Country) *errors.Error {
-	if err := cu.checkByName(country.Name); err == nil {
-		return errors.Get(CodeCountryNameAlreadyExists)
+	grpcCountry, err := cu.adminPanelClient.CreateCountry(context.Background(),
+		admin.CountryModelToGRPC(country))
+	if err != nil {
+		customErr := errors.GetCustomErr(err)
+		return customErr
 	}
 
-	if err := cu.countryRepo.Insert(country); err != nil {
+	if err := copier.Copy(country, admin.CountryGRPCToModel(grpcCountry)); err != nil {
 		return errors.New(CodeInternalError, err)
 	}
+
 	return nil
 }
 
-func (cu *CountryUsecase) UpdateByID(countryID uint64, newCountryData *models.Country) (*models.Country, *errors.Error) {
-	country, err := cu.GetByID(countryID)
+func (cu *CountryUsecase) Update(newCountryData *models.Country) *errors.Error {
+	_, err := cu.adminPanelClient.ChangeCountry(context.Background(),
+		admin.CountryModelToGRPC(newCountryData))
+
 	if err != nil {
-		return nil, err
+		customErr := errors.GetCustomErr(err)
+		return customErr
 	}
 
-	if newCountryData.Name == "" || country.Name == newCountryData.Name {
-		return nil, err
-	}
-
-	if err := cu.checkByName(newCountryData.Name); err == nil {
-		return nil, errors.Get(CodeCountryNameAlreadyExists)
-	}
-
-	country.Name = newCountryData.Name
-	if err := cu.countryRepo.Update(country); err != nil {
-		return nil, errors.New(CodeInternalError, err)
-	}
-	return country, nil
+	return nil
 }
 
 func (cu *CountryUsecase) DeleteByID(countryID uint64) *errors.Error {
-	if err := cu.checkByID(countryID); err != nil {
-		return errors.Get(CodeCountryDoesNotExist)
+	_, err := cu.adminPanelClient.DeleteCountryByID(context.Background(),
+		&admin.ID{ID: countryID})
+
+	if err != nil {
+		customErr := errors.GetCustomErr(err)
+		return customErr
 	}
 
-	if err := cu.countryRepo.DeleteByID(countryID); err != nil {
-		return errors.New(CodeInternalError, err)
-	}
 	return nil
 }
 

@@ -1,12 +1,16 @@
 package usecases
 
 import (
+	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
+	adminMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/admin/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/director/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -16,16 +20,18 @@ func TestDirectorUseCase_Create_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	directorRep := mocks.NewMockDirectorRepository(ctrl)
-	directorUseCase := NewDirectorUseCase(directorRep)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	directorUseCase := NewDirectorUseCase(directorRep, adminPanelClient)
 
 	director := &models.Director{
 		Name: "Sergio Leone",
 	}
 
-	directorRep.
+	grpcDirector := admin.DirectorModelToGRPC(director)
+	adminPanelClient.
 		EXPECT().
-		Insert(gomock.Eq(director)).
-		Return(nil)
+		CreateDirector(context.Background(), grpcDirector).
+		Return(grpcDirector, nil)
 
 	err := directorUseCase.Create(director)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -36,7 +42,8 @@ func TestDirectorUseCase_Get_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	directorRep := mocks.NewMockDirectorRepository(ctrl)
-	directorUseCase := NewDirectorUseCase(directorRep)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	directorUseCase := NewDirectorUseCase(directorRep, adminPanelClient)
 
 	director := &models.Director{
 		ID:   3,
@@ -58,7 +65,8 @@ func TestDirectorUseCase_Get_Fail(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	directorRep := mocks.NewMockDirectorRepository(ctrl)
-	directorUseCase := NewDirectorUseCase(directorRep)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	directorUseCase := NewDirectorUseCase(directorRep, adminPanelClient)
 
 	director := &models.Director{
 		ID:   3,
@@ -80,22 +88,18 @@ func TestDirectorUseCase_Delete_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	directorRep := mocks.NewMockDirectorRepository(ctrl)
-	directorUseCase := NewDirectorUseCase(directorRep)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	directorUseCase := NewDirectorUseCase(directorRep, adminPanelClient)
 
 	director := &models.Director{
 		ID:   3,
 		Name: "Sergio Leone",
 	}
 
-	directorRep.
+	adminPanelClient.
 		EXPECT().
-		SelectById(gomock.Eq(director.ID)).
-		Return(director, nil)
-
-	directorRep.
-		EXPECT().
-		DeleteById(gomock.Eq(director.ID)).
-		Return(nil)
+		DeleteDirectorByID(context.Background(), &admin.ID{ID: director.ID}).
+		Return(&empty.Empty{}, nil)
 
 	err := directorUseCase.DeleteById(director.ID)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -106,22 +110,19 @@ func TestDirectorUseCase_Update_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	directorRep := mocks.NewMockDirectorRepository(ctrl)
-	directorUseCase := NewDirectorUseCase(directorRep)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	directorUseCase := NewDirectorUseCase(directorRep, adminPanelClient)
 
 	director := &models.Director{
 		ID:   3,
 		Name: "Sergio Leone",
 	}
 
-	directorRep.
+	grpcDirector := admin.DirectorModelToGRPC(director)
+	adminPanelClient.
 		EXPECT().
-		SelectById(gomock.Eq(director.ID)).
-		Return(director, nil)
-
-	directorRep.
-		EXPECT().
-		Update(gomock.Eq(director)).
-		Return(nil)
+		ChangeDirector(context.Background(), grpcDirector).
+		Return(&empty.Empty{}, nil)
 
 	err := directorUseCase.Change(director)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -132,7 +133,8 @@ func TestDirectorUseCase_ListByID_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	directorRep := mocks.NewMockDirectorRepository(ctrl)
-	directorUseCase := NewDirectorUseCase(directorRep)
+	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
+	directorUseCase := NewDirectorUseCase(directorRep, adminPanelClient)
 
 	directors := []*models.Director{
 		&models.Director{
