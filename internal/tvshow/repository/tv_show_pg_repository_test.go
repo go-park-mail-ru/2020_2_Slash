@@ -161,6 +161,45 @@ func TestTVShowPgRepository_SelectById_NoTVShowWithThisContentID(t *testing.T) {
 	}
 }
 
+func TestTVShowPgRepository_SelectWhereNameLike_OK(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	tvshowPgRep := NewTVShowPgRepository(db)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	tvshows := []*models.TVShow{
+		&models.TVShow{
+			Content: *content[0],
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 1
+	name := "Shrek"
+
+	mocks.MockTVShowRepoSelectWhereNameLikeReturnRows(mock, pgnt, userID, tvshows, name)
+	dbTVShows, err := tvshowPgRep.SelectWhereNameLike(name, pgnt, userID)
+	assert.Equal(t, tvshows, dbTVShows)
+	assert.NoError(t, err)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
 func TestTVShowPgRepository_SelectByParams_OK(t *testing.T) {
 	t.Parallel()
 	db, mock, err := sqlmock.New()

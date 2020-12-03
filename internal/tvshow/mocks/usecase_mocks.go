@@ -63,6 +63,21 @@ func (mr *MockTVShowUsecaseMockRecorder) GetByID(tvshowID interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockTVShowUsecase)(nil).GetByID), tvshowID)
 }
 
+// GetShortByID mocks base method
+func (m *MockTVShowUsecase) GetShortByID(tvshowID uint64) (*models.TVShow, *errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetShortByID", tvshowID)
+	ret0, _ := ret[0].(*models.TVShow)
+	ret1, _ := ret[1].(*errors.Error)
+	return ret0, ret1
+}
+
+// GetShortByID indicates an expected call of GetShortByID
+func (mr *MockTVShowUsecaseMockRecorder) GetShortByID(tvshowID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetShortByID", reflect.TypeOf((*MockTVShowUsecase)(nil).GetShortByID), tvshowID)
+}
+
 // GetFullByID mocks base method
 func (m *MockTVShowUsecase) GetFullByID(tvshowID, curUserID uint64) (*models.TVShow, *errors.Error) {
 	m.ctrl.T.Helper()

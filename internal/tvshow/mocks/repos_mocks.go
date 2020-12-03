@@ -62,6 +62,21 @@ func (mr *MockTVShowRepositoryMockRecorder) SelectByID(tvshowID interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectByID", reflect.TypeOf((*MockTVShowRepository)(nil).SelectByID), tvshowID)
 }
 
+// SelectShortByID mocks base method
+func (m *MockTVShowRepository) SelectShortByID(tvshowID uint64) (*models.TVShow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelectShortByID", tvshowID)
+	ret0, _ := ret[0].(*models.TVShow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SelectShortByID indicates an expected call of SelectShortByID
+func (mr *MockTVShowRepositoryMockRecorder) SelectShortByID(tvshowID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectShortByID", reflect.TypeOf((*MockTVShowRepository)(nil).SelectShortByID), tvshowID)
+}
+
 // SelectFullByID mocks base method
 func (m *MockTVShowRepository) SelectFullByID(tvshowID, curUserID uint64) (*models.TVShow, error) {
 	m.ctrl.T.Helper()
