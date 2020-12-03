@@ -10,6 +10,7 @@ require (
 	github.com/jinzhu/copier v0.1.0
 	github.com/labstack/echo/v4 v4.1.17
 	github.com/lib/pq v1.8.0
+	github.com/mailru/easyjson v0.7.6
 	github.com/microcosm-cc/bluemonday v1.0.4
 	github.com/prometheus/client_golang v1.8.0
 	github.com/satori/go.uuid v1.2.0

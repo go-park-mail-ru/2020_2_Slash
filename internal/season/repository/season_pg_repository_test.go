@@ -1,12 +1,13 @@
 package repository
 
 import (
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/season"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/season/mocks"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var testSeason = &models.Season{
@@ -47,8 +48,7 @@ var testEpisodes = []*models.Episode{
 	},
 }
 
-
-func BuildMockAndRepo() (sqlmock.Sqlmock, season.SeasonRepository, error){
+func BuildMockAndRepo() (sqlmock.Sqlmock, season.SeasonRepository, error) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		return nil, nil, err
@@ -210,6 +210,28 @@ func TestSeasonPgRepository_SelectEpisodes_NoRows(t *testing.T) {
 	episodes, err := seasonPgRep.SelectEpisodes(testSeason.ID)
 	assert.Nil(t, episodes)
 	assert.Error(t, err)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestSeasonPgRepository_SelectByTVShow_OK(t *testing.T) {
+	t.Parallel()
+	mock, seasonPgRep, err := BuildMockAndRepo()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	seasons := []*models.Season{
+		testSeason,
+	}
+
+	mocks.ExpectSelectByTVShowReturnRows(mock, testSeason.TVShowID, seasons)
+
+	dbSeasons, err := seasonPgRep.SelectByTVShow(testSeason.TVShowID)
+	assert.Equal(t, seasons, dbSeasons)
+	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Fatal(err)

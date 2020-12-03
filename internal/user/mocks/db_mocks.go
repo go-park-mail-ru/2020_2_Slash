@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"errors"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 )

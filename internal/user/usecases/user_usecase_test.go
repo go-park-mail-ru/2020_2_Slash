@@ -1,150 +1,116 @@
 package usecases
 
 import (
-	"database/sql"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	"context"
+	"testing"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
-var userInst = &models.User{
+var userModel = &models.User{
 	Nickname: "Jhon",
 	Email:    "jhon@gmail.com",
 	Password: "hardpassword",
 }
+var userInst = user.ModelUserToGrpc(userModel)
 
 func TestUserUseCase_Create_OK(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	userRep := mocks.NewMockUserRepository(ctrl)
-	userUseCase := NewUserUsecase(userRep)
 
-	userRep.
+	userClient := mocks.NewMockUserBlockClient(ctrl)
+	userUseCase := NewUserUsecase(userClient)
+
+	userClient.
 		EXPECT().
-		SelectByEmail(gomock.Eq(userInst.Email)).
-		Return(nil, sql.ErrNoRows)
-
-	userRep.
-		EXPECT().
-		Insert(gomock.Eq(userInst)).
-		Return(nil)
-
-	err := userUseCase.Create(userInst)
-	assert.Equal(t, err, (*errors.Error)(nil))
-}
-
-func TestUserUseCase_Create_Fail(t *testing.T) {
-	t.Parallel()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	userRep := mocks.NewMockUserRepository(ctrl)
-	userUseCase := NewUserUsecase(userRep)
-
-	userRep.
-		EXPECT().
-		SelectByEmail(gomock.Eq(userInst.Email)).
+		Create(context.Background(), userInst).
 		Return(userInst, nil)
 
-	err := userUseCase.Create(userInst)
-	assert.Equal(t, err, errors.Get(consts.CodeEmailAlreadyExists))
+	err := userUseCase.Create(userModel)
+	assert.Equal(t, err, (*errors.Error)(nil))
 }
 
 func TestUserUseCase_Update_OK(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	userRep := mocks.NewMockUserRepository(ctrl)
-	userUseCase := NewUserUsecase(userRep)
 
-	var userInst = &models.User{
-		Nickname: "Jhon",
-		Email:    "jhon@gmail.com",
-		Password: "hardpassword",
-	}
+	userClient := mocks.NewMockUserBlockClient(ctrl)
+	userUseCase := NewUserUsecase(userClient)
 
-	newUserData := &models.User{
-		Nickname: "Jhon1",
-		Email:    "jhon1@gmail.com",
-		Password: "veryhardpassword",
-	}
-
-	userRep.
+	userClient.
 		EXPECT().
-		SelectByID(gomock.Eq(userInst.ID)).
+		UpdateProfile(context.Background(), userInst).
 		Return(userInst, nil)
 
-	userRep.
-		EXPECT().
-		SelectByEmail(gomock.Eq(newUserData.Email)).
-		Return(nil, sql.ErrNoRows)
-
-	userRep.
-		EXPECT().
-		Update(gomock.Eq(userInst)).
-		Return(nil)
-
-	_, err := userUseCase.UpdateProfile(userInst.ID, newUserData)
+	dbUser, err := userUseCase.UpdateProfile(userModel)
 	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbUser, userModel)
 }
 
 func TestUserUseCase_UpdateAvatar_OK(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	userRep := mocks.NewMockUserRepository(ctrl)
-	userUseCase := NewUserUsecase(userRep)
 
-	newAvatar := "avatar"
+	newAvatar := "/avatar"
 
-	userRep.
+	userClient := mocks.NewMockUserBlockClient(ctrl)
+	userUseCase := NewUserUsecase(userClient)
+
+	userAvatar := &user.IdAvatar{
+		Id:     &user.ID{ID: userModel.ID},
+		Avatar: &user.Avatar{Avatar: newAvatar},
+	}
+
+	userClient.
 		EXPECT().
-		SelectByID(gomock.Eq(userInst.ID)).
+		UpdateAvatar(context.Background(), userAvatar).
 		Return(userInst, nil)
 
-	userRep.
-		EXPECT().
-		Update(gomock.Eq(userInst)).
-		Return(nil)
-
-	_, err := userUseCase.UpdateAvatar(userInst.ID, newAvatar)
+	dbUser, err := userUseCase.UpdateAvatar(userModel.ID, newAvatar)
 	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbUser, userModel)
 }
 
 func TestUserUseCase_GetByID_OK(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	userRep := mocks.NewMockUserRepository(ctrl)
-	userUseCase := NewUserUsecase(userRep)
 
-	userRep.
+	userClient := mocks.NewMockUserBlockClient(ctrl)
+	userUseCase := NewUserUsecase(userClient)
+
+	userClient.
 		EXPECT().
-		SelectByID(gomock.Eq(userInst.ID)).
+		GetByID(context.Background(), &user.ID{ID: userModel.ID}).
 		Return(userInst, nil)
 
-	dbUser, err := userUseCase.GetByID(userInst.ID)
+	dbUser, err := userUseCase.GetByID(userModel.ID)
 	assert.Equal(t, err, (*errors.Error)(nil))
-	assert.Equal(t, dbUser, userInst)
+	assert.Equal(t, dbUser, userModel)
 }
 
 func TestUserUseCase_GetByEmail_OK(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	userRep := mocks.NewMockUserRepository(ctrl)
-	userUseCase := NewUserUsecase(userRep)
 
-	userRep.
+	userClient := mocks.NewMockUserBlockClient(ctrl)
+	userUseCase := NewUserUsecase(userClient)
+
+	userClient.
 		EXPECT().
-		SelectByEmail(gomock.Eq(userInst.Email)).
+		GetByEmail(context.Background(), &user.Email{Email: userModel.Email}).
 		Return(userInst, nil)
 
-	dbUser, err := userUseCase.GetByEmail(userInst.Email)
+	dbUser, err := userUseCase.GetByEmail(userModel.Email)
 	assert.Equal(t, err, (*errors.Error)(nil))
-	assert.Equal(t, dbUser, userInst)
+	assert.Equal(t, dbUser, userModel)
 }
