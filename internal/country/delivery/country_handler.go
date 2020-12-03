@@ -70,13 +70,12 @@ func (ch *CountryHandler) UpdateCountryHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		countryID, _ := strconv.ParseUint(cntx.Param("cid"), 10, 64)
 		countryData := &models.Country{
-			ID:   countryID,
 			Name: req.Name,
 		}
 
-		err := ch.countryUcase.Update(countryData)
+		countryID, _ := strconv.ParseUint(cntx.Param("cid"), 10, 64)
+		country, err := ch.countryUcase.UpdateByID(countryID, countryData)
 		if err != nil {
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -84,7 +83,7 @@ func (ch *CountryHandler) UpdateCountryHandler() echo.HandlerFunc {
 
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
-				"country": countryData,
+				"country": country,
 			},
 		})
 	}

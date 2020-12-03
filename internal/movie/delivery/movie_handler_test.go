@@ -266,8 +266,8 @@ func TestMovieHandler_UpdateMovieHandler(t *testing.T) {
 
 	contentUseCase.
 		EXPECT().
-		Update(contentInst).
-		Return(nil)
+		UpdateByID(movieInst.ContentID, contentInst).
+		Return(contentInst, nil)
 
 	response := &response.Response{Body: &response.Body{"movie": movieInst}}
 

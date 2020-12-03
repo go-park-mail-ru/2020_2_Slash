@@ -150,8 +150,8 @@ func TestGenreHandler_UpdateGenreHandler(t *testing.T) {
 
 	genreUseCase.
 		EXPECT().
-		Update(newGenreData).
-		Return(nil)
+		UpdateByID(genre.ID, newGenreData).
+		Return(newGenreData, nil)
 
 	response := &response.Response{Body: &response.Body{"genre": newGenreData}}
 
@@ -207,8 +207,8 @@ func TestGenreHandler_UpdateGenreHandler_NameAlreadyExists(t *testing.T) {
 
 	genreUseCase.
 		EXPECT().
-		Update(newGenreData).
-		Return(errors.Get(consts.CodeGenreNameAlreadyExists))
+		UpdateByID(genre.ID, newGenreData).
+		Return(nil, errors.Get(consts.CodeGenreNameAlreadyExists))
 
 	response := &response.Response{Error: errors.Get(consts.CodeGenreNameAlreadyExists)}
 

@@ -105,18 +105,3 @@ func (mr *MockSeasonUsecaseMockRecorder) Delete(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSeasonUsecase)(nil).Delete), id)
 }
-
-// ListByTVShow mocks base method
-func (m *MockSeasonUsecase) ListByTVShow(tvshowID uint64) ([]*models.Season, *errors.Error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListByTVShow", tvshowID)
-	ret0, _ := ret[0].([]*models.Season)
-	ret1, _ := ret[1].(*errors.Error)
-	return ret0, ret1
-}
-
-// ListByTVShow indicates an expected call of ListByTVShow
-func (mr *MockSeasonUsecaseMockRecorder) ListByTVShow(tvshowID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByTVShow", reflect.TypeOf((*MockSeasonUsecase)(nil).ListByTVShow), tvshowID)
-}

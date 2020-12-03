@@ -126,7 +126,6 @@ func TestCountryHandler_UpdateCountryHandler(t *testing.T) {
 	}
 
 	newCountryData := &models.Country{
-		ID:   country.ID,
 		Name: "GB",
 	}
 
@@ -151,8 +150,8 @@ func TestCountryHandler_UpdateCountryHandler(t *testing.T) {
 
 	countryUseCase.
 		EXPECT().
-		Update(newCountryData).
-		Return(nil)
+		UpdateByID(country.ID, newCountryData).
+		Return(newCountryData, nil)
 
 	response := &response.Response{Body: &response.Body{"country": newCountryData}}
 
@@ -184,7 +183,6 @@ func TestCountryHandler_UpdateCountryHandler_NameAlreadyExists(t *testing.T) {
 	}
 
 	newCountryData := &models.Country{
-		ID:   country.ID,
 		Name: "GB",
 	}
 
@@ -209,8 +207,8 @@ func TestCountryHandler_UpdateCountryHandler_NameAlreadyExists(t *testing.T) {
 
 	countryUseCase.
 		EXPECT().
-		Update(newCountryData).
-		Return(errors.Get(consts.CodeCountryNameAlreadyExists))
+		UpdateByID(country.ID, newCountryData).
+		Return(nil, errors.Get(consts.CodeCountryNameAlreadyExists))
 
 	response := &response.Response{Error: errors.Get(consts.CodeCountryNameAlreadyExists)}
 

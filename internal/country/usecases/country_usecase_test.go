@@ -1,19 +1,13 @@
 package usecases
 
 import (
-	"context"
 	"database/sql"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
-	adminMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/admin/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/country/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/golang/mock/gomock"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"testing"
 )
 
@@ -22,18 +16,21 @@ func TestCountryUseCase_Create_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
 
 	country := &models.Country{
 		Name: "USA",
 	}
 
-	grpcCountry := admin.CountryModelToGRPC(country)
-	adminPanelClient.
+	countryRep.
 		EXPECT().
-		CreateCountry(context.Background(), grpcCountry).
-		Return(grpcCountry, nil)
+		SelectByName(gomock.Eq(country.Name)).
+		Return(nil, sql.ErrNoRows)
+
+	countryRep.
+		EXPECT().
+		Insert(gomock.Eq(country)).
+		Return(nil)
 
 	err := countryUseCase.Create(country)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -44,18 +41,16 @@ func TestCountryUseCase_Create_Fail(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
 
 	country := &models.Country{
 		Name: "USA",
 	}
 
-	grpcCountry := admin.CountryModelToGRPC(country)
-	adminPanelClient.
+	countryRep.
 		EXPECT().
-		CreateCountry(context.Background(), grpcCountry).
-		Return(nil, status.Error(codes.Code(consts.CodeCountryNameAlreadyExists), ""))
+		SelectByName(gomock.Eq(country.Name)).
+		Return(country, nil)
 
 	err := countryUseCase.Create(country)
 	assert.Equal(t, err, errors.Get(consts.CodeCountryNameAlreadyExists))
@@ -66,22 +61,36 @@ func TestCountryUseCase_Update_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
+
+	country := &models.Country{
+		ID:   1,
+		Name: "USA",
+	}
 
 	newCountryData := &models.Country{
 		ID:   1,
 		Name: "GB",
 	}
 
-	grpcCountry := admin.CountryModelToGRPC(newCountryData)
-	adminPanelClient.
+	countryRep.
 		EXPECT().
-		ChangeCountry(context.Background(), grpcCountry).
-		Return(&empty.Empty{}, nil)
+		SelectByID(gomock.Eq(country.ID)).
+		Return(country, nil)
 
-	err := countryUseCase.Update(newCountryData)
+	countryRep.
+		EXPECT().
+		SelectByName(gomock.Eq(newCountryData.Name)).
+		Return(nil, sql.ErrNoRows)
+
+	countryRep.
+		EXPECT().
+		Update(gomock.Eq(country)).
+		Return(nil)
+
+	dbCountry, err := countryUseCase.UpdateByID(country.ID, newCountryData)
 	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbCountry, newCountryData)
 }
 
 func TestCountryUseCase_Update_Fail(t *testing.T) {
@@ -89,22 +98,31 @@ func TestCountryUseCase_Update_Fail(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
+
+	country := &models.Country{
+		ID:   1,
+		Name: "USA",
+	}
 
 	newCountryData := &models.Country{
 		ID:   1,
 		Name: "GB",
 	}
 
-	grpcCountry := admin.CountryModelToGRPC(newCountryData)
-	adminPanelClient.
+	countryRep.
 		EXPECT().
-		ChangeCountry(context.Background(), grpcCountry).
-		Return(&empty.Empty{}, status.Error(codes.Code(consts.CodeCountryNameAlreadyExists), ""))
+		SelectByID(gomock.Eq(country.ID)).
+		Return(country, nil)
 
-	err := countryUseCase.Update(newCountryData)
+	countryRep.
+		EXPECT().
+		SelectByName(gomock.Eq(newCountryData.Name)).
+		Return(newCountryData, nil)
+
+	dbCountry, err := countryUseCase.UpdateByID(country.ID, newCountryData)
 	assert.Equal(t, err, errors.Get(consts.CodeCountryNameAlreadyExists))
+	assert.Equal(t, dbCountry, (*models.Country)(nil))
 }
 
 func TestCountryUseCase_Delete_OK(t *testing.T) {
@@ -112,18 +130,22 @@ func TestCountryUseCase_Delete_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
 
 	country := &models.Country{
 		ID:   1,
 		Name: "USA",
 	}
 
-	adminPanelClient.
+	countryRep.
 		EXPECT().
-		DeleteCountryByID(context.Background(), &admin.ID{ID: country.ID}).
-		Return(&empty.Empty{}, nil)
+		SelectByID(gomock.Eq(country.ID)).
+		Return(country, nil)
+
+	countryRep.
+		EXPECT().
+		DeleteByID(gomock.Eq(country.ID)).
+		Return(nil)
 
 	err := countryUseCase.DeleteByID(country.ID)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -134,18 +156,17 @@ func TestCountryUseCase_Delete_Fail(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
 
 	country := &models.Country{
 		ID:   1,
 		Name: "USA",
 	}
 
-	adminPanelClient.
+	countryRep.
 		EXPECT().
-		DeleteCountryByID(context.Background(), &admin.ID{ID: country.ID}).
-		Return(&empty.Empty{}, status.Error(codes.Code(consts.CodeCountryDoesNotExist), ""))
+		SelectByID(gomock.Eq(country.ID)).
+		Return(nil, sql.ErrNoRows)
 
 	err := countryUseCase.DeleteByID(country.ID)
 	assert.Equal(t, err, errors.Get(consts.CodeCountryDoesNotExist))
@@ -156,8 +177,7 @@ func TestCountryUseCase_GetByID_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
 
 	country := &models.Country{
 		ID:   1,
@@ -179,8 +199,7 @@ func TestCountryUseCase_GetByID_Fail(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
 
 	country := &models.Country{
 		ID:   1,
@@ -202,8 +221,7 @@ func TestCountryUseCase_GetByName_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
 
 	country := &models.Country{
 		ID:   1,
@@ -225,8 +243,7 @@ func TestCountryUseCase_GetByName_Fail(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
 
 	country := &models.Country{
 		ID:   1,
@@ -248,8 +265,7 @@ func TestCountryUseCase_List_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
 
 	countries := []*models.Country{
 		&models.Country{
@@ -277,8 +293,7 @@ func TestCountryUseCase_ListByID_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	countryRep := mocks.NewMockCountryRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	countryUseCase := NewCountryUsecase(countryRep, adminPanelClient)
+	countryUseCase := NewCountryUsecase(countryRep)
 
 	countries := []*models.Country{
 		&models.Country{

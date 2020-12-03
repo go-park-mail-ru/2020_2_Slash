@@ -1,71 +1,85 @@
 package usecases
 
 import (
-	"context"
 	"database/sql"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
+	"os"
+	"path/filepath"
+
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/movie"
-	"github.com/jinzhu/copier"
 )
 
 type MovieUsecase struct {
-	movieRepo        movie.MovieRepository
-	contentUcase     content.ContentUsecase
-	adminPanelClient admin.AdminPanelClient
+	movieRepo    movie.MovieRepository
+	contentUcase content.ContentUsecase
 }
 
 func NewMovieUsecase(repo movie.MovieRepository,
-	contentUcase content.ContentUsecase, client admin.AdminPanelClient) movie.MovieUsecase {
+	contentUcase content.ContentUsecase) movie.MovieUsecase {
 	return &MovieUsecase{
-		movieRepo:        repo,
-		contentUcase:     contentUcase,
-		adminPanelClient: client,
+		movieRepo:    repo,
+		contentUcase: contentUcase,
 	}
 }
 
 func (mu *MovieUsecase) Create(movie *models.Movie) *errors.Error {
-	grpcMovie, err := mu.adminPanelClient.CreateMovie(context.Background(),
-		admin.MovieModelToGRPC(movie))
-	if err != nil {
-		customErr := errors.GetCustomErr(err)
-		return customErr
+	if err := mu.checkByContentID(movie.ContentID); err == nil {
+		return errors.Get(CodeMovieContentAlreadyExists)
 	}
 
-	if err := copier.Copy(movie, admin.MovieGRPCToModel(grpcMovie)); err != nil {
+	if err := mu.contentUcase.Create(&movie.Content); err != nil {
+		return err
+	}
+
+	if err := mu.movieRepo.Insert(movie); err != nil {
 		return errors.New(CodeInternalError, err)
 	}
-
 	return nil
 }
 
 func (mu *MovieUsecase) UpdateVideo(movie *models.Movie, newVideoPath string) *errors.Error {
-	_, err := mu.adminPanelClient.ChangeVideo(context.Background(),
-		&admin.VideoMovie{
-			Movie: admin.MovieModelToGRPC(movie),
-			Video: newVideoPath,
-		})
-
-	if err != nil {
-		customErr := errors.GetCustomErr(err)
-		return customErr
+	prevVideoPath := movie.Video
+	if newVideoPath == prevVideoPath {
+		// Don't need to update
+		return nil
 	}
 
+	// Update video
+	movie.Video = newVideoPath
+	if err := mu.movieRepo.Update(movie); err != nil {
+		return errors.New(CodeInternalError, err)
+	}
+	// Don't need to delete prev file,
+	// cause video always store with the same filename
 	return nil
 }
 
 func (mu *MovieUsecase) DeleteByID(movieID uint64) *errors.Error {
-	_, err := mu.adminPanelClient.DeleteMovieByID(context.Background(),
-		&admin.ID{ID: movieID})
-
+	movie, err := mu.GetByID(movieID)
 	if err != nil {
-		customErr := errors.GetCustomErr(err)
-		return customErr
+		return errors.Get(CodeMovieDoesNotExist)
 	}
 
+	// Delete video
+	if movie.Video != "" {
+		path, err := os.Getwd()
+		if err != nil {
+			return errors.New(CodeInternalError, err)
+		}
+		videoPath := filepath.Join(path, movie.Video)
+		videoDirPath := filepath.Dir(videoPath)
+
+		if err := os.RemoveAll(videoDirPath); err != nil {
+			return errors.New(CodeInternalError, err)
+		}
+	}
+
+	if err := mu.movieRepo.DeleteByID(movieID); err != nil {
+		return errors.New(CodeInternalError, err)
+	}
 	return nil
 }
 

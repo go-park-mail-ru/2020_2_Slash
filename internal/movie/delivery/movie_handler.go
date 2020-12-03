@@ -179,14 +179,7 @@ func (mh *MovieHandler) UpdateMovieHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
-		movie, err := mh.movieUcase.GetByID(movieID)
-		if err != nil {
-			logger.Error(err.Message)
-			return cntx.JSON(err.HTTPCode, Response{Error: err})
-		}
 		contentData := &models.Content{
-			ContentID:        movie.ContentID,
 			Name:             req.Name,
 			OriginalName:     req.OriginalName,
 			Description:      req.Description,
@@ -198,13 +191,20 @@ func (mh *MovieHandler) UpdateMovieHandler() echo.HandlerFunc {
 			Directors:        directors,
 		}
 
-		err = mh.contentUcase.Update(contentData)
+		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		movie, err := mh.movieUcase.GetByID(movieID)
 		if err != nil {
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		movie.Content = *contentData
+		content, err := mh.contentUcase.UpdateByID(movie.ContentID, contentData)
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		movie.Content = *content
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
 				"movie": movie,

@@ -13,7 +13,6 @@ import (
 	countryMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/country/mocks"
 	directorMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/director/mocks"
 	genreMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/genre/mocks"
-	seasonMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/season/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	tvshowMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/tvshow/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/pkg/converter"
@@ -80,7 +79,6 @@ func TestTVShowHandler_CreateTVShowHandler(t *testing.T) {
 	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
-	seasonUseCase := seasonMocks.NewMockSeasonUsecase(ctrl)
 
 	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
@@ -128,7 +126,7 @@ func TestTVShowHandler_CreateTVShowHandler(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	tvshowHandler := NewTVShowHandler(tvshowUseCase, contentUseCase,
-		countryUseCase, genreUseCase, actorUseCase, directorUseCase, seasonUseCase)
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
 	handleFunc := tvshowHandler.CreateTVShowHandler()
 	tvshowHandler.Configure(e, nil)
 
@@ -185,7 +183,6 @@ func TestTVShowHandler_DeleteTVShowHandler(t *testing.T) {
 	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
-	seasonUseCase := seasonMocks.NewMockSeasonUsecase(ctrl)
 
 	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
@@ -213,7 +210,7 @@ func TestTVShowHandler_DeleteTVShowHandler(t *testing.T) {
 	c.SetParamValues(strId)
 
 	tvshowHandler := NewTVShowHandler(tvshowUseCase, contentUseCase,
-		countryUseCase, genreUseCase, actorUseCase, directorUseCase, seasonUseCase)
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
 	handleFunc := tvshowHandler.DeleteTVShowHandler()
 	tvshowHandler.Configure(e, nil)
 
@@ -255,7 +252,6 @@ func TestTVShowHandler_GetTVShowHandler(t *testing.T) {
 	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
-	seasonUseCase := seasonMocks.NewMockSeasonUsecase(ctrl)
 
 	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
@@ -284,7 +280,7 @@ func TestTVShowHandler_GetTVShowHandler(t *testing.T) {
 	c.SetParamValues(strId)
 
 	tvshowHandler := NewTVShowHandler(tvshowUseCase, contentUseCase,
-		countryUseCase, genreUseCase, actorUseCase, directorUseCase, seasonUseCase)
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
 	handleFunc := tvshowHandler.GetTVShowHandler()
 	tvshowHandler.Configure(e, nil)
 
@@ -321,7 +317,6 @@ func TestTVShowHandler_GetTVShowsHandler(t *testing.T) {
 	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
-	seasonUseCase := seasonMocks.NewMockSeasonUsecase(ctrl)
 
 	pgnt := &models.Pagination{
 		From:  0,
@@ -360,7 +355,7 @@ func TestTVShowHandler_GetTVShowsHandler(t *testing.T) {
 	c.Set("userID", userID)
 
 	tvshowHandler := NewTVShowHandler(tvshowUseCase, contentUseCase,
-		countryUseCase, genreUseCase, actorUseCase, directorUseCase, seasonUseCase)
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
 	handleFunc := tvshowHandler.GetTVShowsHandler()
 	tvshowHandler.Configure(e, nil)
 
@@ -409,7 +404,6 @@ func TestTVShowHandler_GetLatestTVShowsHandler(t *testing.T) {
 	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
-	seasonUseCase := seasonMocks.NewMockSeasonUsecase(ctrl)
 
 	pgnt := &models.Pagination{
 		From:  0,
@@ -430,7 +424,7 @@ func TestTVShowHandler_GetLatestTVShowsHandler(t *testing.T) {
 	c.Set("userID", userID)
 
 	tvshowHandler := NewTVShowHandler(tvshowUseCase, contentUseCase,
-		countryUseCase, genreUseCase, actorUseCase, directorUseCase, seasonUseCase)
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
 	handleFunc := tvshowHandler.GetLatestTVShowsHandler()
 	tvshowHandler.Configure(e, nil)
 
@@ -479,7 +473,6 @@ func TestTVShowHandler_GetTVShowsByRatingHandler(t *testing.T) {
 	genreUseCase := genreMocks.NewMockGenreUsecase(ctrl)
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
-	seasonUseCase := seasonMocks.NewMockSeasonUsecase(ctrl)
 
 	pgnt := &models.Pagination{
 		From:  0,
@@ -500,7 +493,7 @@ func TestTVShowHandler_GetTVShowsByRatingHandler(t *testing.T) {
 	c.Set("userID", userID)
 
 	tvshowHandler := NewTVShowHandler(tvshowUseCase, contentUseCase,
-		countryUseCase, genreUseCase, actorUseCase, directorUseCase, seasonUseCase)
+		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
 	handleFunc := tvshowHandler.GetTopTVShowListHandler()
 	tvshowHandler.Configure(e, nil)
 

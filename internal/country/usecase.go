@@ -7,7 +7,7 @@ import (
 
 type CountryUsecase interface {
 	Create(country *models.Country) *errors.Error
-	Update(newCountryData *models.Country) *errors.Error
+	UpdateByID(countryID uint64, newCountryData *models.Country) (*models.Country, *errors.Error)
 	DeleteByID(countryID uint64) *errors.Error
 	GetByID(countryID uint64) (*models.Country, *errors.Error)
 	GetByName(name string) (*models.Country, *errors.Error)

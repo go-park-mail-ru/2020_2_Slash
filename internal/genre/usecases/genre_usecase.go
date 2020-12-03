@@ -1,65 +1,63 @@
 package usecases
 
 import (
-	"context"
 	"database/sql"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/genre"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
-	"github.com/jinzhu/copier"
 )
 
 type GenreUsecase struct {
-	genreRepo        genre.GenreRepository
-	adminPanelClient admin.AdminPanelClient
+	genreRepo genre.GenreRepository
 }
 
-func NewGenreUsecase(repo genre.GenreRepository,
-	client admin.AdminPanelClient) genre.GenreUsecase {
+func NewGenreUsecase(repo genre.GenreRepository) genre.GenreUsecase {
 	return &GenreUsecase{
-		genreRepo:        repo,
-		adminPanelClient: client,
+		genreRepo: repo,
 	}
 }
 
 func (gu *GenreUsecase) Create(genre *models.Genre) *errors.Error {
-	grpcGenre, err := gu.adminPanelClient.CreateGenre(context.Background(),
-		admin.GenreModelToGRPC(genre))
-	if err != nil {
-		customErr := errors.GetCustomErr(err)
-		return customErr
+	if err := gu.checkByName(genre.Name); err == nil {
+		return errors.Get(CodeGenreNameAlreadyExists)
 	}
 
-	if err := copier.Copy(genre, admin.GenreGRPCToModel(grpcGenre)); err != nil {
+	if err := gu.genreRepo.Insert(genre); err != nil {
 		return errors.New(CodeInternalError, err)
 	}
-
 	return nil
 }
 
-func (gu *GenreUsecase) Update(newGenreData *models.Genre) *errors.Error {
-	_, err := gu.adminPanelClient.ChangeGenre(context.Background(),
-		admin.GenreModelToGRPC(newGenreData))
-
+func (gu *GenreUsecase) UpdateByID(genreID uint64, newGenreData *models.Genre) (*models.Genre, *errors.Error) {
+	genre, err := gu.GetByID(genreID)
 	if err != nil {
-		customErr := errors.GetCustomErr(err)
-		return customErr
+		return nil, err
 	}
 
-	return nil
+	if newGenreData.Name == "" || genre.Name == newGenreData.Name {
+		return nil, err
+	}
+
+	if err := gu.checkByName(newGenreData.Name); err == nil {
+		return nil, errors.Get(CodeGenreNameAlreadyExists)
+	}
+
+	genre.Name = newGenreData.Name
+	if err := gu.genreRepo.Update(genre); err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+	return genre, nil
 }
 
 func (gu *GenreUsecase) DeleteByID(genreID uint64) *errors.Error {
-	_, err := gu.adminPanelClient.DeleteGenreByID(context.Background(),
-		&admin.ID{ID: genreID})
-
-	if err != nil {
-		customErr := errors.GetCustomErr(err)
-		return customErr
+	if err := gu.checkByID(genreID); err != nil {
+		return errors.Get(CodeGenreDoesNotExist)
 	}
 
+	if err := gu.genreRepo.DeleteByID(genreID); err != nil {
+		return errors.New(CodeInternalError, err)
+	}
 	return nil
 }
 
