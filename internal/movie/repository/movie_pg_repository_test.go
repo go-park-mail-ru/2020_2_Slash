@@ -1,11 +1,12 @@
 package repository
 
 import (
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/movie/mocks"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var contentInst *models.Content = &models.Content{
@@ -349,6 +350,45 @@ func TestMoviePgRepository_SelectByRating_OK(t *testing.T) {
 
 	mocks.MockMovieRepoSelectByRatingReturnRows(mock, pgnt, userID, movies)
 	dbMovies, err := moviePgRep.SelectByRating(pgnt, userID)
+	assert.Equal(t, movies, dbMovies)
+	assert.NoError(t, err)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestMoviePgRepository_SelectWhereNameLike_OK(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	moviePgRep := NewMoviePgRepository(db)
+
+	content := []*models.Content{
+		&models.Content{
+			Name: "Shrek",
+		},
+	}
+
+	movies := []*models.Movie{
+		&models.Movie{
+			Content: *content[0],
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+	var userID uint64 = 1
+	name := "Shreck"
+
+	mocks.MockMovieRepoSelectWhereNameLikeReturnRows(mock, pgnt, userID, movies, name)
+	dbMovies, err := moviePgRep.SelectWhereNameLike(userID, name, pgnt.Count, pgnt.From)
 	assert.Equal(t, movies, dbMovies)
 	assert.NoError(t, err)
 

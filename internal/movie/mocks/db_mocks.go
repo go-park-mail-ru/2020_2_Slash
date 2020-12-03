@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"errors"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 )
@@ -140,4 +141,22 @@ func MockMovieRepoSelectByRatingReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pa
 		SELECT m.id, m.video, c.id, c.name`
 
 	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From).WillReturnRows(rows)
+}
+
+func MockMovieRepoSelectWhereNameLikeReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pagination, curUserID uint64,
+	movies []*models.Movie, name string) {
+
+	rows := sqlmock.NewRows([]string{"m.id", "m.video", "c.id", "c.name",
+		"c.original_name", "c.description", "c.short_description", "c.rating",
+		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+	for _, movie := range movies {
+		rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name,
+			movie.OriginalName, movie.Description, movie.ShortDescription, movie.Rating,
+			movie.Year, movie.Images, movie.Type, movie.IsLiked, movie.IsFavourite)
+	}
+	query := `
+		SELECT m.id, m.video, c.id, c.name`
+
+	searchName := "%" + name + "%"
+	mock.ExpectQuery(query).WithArgs(curUserID, searchName, pgnt.Count, pgnt.From).WillReturnRows(rows)
 }
