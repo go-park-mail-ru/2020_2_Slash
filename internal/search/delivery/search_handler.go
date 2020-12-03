@@ -1,6 +1,8 @@
 package delivery
 
 import (
+	"net/http"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/search"
@@ -8,7 +10,6 @@ import (
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"net/http"
 )
 
 type SearchHandler struct {
@@ -36,7 +37,7 @@ func (sh *SearchHandler) SearchHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		userID := cntx.Get("userID").(uint64)
+		userID, _ := cntx.Get("userID").(uint64)
 		result, customErr := sh.searchUsecase.Search(userID, req.Query, &req.Pagination)
 		if customErr != nil {
 			logger.Error(customErr.Message)
