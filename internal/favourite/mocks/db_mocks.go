@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"database/sql"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 )
@@ -59,4 +60,20 @@ func MockSelectReturnErrNoRows(mock sqlmock.Sqlmock, reqFavourite *models.Favour
 	mock.ExpectQuery(`SELECT`).
 		WithArgs(reqFavourite.UserID, reqFavourite.ContentID).
 		WillReturnError(sql.ErrNoRows)
+}
+
+func MockSelectFavouriteTVShowsReturnRows(mock sqlmock.Sqlmock, userID uint64,
+	resTVShows []*models.TVShow, limit uint64, offset uint64) {
+	rows := sqlmock.NewRows([]string{"tv.id", "tv.seasons", "c.id", "c.name",
+		"c.original_name", "c.description", "c.short_description",
+		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+	for _, tvshow := range resTVShows {
+		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name,
+			tvshow.OriginalName, tvshow.Description, tvshow.ShortDescription,
+			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsLiked, tvshow.IsFavourite)
+	}
+
+	mock.ExpectQuery(`SELECT`).
+		WithArgs(userID, limit, offset).
+		WillReturnRows(rows)
 }
