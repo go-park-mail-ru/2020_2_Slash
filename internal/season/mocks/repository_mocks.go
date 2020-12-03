@@ -119,3 +119,18 @@ func (mr *MockSeasonRepositoryMockRecorder) Delete(id interface{}) *gomock.Call 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSeasonRepository)(nil).Delete), id)
 }
+
+// SelectByTVShow mocks base method
+func (m *MockSeasonRepository) SelectByTVShow(tvshowID uint64) ([]*models.Season, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelectByTVShow", tvshowID)
+	ret0, _ := ret[0].([]*models.Season)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SelectByTVShow indicates an expected call of SelectByTVShow
+func (mr *MockSeasonRepositoryMockRecorder) SelectByTVShow(tvshowID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectByTVShow", reflect.TypeOf((*MockSeasonRepository)(nil).SelectByTVShow), tvshowID)
+}

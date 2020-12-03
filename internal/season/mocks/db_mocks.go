@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"database/sql"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 )
@@ -85,4 +86,15 @@ func ExpectDeleteSuccess(mock sqlmock.Sqlmock, season *models.Season) {
 		WithArgs(season.ID).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 	mock.ExpectCommit()
+}
+
+func ExpectSelectByTVShowReturnRows(mock sqlmock.Sqlmock, TVShowID uint64, seasons []*models.Season) {
+	rows := sqlmock.NewRows([]string{"id", "number", "episodes", "tv_show_id"})
+	for _, season := range seasons {
+		rows.AddRow(season.ID, season.Number, season.EpisodesNumber, season.TVShowID)
+	}
+	mock.
+		ExpectQuery(`SELECT`).
+		WithArgs(TVShowID).
+		WillReturnRows(rows)
 }

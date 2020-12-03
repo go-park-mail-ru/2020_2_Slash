@@ -1,11 +1,12 @@
 package repository
 
 import (
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var countries = []*models.Country{
@@ -204,6 +205,121 @@ func TestContentPgRepository_SelectGenres_OK(t *testing.T) {
 	mocks.MockContentRepoSelectGenresReturnRows(mock, contentInst.ContentID, genresID)
 	dbGenres, err := contentPgRep.SelectGenresByID(contentInst.ContentID)
 	assert.Equal(t, genresID, dbGenres)
+	assert.NoError(t, err)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestContentPgRepository_Insert_OK(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	contentPgRep := NewContentPgRepository(db)
+
+	var countries = []*models.Country{
+		&models.Country{
+			ID:   1,
+			Name: "США",
+		},
+	}
+	var genres = []*models.Genre{
+		&models.Genre{
+			Name: "Мультфильм",
+		},
+	}
+	var actors = []*models.Actor{
+		&models.Actor{
+			Name: "Майк Майерс",
+		},
+	}
+	var directors = []*models.Director{
+		&models.Director{
+			Name: "Эндрю Адамсон",
+		},
+	}
+	contentInst := &models.Content{
+		Countries: countries,
+		Genres:    genres,
+		Actors:    actors,
+		Directors: directors,
+	}
+
+	mocks.MockContentRepoInsertReturnResultOk(mock, contentInst, countries[0],
+		genres[0], actors[0], directors[0])
+	err = contentPgRep.Insert(contentInst)
+	assert.NoError(t, err)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestContentPgRepository_Update_OK(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	contentPgRep := NewContentPgRepository(db)
+
+	var countries = []*models.Country{
+		&models.Country{
+			ID:   1,
+			Name: "США",
+		},
+	}
+	var genres = []*models.Genre{
+		&models.Genre{
+			Name: "Мультфильм",
+		},
+	}
+	var actors = []*models.Actor{
+		&models.Actor{
+			Name: "Майк Майерс",
+		},
+	}
+	var directors = []*models.Director{
+		&models.Director{
+			Name: "Эндрю Адамсон",
+		},
+	}
+	contentInst := &models.Content{
+		Countries: countries,
+		Genres:    genres,
+		Actors:    actors,
+		Directors: directors,
+	}
+
+	mocks.MockContentRepoUpdateReturnResultOk(mock, contentInst, countries[0],
+		genres[0], actors[0], directors[0])
+	err = contentPgRep.Update(contentInst)
+	assert.NoError(t, err)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestContentPgRepository_UpdateImages_OK(t *testing.T) {
+	t.Parallel()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	contentPgRep := NewContentPgRepository(db)
+
+	mocks.MockContentRepoUpdateImagesReturnResultOk(mock, contentInst)
+	err = contentPgRep.UpdateImages(contentInst)
 	assert.NoError(t, err)
 
 	if err := mock.ExpectationsWereMet(); err != nil {

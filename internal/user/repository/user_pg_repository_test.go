@@ -1,11 +1,12 @@
 package repository
 
 import (
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user/mocks"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var userInst = &models.User{
