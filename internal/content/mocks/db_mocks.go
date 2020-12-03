@@ -3,6 +3,7 @@ package mocks
 import (
 	"database/sql"
 	"database/sql/driver"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 )
@@ -56,4 +57,65 @@ func MockContentRepoSelectGenresReturnRows(mock sqlmock.Sqlmock, id uint64, genr
 		rows.AddRow(genre)
 	}
 	mock.ExpectQuery(`SELECT genre_id`).WithArgs(id).WillReturnRows(rows)
+}
+
+func MockContentRepoInsertReturnResultOk(mock sqlmock.Sqlmock, content *models.Content, country *models.Country,
+	genre *models.Genre, actor *models.Actor, director *models.Director) {
+	mock.ExpectBegin()
+	rows := sqlmock.NewRows([]string{"id"}).AddRow(content.ContentID)
+	mock.ExpectQuery(`INSERT INTO content`).
+		WithArgs(content.Name, content.OriginalName, content.Description,
+			content.ShortDescription, content.Year, content.Images, content.Type).WillReturnRows(rows)
+
+	mock.ExpectPrepare(``).ExpectExec().WithArgs(content.ContentID, country.ID).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec(``).WithArgs().WillReturnResult(driver.ResultNoRows)
+
+	mock.ExpectPrepare(``).ExpectExec().WithArgs(content.ContentID, genre.ID).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec(``).WithArgs().WillReturnResult(driver.ResultNoRows)
+
+	mock.ExpectPrepare(``).ExpectExec().WithArgs(content.ContentID, actor.ID).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec(``).WithArgs().WillReturnResult(driver.ResultNoRows)
+
+	mock.ExpectPrepare(``).ExpectExec().WithArgs(content.ContentID, director.ID).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec(``).WithArgs().WillReturnResult(driver.ResultNoRows)
+
+	mock.ExpectCommit()
+}
+
+func MockContentRepoUpdateReturnResultOk(mock sqlmock.Sqlmock, content *models.Content, country *models.Country,
+	genre *models.Genre, actor *models.Actor, director *models.Director) {
+	mock.ExpectBegin()
+	mock.ExpectExec(`UPDATE`).
+		WithArgs(content.ContentID, content.Name, content.OriginalName, content.Description,
+			content.ShortDescription, content.Year, content.Images, content.Type).WillReturnResult(driver.ResultNoRows)
+
+	mock.ExpectExec(`DELETE`).
+		WithArgs(content.ContentID).WillReturnResult(driver.ResultNoRows)
+	mock.ExpectPrepare(``).ExpectExec().WithArgs(content.ContentID, country.ID).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec(``).WithArgs().WillReturnResult(driver.ResultNoRows)
+
+	mock.ExpectExec(`DELETE`).
+		WithArgs(content.ContentID).WillReturnResult(driver.ResultNoRows)
+	mock.ExpectPrepare(``).ExpectExec().WithArgs(content.ContentID, genre.ID).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec(``).WithArgs().WillReturnResult(driver.ResultNoRows)
+
+	mock.ExpectExec(`DELETE`).
+		WithArgs(content.ContentID).WillReturnResult(driver.ResultNoRows)
+	mock.ExpectPrepare(``).ExpectExec().WithArgs(content.ContentID, actor.ID).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec(``).WithArgs().WillReturnResult(driver.ResultNoRows)
+
+	mock.ExpectExec(`DELETE`).
+		WithArgs(content.ContentID).WillReturnResult(driver.ResultNoRows)
+	mock.ExpectPrepare(``).ExpectExec().WithArgs(content.ContentID, director.ID).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec(``).WithArgs().WillReturnResult(driver.ResultNoRows)
+
+	mock.ExpectCommit()
+}
+
+func MockContentRepoUpdateImagesReturnResultOk(mock sqlmock.Sqlmock, content *models.Content) {
+	mock.ExpectBegin()
+	mock.ExpectExec(`UPDATE`).
+		WithArgs(content.ContentID, content.Images).WillReturnResult(driver.ResultNoRows)
+
+	mock.ExpectCommit()
 }
