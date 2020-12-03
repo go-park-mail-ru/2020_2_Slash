@@ -1,16 +1,12 @@
 package usecases
 
 import (
-	"context"
 	"database/sql"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor/mocks"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/admin"
-	adminMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/admin/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/golang/mock/gomock"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -20,19 +16,16 @@ func TestActorUseCase_Create_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	actorRep := mocks.NewMockActorRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	actorUseCase := NewActorUseCase(actorRep, adminPanelClient)
+	actorUseCase := NewActorUseCase(actorRep)
 
 	actor := &models.Actor{
 		Name: "Jamie Fox",
 	}
 
-	grpcActor := admin.ActorModelToGRPC(actor)
-
-	adminPanelClient.
+	actorRep.
 		EXPECT().
-		CreateActor(context.Background(), grpcActor).
-		Return(grpcActor, nil)
+		Insert(gomock.Eq(actor)).
+		Return(nil)
 
 	err := actorUseCase.Create(actor)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -43,8 +36,7 @@ func TestActorUseCase_Get_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	actorRep := mocks.NewMockActorRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	actorUseCase := NewActorUseCase(actorRep, adminPanelClient)
+	actorUseCase := NewActorUseCase(actorRep)
 
 	actor := &models.Actor{
 		ID:   3,
@@ -66,8 +58,7 @@ func TestActorUseCase_Get_Fail(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	actorRep := mocks.NewMockActorRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	actorUseCase := NewActorUseCase(actorRep, adminPanelClient)
+	actorUseCase := NewActorUseCase(actorRep)
 
 	actor := &models.Actor{
 		ID:   3,
@@ -89,18 +80,22 @@ func TestActorUseCase_Delete_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	actorRep := mocks.NewMockActorRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	actorUseCase := NewActorUseCase(actorRep, adminPanelClient)
+	actorUseCase := NewActorUseCase(actorRep)
 
 	actor := &models.Actor{
 		ID:   3,
 		Name: "Margo Robbie",
 	}
 
-	adminPanelClient.
+	actorRep.
 		EXPECT().
-		DeleteActorByID(context.Background(), &admin.ID{ID: actor.ID}).
-		Return(&empty.Empty{}, nil)
+		SelectById(gomock.Eq(actor.ID)).
+		Return(actor, nil)
+
+	actorRep.
+		EXPECT().
+		DeleteById(gomock.Eq(actor.ID)).
+		Return(nil)
 
 	err := actorUseCase.DeleteById(actor.ID)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -111,19 +106,22 @@ func TestActorUseCase_Update_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	actorRep := mocks.NewMockActorRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	actorUseCase := NewActorUseCase(actorRep, adminPanelClient)
+	actorUseCase := NewActorUseCase(actorRep)
 
 	actor := &models.Actor{
 		ID:   3,
 		Name: "Margo Robbie",
 	}
 
-	grpcActor := admin.ActorModelToGRPC(actor)
-	adminPanelClient.
+	actorRep.
 		EXPECT().
-		ChangeActor(context.Background(), grpcActor).
-		Return(&empty.Empty{}, nil)
+		SelectById(gomock.Eq(actor.ID)).
+		Return(actor, nil)
+
+	actorRep.
+		EXPECT().
+		Update(gomock.Eq(actor)).
+		Return(nil)
 
 	err := actorUseCase.Change(actor)
 	assert.Equal(t, err, (*errors.Error)(nil))
@@ -134,8 +132,7 @@ func TestActorUseCase_ListByID_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	actorRep := mocks.NewMockActorRepository(ctrl)
-	adminPanelClient := adminMocks.NewMockAdminPanelClient(ctrl)
-	actorUseCase := NewActorUseCase(actorRep, adminPanelClient)
+	actorUseCase := NewActorUseCase(actorRep)
 
 	actors := []*models.Actor{
 		&models.Actor{

@@ -34,7 +34,7 @@ func setupSessionHandler(sessionUseCase session.SessionUsecase,
 	c := e.NewContext(req, rec)
 	sessionHandler := NewSessionHandler(sessionUseCase, userUseCase)
 	sessionHandler.Configure(e, nil)
-	mw := mwares.NewMiddlewareManager(sessionUseCase, userUseCase, nil)
+	mw := mwares.NewMiddlewareManager(sessionUseCase, userUseCase)
 	sessionHandler.Configure(e, mw)
 	return c, sessionHandler, rec
 }
@@ -133,7 +133,7 @@ func TestSessionHandler_LogoutHandler(t *testing.T) {
 	c.SetParamValues(session.Value, strconv.FormatUint(session.UserID, 10))
 
 	sessionHandler := NewSessionHandler(sessionUseCase, userUseCase)
-	mw := mwares.NewMiddlewareManager(sessionUseCase, userUseCase, nil)
+	mw := mwares.NewMiddlewareManager(sessionUseCase, userUseCase)
 	sessionHandler.Configure(e, mw)
 
 	sessionUseCase.

@@ -10,18 +10,18 @@ import (
 	reflect "reflect"
 )
 
-// MockActorRepository is a mocks of ActorRepository interface
+// MockActorRepository is a mock of ActorRepository interface
 type MockActorRepository struct {
 	ctrl     *gomock.Controller
 	recorder *MockActorRepositoryMockRecorder
 }
 
-// MockActorRepositoryMockRecorder is the mocks recorder for MockActorRepository
+// MockActorRepositoryMockRecorder is the mock recorder for MockActorRepository
 type MockActorRepositoryMockRecorder struct {
 	mock *MockActorRepository
 }
 
-// NewMockActorRepository creates a new mocks instance
+// NewMockActorRepository creates a new mock instance
 func NewMockActorRepository(ctrl *gomock.Controller) *MockActorRepository {
 	mock := &MockActorRepository{ctrl: ctrl}
 	mock.recorder = &MockActorRepositoryMockRecorder{mock}
