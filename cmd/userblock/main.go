@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"github.com/go-park-mail-ru/2020_2_Slash/config"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
-	mygrpc "github.com/go-park-mail-ru/2020_2_Slash/internal/user/grpc"
+	mygrpc "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
 	userRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/user/repository"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	_ "github.com/lib/pq"
@@ -54,7 +53,7 @@ func main() {
 	userRepo := userRepo.NewUserPgRepository(dbConnection)
 
 	server := grpc.NewServer()
-	user.RegisterUserBlockServer(server, mygrpc.NewUserblockMicroservice(userRepo))
+	mygrpc.RegisterUserBlockServer(server, mygrpc.NewUserblockMicroservice(userRepo))
 
 	fmt.Println("Starting server at :8081")
 	server.Serve(lis)

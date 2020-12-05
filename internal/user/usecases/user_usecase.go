@@ -5,17 +5,17 @@ import (
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
 	"github.com/jinzhu/copier"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/status"
 )
 
 type UserUsecase struct {
-	userBlockClient user.UserBlockClient
+	userBlockClient grpc.UserBlockClient
 }
 
-func NewUserUsecase(client user.UserBlockClient) *UserUsecase {
+func NewUserUsecase(client grpc.UserBlockClient) *UserUsecase {
 	return &UserUsecase{
 		userBlockClient: client,
 	}
@@ -23,13 +23,13 @@ func NewUserUsecase(client user.UserBlockClient) *UserUsecase {
 
 func (uu *UserUsecase) Create(modelUser *models.User) *errors.Error {
 	grpcUser, err := uu.userBlockClient.Create(context.Background(),
-		user.ModelUserToGrpc(modelUser))
+		grpc.ModelUserToGrpc(modelUser))
 	if err != nil {
 		customErr := errors.Get(ErrorCode(status.Code(err)))
 		return customErr
 	}
 
-	err = copier.Copy(modelUser, user.GrpcUserToModel(grpcUser))
+	err = copier.Copy(modelUser, grpc.GrpcUserToModel(grpcUser))
 	if err != nil {
 		return errors.New(CodeInternalError, err)
 	}
@@ -39,49 +39,49 @@ func (uu *UserUsecase) Create(modelUser *models.User) *errors.Error {
 
 func (uu *UserUsecase) GetByEmail(email string) (*models.User, *errors.Error) {
 	grpcUser, err := uu.userBlockClient.GetByEmail(context.Background(),
-		&user.Email{Email: email})
+		&grpc.Email{Email: email})
 	if err != nil {
 		customErr := errors.Get(ErrorCode(status.Code(err)))
 		return nil, customErr
 	}
 
-	return user.GrpcUserToModel(grpcUser), nil
+	return grpc.GrpcUserToModel(grpcUser), nil
 }
 
 func (uu *UserUsecase) GetByID(userID uint64) (*models.User, *errors.Error) {
 	grpcUser, err := uu.userBlockClient.GetByID(context.Background(),
-		&user.ID{ID: userID})
+		&grpc.ID{ID: userID})
 	if err != nil {
 		customErr := errors.Get(ErrorCode(status.Code(err)))
 		return nil, customErr
 	}
 
-	return user.GrpcUserToModel(grpcUser), nil
+	return grpc.GrpcUserToModel(grpcUser), nil
 }
 
 func (uu *UserUsecase) UpdateProfile(newUserData *models.User) (*models.User, *errors.Error) {
 	grpcUser, err := uu.userBlockClient.UpdateProfile(context.Background(),
-		user.ModelUserToGrpc(newUserData))
+		grpc.ModelUserToGrpc(newUserData))
 	if err != nil {
 		customErr := errors.Get(ErrorCode(status.Code(err)))
 		return nil, customErr
 	}
 
-	return user.GrpcUserToModel(grpcUser), nil
+	return grpc.GrpcUserToModel(grpcUser), nil
 }
 
 func (uu *UserUsecase) UpdateAvatar(userID uint64, newAvatar string) (*models.User, *errors.Error) {
 	grpcUser, err := uu.userBlockClient.UpdateAvatar(context.Background(),
-		&user.IdAvatar{
-			Id:     &user.ID{ID: userID},
-			Avatar: &user.Avatar{Avatar: newAvatar},
+		&grpc.IdAvatar{
+			Id:     &grpc.ID{ID: userID},
+			Avatar: &grpc.Avatar{Avatar: newAvatar},
 		})
 	if err != nil {
 		customErr := errors.New(ErrorCode(status.Code(err)), err)
 		return nil, customErr
 	}
 
-	return user.GrpcUserToModel(grpcUser), nil
+	return grpc.GrpcUserToModel(grpcUser), nil
 }
 
 func (uu *UserUsecase) CheckPassword(user *models.User, password string) *errors.Error {

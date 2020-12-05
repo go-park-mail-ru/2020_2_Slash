@@ -2,12 +2,12 @@ package usecases
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
+	mocks2 "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc/mocks"
 	"testing"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/user/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,14 +17,14 @@ var userModel = &models.User{
 	Email:    "jhon@gmail.com",
 	Password: "hardpassword",
 }
-var userInst = user.ModelUserToGrpc(userModel)
+var userInst = grpc.ModelUserToGrpc(userModel)
 
 func TestUserUseCase_Create_OK(t *testing.T) {
 	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	userClient := mocks.NewMockUserBlockClient(ctrl)
+	userClient := mocks2.NewMockUserBlockClient(ctrl)
 	userUseCase := NewUserUsecase(userClient)
 
 	userClient.
@@ -41,7 +41,7 @@ func TestUserUseCase_Update_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	userClient := mocks.NewMockUserBlockClient(ctrl)
+	userClient := mocks2.NewMockUserBlockClient(ctrl)
 	userUseCase := NewUserUsecase(userClient)
 
 	userClient.
@@ -61,12 +61,12 @@ func TestUserUseCase_UpdateAvatar_OK(t *testing.T) {
 
 	newAvatar := "/avatar"
 
-	userClient := mocks.NewMockUserBlockClient(ctrl)
+	userClient := mocks2.NewMockUserBlockClient(ctrl)
 	userUseCase := NewUserUsecase(userClient)
 
-	userAvatar := &user.IdAvatar{
-		Id:     &user.ID{ID: userModel.ID},
-		Avatar: &user.Avatar{Avatar: newAvatar},
+	userAvatar := &grpc.IdAvatar{
+		Id:     &grpc.ID{ID: userModel.ID},
+		Avatar: &grpc.Avatar{Avatar: newAvatar},
 	}
 
 	userClient.
@@ -84,12 +84,12 @@ func TestUserUseCase_GetByID_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	userClient := mocks.NewMockUserBlockClient(ctrl)
+	userClient := mocks2.NewMockUserBlockClient(ctrl)
 	userUseCase := NewUserUsecase(userClient)
 
 	userClient.
 		EXPECT().
-		GetByID(context.Background(), &user.ID{ID: userModel.ID}).
+		GetByID(context.Background(), &grpc.ID{ID: userModel.ID}).
 		Return(userInst, nil)
 
 	dbUser, err := userUseCase.GetByID(userModel.ID)
@@ -102,12 +102,12 @@ func TestUserUseCase_GetByEmail_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	userClient := mocks.NewMockUserBlockClient(ctrl)
+	userClient := mocks2.NewMockUserBlockClient(ctrl)
 	userUseCase := NewUserUsecase(userClient)
 
 	userClient.
 		EXPECT().
-		GetByEmail(context.Background(), &user.Email{Email: userModel.Email}).
+		GetByEmail(context.Background(), &grpc.Email{Email: userModel.Email}).
 		Return(userInst, nil)
 
 	dbUser, err := userUseCase.GetByEmail(userModel.Email)

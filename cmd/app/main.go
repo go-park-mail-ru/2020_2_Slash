@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
+	grpc2 "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
 	"google.golang.org/grpc"
 	"log"
 
@@ -143,7 +143,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer userblockGrpcConn.Close()
-	userBlockClient := user.NewUserBlockClient(userblockGrpcConn)
+	userBlockClient := grpc2.NewUserBlockClient(userblockGrpcConn)
 	userUcase := userUsecase.NewUserUsecase(userBlockClient)
 
 	// Monitoring
