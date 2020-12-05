@@ -1,0 +1,14 @@
+# users.yml
+- id: 9
+  nickname: oleg
+  email: oleg@mail.ru
+  password: 123456
+  avatar: /avatars/userid_9_ae0d514d-dd82-4943-b31f-9a6a03007d2f.png
+  role: admin
+
+- id: 10
+  nickname: sasha
+  email: sasha@mail.ru
+  password: 123456
+  avatar: /avatars/userid_10_ae0d514d-dd82-4943-b31f-9a6a03007d2f.png
+  role: user

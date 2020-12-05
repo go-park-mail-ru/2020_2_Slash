@@ -24,7 +24,7 @@ func main() {
 	logger.InitLogger(config.GetLoggerDir(), config.GetLogLevel())
 
 	// Database
-	dbConnection, err := sql.Open("postgres", config.GetDbConnString())
+	dbConnection, err := sql.Open("postgres", config.GetProdDbConnString())
 	if err != nil {
 		log.Fatal(err)
 	}

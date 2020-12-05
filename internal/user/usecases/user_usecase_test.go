@@ -3,7 +3,7 @@ package usecases
 import (
 	"context"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
-	mocks2 "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc/mocks"
+	grpcMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc/mocks"
 	"testing"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
@@ -24,7 +24,7 @@ func TestUserUseCase_Create_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	userClient := mocks2.NewMockUserBlockClient(ctrl)
+	userClient := grpcMocks.NewMockUserBlockClient(ctrl)
 	userUseCase := NewUserUsecase(userClient)
 
 	userClient.
@@ -41,7 +41,7 @@ func TestUserUseCase_Update_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	userClient := mocks2.NewMockUserBlockClient(ctrl)
+	userClient := grpcMocks.NewMockUserBlockClient(ctrl)
 	userUseCase := NewUserUsecase(userClient)
 
 	userClient.
@@ -61,7 +61,7 @@ func TestUserUseCase_UpdateAvatar_OK(t *testing.T) {
 
 	newAvatar := "/avatar"
 
-	userClient := mocks2.NewMockUserBlockClient(ctrl)
+	userClient := grpcMocks.NewMockUserBlockClient(ctrl)
 	userUseCase := NewUserUsecase(userClient)
 
 	userAvatar := &grpc.IdAvatar{
@@ -84,7 +84,7 @@ func TestUserUseCase_GetByID_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	userClient := mocks2.NewMockUserBlockClient(ctrl)
+	userClient := grpcMocks.NewMockUserBlockClient(ctrl)
 	userUseCase := NewUserUsecase(userClient)
 
 	userClient.
@@ -102,7 +102,7 @@ func TestUserUseCase_GetByEmail_OK(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	userClient := mocks2.NewMockUserBlockClient(ctrl)
+	userClient := grpcMocks.NewMockUserBlockClient(ctrl)
 	userUseCase := NewUserUsecase(userClient)
 
 	userClient.

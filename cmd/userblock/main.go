@@ -2,10 +2,9 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/go-park-mail-ru/2020_2_Slash/config"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
-	mygrpc "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
+	userGRPC "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
 	userRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/user/repository"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	_ "github.com/lib/pq"
@@ -34,7 +33,7 @@ func main() {
 	helpers.InitStorage(videosPath)
 
 	// Database
-	dbConnection, err := sql.Open("postgres", config.GetDbConnString())
+	dbConnection, err := sql.Open("postgres", config.GetProdDbConnString())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,8 +52,8 @@ func main() {
 	userRepo := userRepo.NewUserPgRepository(dbConnection)
 
 	server := grpc.NewServer()
-	mygrpc.RegisterUserBlockServer(server, mygrpc.NewUserblockMicroservice(userRepo))
+	userGRPC.RegisterUserBlockServer(server, userGRPC.NewUserblockMicroservice(userRepo))
 
-	fmt.Println("Starting server at :8081")
+	logger.Println("Starting server at :8081")
 	server.Serve(lis)
 }

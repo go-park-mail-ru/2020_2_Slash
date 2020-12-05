@@ -18,7 +18,7 @@ type UserblockMicroservice struct {
 	userRepo user.UserRepository
 }
 
-func NewUserblockMicroservice(userRepo user.UserRepository) *UserblockMicroservice {
+func NewUserblockMicroservice(userRepo user.UserRepository) UserBlockServer {
 	return &UserblockMicroservice{userRepo: userRepo}
 }
 

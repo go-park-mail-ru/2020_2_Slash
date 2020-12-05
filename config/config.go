@@ -14,15 +14,18 @@ var logLevelsCode = map[string]int{
 	"FATAL": 50,
 }
 
+type Database struct {
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+}
+
 type Config struct {
-	Database struct {
-		User     string `json:"user"`
-		Password string `json:"password"`
-		Name     string `json:"name"`
-		Host     string `json:"host"`
-		Port     int    `json:"port"`
-	} `json:"database"`
-	Server struct {
+	Database     Database `json:"database"`
+	TestDatabase Database `json:"test_database"`
+	Server       struct {
 		Host string `json:"host"`
 		Port int    `json:"port"`
 	} `json:"server"`
@@ -33,9 +36,17 @@ type Config struct {
 	LogLevel   string `json:"log_level"`
 }
 
-func (c *Config) GetDbConnString() string {
+func getDbConnString(database Database) string {
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		c.Database.Host, c.Database.Port, c.Database.User, c.Database.Password, c.Database.Name)
+		database.Host, database.Port, database.User, database.Password, database.Name)
+}
+
+func (c *Config) GetProdDbConnString() string {
+	return getDbConnString(c.Database)
+}
+
+func (c *Config) GetTestDbConnString() string {
+	return getDbConnString(c.TestDatabase)
 }
 
 func (c *Config) GetServerConnString() string {
