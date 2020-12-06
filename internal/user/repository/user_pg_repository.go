@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
@@ -32,7 +33,9 @@ func (ur *UserPgRepository) Insert(user *models.User) error {
 
 	err = row.Scan(&user.ID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr)
+		}
 		return err
 	}
 
@@ -83,7 +86,9 @@ func (ur *UserPgRepository) Update(user *models.User) error {
 		WHERE id = $1;`,
 		user.ID, user.Nickname, user.Email, user.Password, user.Avatar, user.Role)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr)
+		}
 		return err
 	}
 

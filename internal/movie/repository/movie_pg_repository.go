@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	"strings"
 
 	queryBuilder "github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/query_builder"
@@ -34,7 +35,9 @@ func (mr *MoviePgRepository) Insert(movie *models.Movie) error {
 
 	err = row.Scan(&movie.ID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -56,7 +59,9 @@ func (mr *MoviePgRepository) Update(movie *models.Movie) error {
 		WHERE id = $1;`,
 		movie.ID, movie.Video, movie.ContentID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr)
+		}
 		return err
 	}
 
@@ -77,7 +82,9 @@ func (mr *MoviePgRepository) DeleteByID(movieID uint64) error {
 		WHERE id=$1`,
 		movieID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 

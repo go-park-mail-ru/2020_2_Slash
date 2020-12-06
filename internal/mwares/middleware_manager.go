@@ -35,6 +35,7 @@ func NewMiddlewareManager(sessUcase session.SessionUsecase,
 
 func (m *MiddlewareManager) PanicRecovering(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(cntx echo.Context) error {
+		// nolint: errcheck
 		defer func() error {
 			if err := recover(); err != nil {
 				status := strconv.Itoa(cntx.Response().Status)
@@ -150,7 +151,13 @@ func (mw *MiddlewareManager) GetAuth(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (mw *MiddlewareManager) CheckAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		userID := cntx.Get("userID").(uint64)
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(CodeGetFromContextError)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		isAdmin, customErr := mw.userUcase.IsAdmin(userID)
 		if customErr != nil {
 			logger.Info(customErr.Message)

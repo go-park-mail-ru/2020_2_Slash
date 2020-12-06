@@ -5,7 +5,7 @@ func RemoveDuplicates(elements []uint64) []uint64 {
 	result := []uint64{}
 
 	for _, elem := range elements {
-		if encountered[elem] == false {
+		if !encountered[elem] {
 			encountered[elem] = true
 			result = append(result, elem)
 		}

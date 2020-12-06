@@ -60,14 +60,6 @@ var updTestSeason = &models.Season{
 	Episodes:       nil,
 }
 
-var existedSeason = &models.Season{
-	ID:             2,
-	Number:         4,
-	EpisodesNumber: 9,
-	TVShowID:       1,
-	Episodes:       nil,
-}
-
 var testEpisodes = []*models.Episode{
 	&models.Episode{
 		ID:          1,

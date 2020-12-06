@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
@@ -35,31 +36,41 @@ func (cr *ContentPgRepository) Insert(content *models.Content) error {
 
 	err = row.Scan(&content.ContentID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
 	// Insert countries
 	if err := InsertCountries(tx, content); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
 	// Insert genres
 	if err := InsertGenres(tx, content); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
 	// Insert actors
 	if err := InsertActors(tx, content); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
 	// Insert directors
 	if err := InsertDirectors(tx, content); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -84,31 +95,41 @@ func (cr *ContentPgRepository) Update(content *models.Content) error {
 		content.ShortDescription, content.Year, content.Images, content.Type)
 
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
 	// Update countries
 	if err := UpdateCountries(tx, content); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
 	// Update genres
 	if err := UpdateGenres(tx, content); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
 	// Update actors
 	if err := UpdateActors(tx, content); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
 	// Update directors
 	if err := UpdateDirectors(tx, content); err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -131,7 +152,9 @@ func (cr *ContentPgRepository) UpdateImages(content *models.Content) error {
 		content.ContentID, content.Images)
 
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -152,7 +175,9 @@ func (cr *ContentPgRepository) DeleteByID(contentID uint64) error {
 		WHERE id=$1`,
 		contentID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 

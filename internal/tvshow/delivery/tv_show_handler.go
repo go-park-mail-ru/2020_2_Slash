@@ -1,6 +1,8 @@
 package delivery
 
 import (
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"net/http"
 	"strconv"
 
@@ -132,8 +134,12 @@ func (th *TVShowHandler) CreateTVShowHandler() echo.HandlerFunc {
 
 func (th *TVShowHandler) DeleteTVShowHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		tvshowID, _ := strconv.ParseUint(cntx.Param("tid"), 10, 64)
-
+		tvshowID, parseErr := strconv.ParseUint(cntx.Param("tid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(consts.CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 		tvshow, err := th.tvshowUcase.GetByID(tvshowID)
 		if err != nil {
 			logger.Error(err.Message)
@@ -154,9 +160,16 @@ func (th *TVShowHandler) DeleteTVShowHandler() echo.HandlerFunc {
 
 func (th *TVShowHandler) GetTVShowHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		tvshowID, _ := strconv.ParseUint(cntx.Param("tid"), 10, 64)
+		tvshowID, parseErr := strconv.ParseUint(cntx.Param("tid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(consts.CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 
+		// nolint: errcheck
 		userID, _ := cntx.Get("userID").(uint64)
+
 		tvshow, err := th.tvshowUcase.GetFullByID(tvshowID, userID)
 		if err != nil {
 			logger.Error(err.Message)
@@ -179,7 +192,12 @@ func (th *TVShowHandler) GetTVShowSeasonsHandler() echo.HandlerFunc {
 	}
 
 	return func(cntx echo.Context) error {
-		tvshowID, _ := strconv.ParseUint(cntx.Param("tid"), 10, 64)
+		tvshowID, parseErr := strconv.ParseUint(cntx.Param("tid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(consts.CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 
 		tvshow, err := th.tvshowUcase.GetShortByID(tvshowID)
 		if err != nil {
@@ -229,7 +247,9 @@ func (th *TVShowHandler) GetTVShowsHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
+		// nolint: errcheck
 		userID, _ := cntx.Get("userID").(uint64)
+
 		tvshows, err := th.tvshowUcase.ListByParams(&req.ContentFilter,
 			&req.Pagination, userID)
 		if err != nil {
@@ -257,7 +277,9 @@ func (th *TVShowHandler) GetLatestTVShowsHandler() echo.HandlerFunc {
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
+		// nolint: errcheck
 		userID, _ := cntx.Get("userID").(uint64)
+
 		tvshows, err := th.tvshowUcase.ListLatest(&req.Pagination, userID)
 		if err != nil {
 			logger.Error(err.Message)
@@ -284,7 +306,9 @@ func (th *TVShowHandler) GetTopTVShowListHandler() echo.HandlerFunc {
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
+		// nolint: errcheck
 		userID, _ := cntx.Get("userID").(uint64)
+
 		tvshows, err := th.tvshowUcase.ListByRating(&req.Pagination, userID)
 		if err != nil {
 			logger.Error(err.Message)

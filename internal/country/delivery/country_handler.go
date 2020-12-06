@@ -1,7 +1,9 @@
 package delivery
 
 import (
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/country"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
@@ -74,7 +76,13 @@ func (ch *CountryHandler) UpdateCountryHandler() echo.HandlerFunc {
 			Name: req.Name,
 		}
 
-		countryID, _ := strconv.ParseUint(cntx.Param("cid"), 10, 64)
+		countryID, parseErr := strconv.ParseUint(cntx.Param("cid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(consts.CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		country, err := ch.countryUcase.UpdateByID(countryID, countryData)
 		if err != nil {
 			logger.Error(err.Message)
@@ -91,7 +99,12 @@ func (ch *CountryHandler) UpdateCountryHandler() echo.HandlerFunc {
 
 func (ch *CountryHandler) DeleteCountryHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		countryID, _ := strconv.ParseUint(cntx.Param("cid"), 10, 64)
+		countryID, parseErr := strconv.ParseUint(cntx.Param("cid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(consts.CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 
 		if err := ch.countryUcase.DeleteByID(countryID); err != nil {
 			logger.Error(err.Message)

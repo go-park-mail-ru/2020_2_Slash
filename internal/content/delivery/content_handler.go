@@ -58,7 +58,13 @@ func (ch *ContentHandler) UpdatePostersHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		contentID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		contentID, parseErr := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		content, err := ch.contentUcase.GetByID(contentID)
 		if err != nil {
 			logger.Error(err.Message)
@@ -82,7 +88,10 @@ func (ch *ContentHandler) UpdatePostersHandler() echo.HandlerFunc {
 			smallPosterPath := filepath.Join(postersDirPath, smallPosterName)
 			if err := helpers.StoreFile(smallImage, smallPosterPath); err != nil {
 				if content.Images == "" {
-					os.RemoveAll(postersDirPath)
+					removeErr := os.RemoveAll(postersDirPath)
+					if removeErr != nil {
+						logger.Error(removeErr)
+					}
 				}
 				logger.Error(err.Message)
 				return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -94,7 +103,10 @@ func (ch *ContentHandler) UpdatePostersHandler() echo.HandlerFunc {
 			largePosterPath := filepath.Join(postersDirPath, largePosterName)
 			if err := helpers.StoreFile(largeImage, largePosterPath); err != nil {
 				if content.Images == "" {
-					os.RemoveAll(postersDirPath)
+					removeErr := os.RemoveAll(postersDirPath)
+					if removeErr != nil {
+						logger.Error(removeErr)
+					}
 				}
 				logger.Error(err.Message)
 				return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -104,7 +116,10 @@ func (ch *ContentHandler) UpdatePostersHandler() echo.HandlerFunc {
 		// Update content
 		if err := ch.contentUcase.UpdatePosters(content, postersDir); err != nil {
 			if content.Images == "" {
-				os.RemoveAll(postersDirPath)
+				removeErr := os.RemoveAll(postersDirPath)
+				if removeErr != nil {
+					logger.Error(removeErr)
+				}
 			}
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})

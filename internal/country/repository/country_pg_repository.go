@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 	"database/sql"
-
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/country"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 )
 
 type CountryPgRepository struct {
@@ -32,7 +32,9 @@ func (cr *CountryPgRepository) Insert(country *models.Country) error {
 
 	err = row.Scan(&country.ID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -54,7 +56,9 @@ func (cr *CountryPgRepository) Update(country *models.Country) error {
 		WHERE id = $1;`,
 		country.ID, country.Name)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -75,7 +79,9 @@ func (cr *CountryPgRepository) DeleteByID(countryID uint64) error {
 		WHERE id=$1`,
 		countryID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 

@@ -51,7 +51,13 @@ func (rh *RatingHandler) CreateHandler() echo.HandlerFunc {
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
-		userID := cntx.Get("userID").(uint64)
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(consts.CodeGetFromContextError)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		rating := &models.Rating{
 			UserID:    userID,
 			ContentID: contentID,
@@ -74,8 +80,13 @@ func (rh *RatingHandler) CreateHandler() echo.HandlerFunc {
 
 func (rh *RatingHandler) DeleteHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(consts.CodeGetFromContextError)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 
-		userID := cntx.Get("userID").(uint64)
 		contentID, err := strconv.ParseUint(cntx.Param("cid"), 10, 64)
 		if err != nil {
 			customErr := errors.New(consts.CodeBadRequest, err)
@@ -110,7 +121,13 @@ func (rh *RatingHandler) ChangeHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		userID := cntx.Get("userID").(uint64)
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(consts.CodeGetFromContextError)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		contentID, err := strconv.ParseUint(cntx.Param("cid"), 10, 64)
 		if err != nil {
 			customErr := errors.New(consts.CodeBadRequest, err)
@@ -139,7 +156,13 @@ func (rh *RatingHandler) ChangeHandler() echo.HandlerFunc {
 
 func (rh *RatingHandler) GetHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		userID := cntx.Get("userID").(uint64)
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(consts.CodeGetFromContextError)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		contentID, err := strconv.ParseUint(cntx.Param("cid"), 10, 64)
 		if err != nil {
 			customErr := errors.New(consts.CodeBadRequest, err)

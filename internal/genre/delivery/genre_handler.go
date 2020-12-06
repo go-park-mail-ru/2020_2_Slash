@@ -1,7 +1,9 @@
 package delivery
 
 import (
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/genre"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
@@ -74,7 +76,12 @@ func (gh *GenreHandler) UpdateGenreHandler() echo.HandlerFunc {
 			Name: req.Name,
 		}
 
-		genreID, _ := strconv.ParseUint(cntx.Param("gid"), 10, 64)
+		genreID, parseErr := strconv.ParseUint(cntx.Param("gid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(consts.CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 		genre, err := gh.genreUcase.UpdateByID(genreID, genreData)
 		if err != nil {
 			logger.Error(err.Message)
@@ -91,7 +98,12 @@ func (gh *GenreHandler) UpdateGenreHandler() echo.HandlerFunc {
 
 func (gh *GenreHandler) DeleteGenreHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		genreID, _ := strconv.ParseUint(cntx.Param("gid"), 10, 64)
+		genreID, parseErr := strconv.ParseUint(cntx.Param("gid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(consts.CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 
 		if err := gh.genreUcase.DeleteByID(genreID); err != nil {
 			logger.Error(err.Message)

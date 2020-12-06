@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
@@ -31,7 +32,9 @@ func (rep *ActorPgRepository) Insert(actor *models.Actor) error {
 		RETURNING id`,
 		actor.Name).Scan(&actor.ID)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr)
+		}
 		return err
 	}
 
@@ -53,7 +56,9 @@ func (rep *ActorPgRepository) Update(actor *models.Actor) error {
 		WHERE id = $1`,
 		actor.ID, actor.Name)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr)
+		}
 		return err
 	}
 
@@ -73,7 +78,9 @@ func (rep *ActorPgRepository) DeleteById(id uint64) error {
 		`DELETE FROM actors
 		WHERE id = $1`, id)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr)
+		}
 		return err
 	}
 

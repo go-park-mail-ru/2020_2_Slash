@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
@@ -92,7 +93,13 @@ func (uh *UserHandler) RegisterUserHandler() echo.HandlerFunc {
 
 func (uh *UserHandler) GetUserProfileHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		userID := cntx.Get("userID").(uint64)
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(CodeGetFromContextError)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		user, err := uh.userUcase.GetByID(userID)
 		if err != nil {
 			logger.Error(err.Message)
@@ -120,7 +127,13 @@ func (uh *UserHandler) UpdateUserProfileHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		userID := cntx.Get("userID").(uint64)
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(CodeGetFromContextError)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		userData := &models.User{
 			ID:       userID,
 			Nickname: req.Nickname,
@@ -167,14 +180,20 @@ func (uh *UserHandler) UpdateAvatarHandler() echo.HandlerFunc {
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
-		userID := cntx.Get("userID").(uint64)
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(CodeGetFromContextError)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		newAvatarFileName := helpers.GetUniqFileName(userID, fileExtension)
 		rltNewAvatarFilePath := avatarsDir + newAvatarFileName
 		absNewAvatarFilePath := "." + rltNewAvatarFilePath
 		fileMode := int(0777)
 
 		// Save image to storage
-		newAvatarFile, err := os.OpenFile(absNewAvatarFilePath, os.O_WRONLY|os.O_CREATE, os.FileMode(fileMode))
+		newAvatarFile, err := os.OpenFile(filepath.Clean(absNewAvatarFilePath), os.O_WRONLY|os.O_CREATE, os.FileMode(fileMode))
 		if err != nil {
 			logger.Error(err)
 			customErr := errors.New(CodeInternalError, err)
@@ -183,7 +202,10 @@ func (uh *UserHandler) UpdateAvatarHandler() echo.HandlerFunc {
 		defer newAvatarFile.Close()
 
 		if _, err := io.Copy(newAvatarFile, imageFile); err != nil {
-			_ = os.Remove(absNewAvatarFilePath)
+			removeErr := os.Remove(absNewAvatarFilePath)
+			if removeErr != nil {
+				logger.Error(err)
+			}
 			logger.Error(err)
 			customErr := errors.New(CodeInternalError, err)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})

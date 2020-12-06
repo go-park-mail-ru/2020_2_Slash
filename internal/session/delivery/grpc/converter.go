@@ -6,6 +6,7 @@ import (
 )
 
 func GrpcSessionToModel(grpcSess *Session) *models.Session {
+	// nolint: errcheck
 	ExpiresAt, _ := ptypes.Timestamp(grpcSess.ExpiresAt)
 
 	return &models.Session{
@@ -17,6 +18,7 @@ func GrpcSessionToModel(grpcSess *Session) *models.Session {
 }
 
 func ModelSessionToGrpc(modelSess *models.Session) *Session {
+	// nolint: errcheck
 	ExpiresAt, _ := ptypes.TimestampProto(modelSess.ExpiresAt)
 
 	return &Session{

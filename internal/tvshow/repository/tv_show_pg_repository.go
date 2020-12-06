@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	"strings"
 
 	queryBuilder "github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/query_builder"
@@ -34,7 +35,9 @@ func (tr *TVShowPgRepository) Insert(tvshow *models.TVShow) error {
 
 	err = row.Scan(&tvshow.ID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 

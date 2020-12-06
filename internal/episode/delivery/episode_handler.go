@@ -233,7 +233,10 @@ func (eh *EpisodeHandler) UpdatePosterHandler() echo.HandlerFunc {
 		absPosterPath := filepath.Join(postersDirAbsPath, posterName)
 		if err := helpers.StoreFile(posterImage, absPosterPath); err != nil {
 			if episode.Poster == "" {
-				os.RemoveAll(postersDirAbsPath)
+				removeErr := os.RemoveAll(postersDirAbsPath)
+				if removeErr != nil {
+					logger.Error(removeErr)
+				}
 			}
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -243,7 +246,10 @@ func (eh *EpisodeHandler) UpdatePosterHandler() echo.HandlerFunc {
 		rltPosterPath := filepath.Join(seasonDir, posterName)
 		if err := eh.episodeUsecase.UpdatePoster(episode, rltPosterPath); err != nil {
 			if episode.Poster == "" {
-				os.RemoveAll(postersDirAbsPath)
+				removeErr := os.RemoveAll(postersDirAbsPath)
+				if removeErr != nil {
+					logger.Error(removeErr)
+				}
 			}
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -268,7 +274,13 @@ func (eh *EpisodeHandler) UpdateVideoHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		episodeID, _ := strconv.ParseUint(cntx.Param("eid"), 10, 64)
+		episodeID, parseErr := strconv.ParseUint(cntx.Param("eid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(consts.CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		episode, content, seasonNumber, customErr := eh.GetInfoToStoreMedia(episodeID)
 		if customErr != nil {
 			logger.Error(customErr.Message)
@@ -293,7 +305,10 @@ func (eh *EpisodeHandler) UpdateVideoHandler() echo.HandlerFunc {
 		absVideoPath := filepath.Join(videosDirPath, videoName)
 		if err := helpers.StoreFile(video, absVideoPath); err != nil {
 			if episode.Video == "" {
-				os.RemoveAll(videosDirPath)
+				removeErr := os.RemoveAll(videosDirPath)
+				if removeErr != nil {
+					logger.Error(removeErr)
+				}
 			}
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -303,7 +318,10 @@ func (eh *EpisodeHandler) UpdateVideoHandler() echo.HandlerFunc {
 		rltVideoPath := filepath.Join(seasonDir, videoName)
 		if err := eh.episodeUsecase.UpdateVideo(episode, rltVideoPath); err != nil {
 			if episode.Video == "" {
-				os.RemoveAll(videosDirPath)
+				removeErr := os.RemoveAll(videosDirPath)
+				if removeErr != nil {
+					logger.Error(removeErr)
+				}
 			}
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
