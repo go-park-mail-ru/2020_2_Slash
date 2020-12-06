@@ -1,0 +1,66 @@
+run:
+  tests: true
+  skip-dirs:
+    - monitoring
+    - scripts
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  funlen:
+    lines: 60
+    statements: 40
+  gofmt:
+    simplify: true
+  golint:
+    min-confidence: 0.8
+  gomnd:
+    settings:
+      mnd:
+        checks: argument,case,condition,operation,return,assign
+  rowserrcheck:
+    # default
+  sqlclosecheck:
+    # default
+  godox:
+    keywords:
+      - TODO
+  dupl:
+    threshold: 100
+
+linters:
+  disable-all: false
+  presets:
+    - bugs
+    - unused
+  fast: true
+
+issues:
+  # we don't use wrapped errors
+  exclude:
+    - comparing with == will fail on wrapped errors.
+    - comparing with != will fail on wrapped errors.
+
+  exclude-rules:
+    # Exclude some linters from running on tests files.
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+    - text: Close
+      linters:
+        - errcheck
+        - sqlclosecheck
+        - gosec
+    - text: Serve
+      linters:
+        - errcheck
+
+  exclude-use-default: false
+  exclude-case-sensitive: false
+
+  include:
+    - EXC0002 # disable excluding of issues about comments from golint
