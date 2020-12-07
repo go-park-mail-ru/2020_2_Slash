@@ -8,7 +8,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
 	"github.com/jinzhu/copier"
 	"golang.org/x/crypto/bcrypt"
-	"google.golang.org/grpc/status"
 )
 
 type UserUsecase struct {
@@ -25,7 +24,7 @@ func (uu *UserUsecase) Create(modelUser *models.User) *errors.Error {
 	grpcUser, err := uu.userBlockClient.Create(context.Background(),
 		grpc.ModelUserToGrpc(modelUser))
 	if err != nil {
-		customErr := errors.Get(ErrorCode(status.Code(err)))
+		customErr := errors.GetCustomErrFromStatus(err)
 		return customErr
 	}
 
@@ -41,7 +40,7 @@ func (uu *UserUsecase) GetByEmail(email string) (*models.User, *errors.Error) {
 	grpcUser, err := uu.userBlockClient.GetByEmail(context.Background(),
 		&grpc.Email{Email: email})
 	if err != nil {
-		customErr := errors.Get(ErrorCode(status.Code(err)))
+		customErr := errors.GetCustomErrFromStatus(err)
 		return nil, customErr
 	}
 
@@ -52,7 +51,7 @@ func (uu *UserUsecase) GetByID(userID uint64) (*models.User, *errors.Error) {
 	grpcUser, err := uu.userBlockClient.GetByID(context.Background(),
 		&grpc.ID{ID: userID})
 	if err != nil {
-		customErr := errors.Get(ErrorCode(status.Code(err)))
+		customErr := errors.GetCustomErrFromStatus(err)
 		return nil, customErr
 	}
 
@@ -63,7 +62,7 @@ func (uu *UserUsecase) UpdateProfile(newUserData *models.User) (*models.User, *e
 	grpcUser, err := uu.userBlockClient.UpdateProfile(context.Background(),
 		grpc.ModelUserToGrpc(newUserData))
 	if err != nil {
-		customErr := errors.Get(ErrorCode(status.Code(err)))
+		customErr := errors.GetCustomErrFromStatus(err)
 		return nil, customErr
 	}
 
@@ -77,7 +76,7 @@ func (uu *UserUsecase) UpdateAvatar(userID uint64, newAvatar string) (*models.Us
 			Avatar: &grpc.Avatar{Avatar: newAvatar},
 		})
 	if err != nil {
-		customErr := errors.New(ErrorCode(status.Code(err)), err)
+		customErr := errors.GetCustomErrFromStatus(err)
 		return nil, customErr
 	}
 
