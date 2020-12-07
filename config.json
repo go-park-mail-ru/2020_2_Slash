@@ -17,6 +17,14 @@
     "host": "localhost",
     "port": 8000
   },
+  "userblock_microservice": {
+    "host": "localhost",
+    "port": 8081
+  },
+  "auth_microservice": {
+    "host": "localhost",
+    "port": 8082
+  },
   "avatars": "avatars",
   "posters": "images",
   "videos": "videos",

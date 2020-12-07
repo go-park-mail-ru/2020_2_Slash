@@ -22,18 +22,22 @@ type Database struct {
 	Port     int    `json:"port"`
 }
 
+type Server struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
+}
+
 type Config struct {
-	Database     Database `json:"database"`
-	TestDatabase Database `json:"test_database"`
-	Server       struct {
-		Host string `json:"host"`
-		Port int    `json:"port"`
-	} `json:"server"`
-	AvatarsDir string `json:"avatars"`
-	PostersDir string `json:"posters"`
-	VideosDir  string `json:"videos"`
-	LoggerFile string `json:"logger"`
-	LogLevel   string `json:"log_level"`
+	Database              Database `json:"database"`
+	TestDatabase          Database `json:"test_database"`
+	Server                Server   `json:"server"`
+	UserblockMicroservice Server   `json:"userblock_microservice"`
+	AuthMicroservice      Server   `json:"auth_microservice"`
+	AvatarsDir            string   `json:"avatars"`
+	PostersDir            string   `json:"posters"`
+	VideosDir             string   `json:"videos"`
+	LoggerFile            string   `json:"logger"`
+	LogLevel              string   `json:"log_level"`
 }
 
 func getDbConnString(database Database) string {
@@ -51,6 +55,16 @@ func (c *Config) GetTestDbConnString() string {
 
 func (c *Config) GetServerConnString() string {
 	return fmt.Sprintf("%s:%d", c.Server.Host, c.Server.Port)
+}
+
+func (c *Config) GetUserblockMSConnString() string {
+	return fmt.Sprintf("%s:%d", c.UserblockMicroservice.Host,
+		c.UserblockMicroservice.Port)
+}
+
+func (c *Config) GetAuthMSConnString() string {
+	return fmt.Sprintf("%s:%d", c.AuthMicroservice.Host,
+		c.AuthMicroservice.Port)
 }
 
 func (c *Config) GetAvatarsPath() string {

@@ -43,9 +43,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	lis, err := net.Listen("tcp", ":8081")
+	userblockAddress := config.GetUserblockMSConnString()
+	lis, err := net.Listen("tcp", userblockAddress)
 	if err != nil {
-		log.Fatalln("Can't listen port :8081", err)
+		log.Fatalln("Can't listen userblock microservice port", err)
 	}
 	defer lis.Close()
 
@@ -54,6 +55,6 @@ func main() {
 	server := grpc.NewServer()
 	userGRPC.RegisterUserBlockServer(server, userGRPC.NewUserblockMicroservice(userRepo))
 
-	logger.Println("Starting server at :8081")
+	logger.Println("Starting server at", userblockAddress)
 	server.Serve(lis)
 }
