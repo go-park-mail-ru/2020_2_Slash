@@ -2,6 +2,7 @@ package mwares
 
 import (
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -42,8 +43,11 @@ func (m *MiddlewareManager) PanicRecovering(next echo.HandlerFunc) echo.HandlerF
 				path := cntx.Request().URL.Path
 				method := cntx.Request().Method
 
-				m.mntng.Hits.WithLabelValues(status, path, method).Inc()
-				m.mntng.Duration.WithLabelValues(status, path, method).Observe(0)
+				re := regexp.MustCompile(`/\d+`)
+				replacedPath := re.ReplaceAllString(path, "/*")
+
+				m.mntng.Hits.WithLabelValues(status, replacedPath, method).Inc()
+				m.mntng.Duration.WithLabelValues(status, replacedPath, method).Observe(0)
 
 				logger.Warn(err)
 				customErr := errors.Get(CodeInternalError)
@@ -68,8 +72,11 @@ func (m *MiddlewareManager) AccessLog(next echo.HandlerFunc) echo.HandlerFunc {
 		path := cntx.Request().URL.Path
 		method := cntx.Request().Method
 
-		m.mntng.Hits.WithLabelValues(status, path, method).Inc()
-		m.mntng.Duration.WithLabelValues(status, path, method).Observe(workTime.Seconds())
+		re := regexp.MustCompile(`/\d+`)
+		replacedPath := re.ReplaceAllString(path, "/*")
+
+		m.mntng.Hits.WithLabelValues(status, replacedPath, method).Inc()
+		m.mntng.Duration.WithLabelValues(status, replacedPath, method).Observe(workTime.Seconds())
 
 		logger.Info("Status: ", cntx.Response().Status, " Work time: ", workTime)
 		logger.Println()
