@@ -116,7 +116,8 @@ func (rep *SeasonPgRepository) SelectEpisodes(id uint64) ([]*models.Episode, err
 	rows, err := rep.db.Query(`
 		SELECT id, number, name, video, description, poster, season_id
 		FROM episodes
-		WHERE season_id=$1`, id)
+		WHERE season_id=$1
+		ORDER BY number`, id)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +148,8 @@ func (rep *SeasonPgRepository) SelectByTVShow(tvshowID uint64) ([]*models.Season
 	rows, err := rep.db.Query(`
 		SELECT id, number, episodes, tv_show_id
 		FROM seasons
-		WHERE tv_show_id=$1`, tvshowID)
+		WHERE tv_show_id=$1
+		ORDER BY number`, tvshowID)
 	if err != nil {
 		return nil, err
 	}
