@@ -1,6 +1,8 @@
 package errors
 
 import (
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"net/http"
 
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
@@ -34,6 +36,21 @@ func Get(code ErrorCode) *Error {
 		return WrongErrorCode
 	}
 	return err
+}
+
+func GetCustomErrFromStatus(err error) *Error {
+	if status.Code(err) == codes.Code(CodeInternalError) {
+		customErr := New(CodeInternalError, err)
+		return customErr
+	} else if err != nil {
+		customErr, has := Errors[ErrorCode(status.Code(err))]
+		if !has {
+			// for grpc connection error
+			return New(CodeInternalError, err)
+		}
+		return customErr
+	}
+	return nil
 }
 
 var Errors = map[ErrorCode]*Error{

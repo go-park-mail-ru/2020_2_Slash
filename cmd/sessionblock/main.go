@@ -24,7 +24,7 @@ func main() {
 	logger.InitLogger(config.GetLoggerDir(), config.GetLogLevel())
 
 	// Database
-	dbConnection, err := sql.Open("postgres", config.GetDbConnString())
+	dbConnection, err := sql.Open("postgres", config.GetProdDbConnString())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,9 +34,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	lis, err := net.Listen("tcp", ":8082")
+	authMsAdress := config.GetAuthMSConnString()
+	lis, err := net.Listen("tcp", authMsAdress)
 	if err != nil {
-		log.Fatalln("Can't listen port :8082", err)
+		log.Fatalln("Can't listen session microservice port", err)
 	}
 	defer lis.Close()
 
@@ -45,6 +46,6 @@ func main() {
 	server := grpc.NewServer()
 	grpcSess.RegisterSessionBlockServer(server, grpcSess.NewSessionBlockMicroservice(sessRepo))
 
-	logger.Println("Starting server at :8082")
+	logger.Println("Starting server at", authMsAdress)
 	server.Serve(lis)
 }

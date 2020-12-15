@@ -6,9 +6,24 @@
     "host": "localhost",
     "port": 5432
   },
+  "test_database": {
+    "user": "postgres",
+    "password": "postgres",
+    "name": "slash_test",
+    "host": "localhost",
+    "port": 5432
+  },
   "server": {
     "host": "localhost",
     "port": 8000
+  },
+  "userblock_microservice": {
+    "host": "localhost",
+    "port": 8081
+  },
+  "auth_microservice": {
+    "host": "localhost",
+    "port": 8082
   },
   "avatars": "avatars",
   "posters": "images",

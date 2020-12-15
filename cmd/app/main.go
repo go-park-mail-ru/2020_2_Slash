@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
+	userGRPC "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
 	"google.golang.org/grpc"
 	"log"
 
@@ -91,7 +91,7 @@ func main() {
 	helpers.InitStorage(videosPath)
 
 	// Database
-	dbConnection, err := sql.Open("postgres", config.GetDbConnString())
+	dbConnection, err := sql.Open("postgres", config.GetProdDbConnString())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -143,7 +143,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer userblockGrpcConn.Close()
-	userBlockClient := user.NewUserBlockClient(userblockGrpcConn)
+	userBlockClient := userGRPC.NewUserBlockClient(userblockGrpcConn)
 	userUcase := userUsecase.NewUserUsecase(userBlockClient)
 
 	// Monitoring

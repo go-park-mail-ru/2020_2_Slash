@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.25.0
 // 	protoc        v3.6.1
-// source: internal/user/user.proto
+// source: user.proto
 
-package user
+package grpc
 
 import (
 	context "context"
@@ -45,7 +45,7 @@ type User struct {
 func (x *User) Reset() {
 	*x = User{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_internal_user_user_proto_msgTypes[0]
+		mi := &file_user_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -58,7 +58,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_user_user_proto_msgTypes[0]
+	mi := &file_user_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -71,7 +71,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_internal_user_user_proto_rawDescGZIP(), []int{0}
+	return file_user_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *User) GetID() uint64 {
@@ -127,7 +127,7 @@ type Avatar struct {
 func (x *Avatar) Reset() {
 	*x = Avatar{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_internal_user_user_proto_msgTypes[1]
+		mi := &file_user_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -140,7 +140,7 @@ func (x *Avatar) String() string {
 func (*Avatar) ProtoMessage() {}
 
 func (x *Avatar) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_user_user_proto_msgTypes[1]
+	mi := &file_user_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -153,7 +153,7 @@ func (x *Avatar) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Avatar.ProtoReflect.Descriptor instead.
 func (*Avatar) Descriptor() ([]byte, []int) {
-	return file_internal_user_user_proto_rawDescGZIP(), []int{1}
+	return file_user_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Avatar) GetAvatar() string {
@@ -175,7 +175,7 @@ type IdAvatar struct {
 func (x *IdAvatar) Reset() {
 	*x = IdAvatar{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_internal_user_user_proto_msgTypes[2]
+		mi := &file_user_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -188,7 +188,7 @@ func (x *IdAvatar) String() string {
 func (*IdAvatar) ProtoMessage() {}
 
 func (x *IdAvatar) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_user_user_proto_msgTypes[2]
+	mi := &file_user_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -201,7 +201,7 @@ func (x *IdAvatar) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IdAvatar.ProtoReflect.Descriptor instead.
 func (*IdAvatar) Descriptor() ([]byte, []int) {
-	return file_internal_user_user_proto_rawDescGZIP(), []int{2}
+	return file_user_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *IdAvatar) GetId() *ID {
@@ -229,7 +229,7 @@ type Email struct {
 func (x *Email) Reset() {
 	*x = Email{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_internal_user_user_proto_msgTypes[3]
+		mi := &file_user_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -242,7 +242,7 @@ func (x *Email) String() string {
 func (*Email) ProtoMessage() {}
 
 func (x *Email) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_user_user_proto_msgTypes[3]
+	mi := &file_user_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -255,7 +255,7 @@ func (x *Email) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Email.ProtoReflect.Descriptor instead.
 func (*Email) Descriptor() ([]byte, []int) {
-	return file_internal_user_user_proto_rawDescGZIP(), []int{3}
+	return file_user_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Email) GetEmail() string {
@@ -276,7 +276,7 @@ type ID struct {
 func (x *ID) Reset() {
 	*x = ID{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_internal_user_user_proto_msgTypes[4]
+		mi := &file_user_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -289,7 +289,7 @@ func (x *ID) String() string {
 func (*ID) ProtoMessage() {}
 
 func (x *ID) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_user_user_proto_msgTypes[4]
+	mi := &file_user_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -302,7 +302,7 @@ func (x *ID) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ID.ProtoReflect.Descriptor instead.
 func (*ID) Descriptor() ([]byte, []int) {
-	return file_internal_user_user_proto_rawDescGZIP(), []int{4}
+	return file_user_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ID) GetID() uint64 {
@@ -323,7 +323,7 @@ type Password struct {
 func (x *Password) Reset() {
 	*x = Password{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_internal_user_user_proto_msgTypes[5]
+		mi := &file_user_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -336,7 +336,7 @@ func (x *Password) String() string {
 func (*Password) ProtoMessage() {}
 
 func (x *Password) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_user_user_proto_msgTypes[5]
+	mi := &file_user_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -349,7 +349,7 @@ func (x *Password) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Password.ProtoReflect.Descriptor instead.
 func (*Password) Descriptor() ([]byte, []int) {
-	return file_internal_user_user_proto_rawDescGZIP(), []int{5}
+	return file_user_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Password) GetPassword() string {
@@ -371,7 +371,7 @@ type UserPassword struct {
 func (x *UserPassword) Reset() {
 	*x = UserPassword{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_internal_user_user_proto_msgTypes[6]
+		mi := &file_user_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -384,7 +384,7 @@ func (x *UserPassword) String() string {
 func (*UserPassword) ProtoMessage() {}
 
 func (x *UserPassword) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_user_user_proto_msgTypes[6]
+	mi := &file_user_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -397,7 +397,7 @@ func (x *UserPassword) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserPassword.ProtoReflect.Descriptor instead.
 func (*UserPassword) Descriptor() ([]byte, []int) {
-	return file_internal_user_user_proto_rawDescGZIP(), []int{6}
+	return file_user_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UserPassword) GetUser() *User {
@@ -423,7 +423,7 @@ type Nothing struct {
 func (x *Nothing) Reset() {
 	*x = Nothing{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_internal_user_user_proto_msgTypes[7]
+		mi := &file_user_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -436,7 +436,7 @@ func (x *Nothing) String() string {
 func (*Nothing) ProtoMessage() {}
 
 func (x *Nothing) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_user_user_proto_msgTypes[7]
+	mi := &file_user_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -449,97 +449,96 @@ func (x *Nothing) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Nothing.ProtoReflect.Descriptor instead.
 func (*Nothing) Descriptor() ([]byte, []int) {
-	return file_internal_user_user_proto_rawDescGZIP(), []int{7}
+	return file_user_proto_rawDescGZIP(), []int{7}
 }
 
-var File_internal_user_user_proto protoreflect.FileDescriptor
+var File_user_proto protoreflect.FileDescriptor
 
-var file_internal_user_user_proto_rawDesc = []byte{
-	0x0a, 0x18, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f, 0x75, 0x73, 0x65, 0x72, 0x2f,
-	0x75, 0x73, 0x65, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x04, 0x75, 0x73, 0x65, 0x72,
-	0x22, 0x90, 0x01, 0x0a, 0x04, 0x55, 0x73, 0x65, 0x72, 0x12, 0x0e, 0x0a, 0x02, 0x49, 0x44, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x02, 0x49, 0x44, 0x12, 0x1a, 0x0a, 0x08, 0x4e, 0x69, 0x63,
-	0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x4e, 0x69, 0x63,
-	0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x18, 0x03,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x1a, 0x0a, 0x08, 0x50,
-	0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x50,
-	0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x16, 0x0a, 0x06, 0x41, 0x76, 0x61, 0x74, 0x61,
-	0x72, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72, 0x12,
-	0x12, 0x0a, 0x04, 0x52, 0x6f, 0x6c, 0x65, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x52,
-	0x6f, 0x6c, 0x65, 0x22, 0x20, 0x0a, 0x06, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72, 0x12, 0x16, 0x0a,
-	0x06, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x61,
-	0x76, 0x61, 0x74, 0x61, 0x72, 0x22, 0x4a, 0x0a, 0x08, 0x49, 0x64, 0x41, 0x76, 0x61, 0x74, 0x61,
-	0x72, 0x12, 0x18, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x08, 0x2e,
-	0x75, 0x73, 0x65, 0x72, 0x2e, 0x49, 0x44, 0x52, 0x02, 0x69, 0x64, 0x12, 0x24, 0x0a, 0x06, 0x61,
-	0x76, 0x61, 0x74, 0x61, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x75, 0x73,
-	0x65, 0x72, 0x2e, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72, 0x52, 0x06, 0x61, 0x76, 0x61, 0x74, 0x61,
-	0x72, 0x22, 0x1d, 0x0a, 0x05, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x6d,
-	0x61, 0x69, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c,
-	0x22, 0x14, 0x0a, 0x02, 0x49, 0x44, 0x12, 0x0e, 0x0a, 0x02, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x04, 0x52, 0x02, 0x49, 0x44, 0x22, 0x26, 0x0a, 0x08, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f,
-	0x72, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x5a,
-	0x0a, 0x0c, 0x55, 0x73, 0x65, 0x72, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x1e,
-	0x0a, 0x04, 0x75, 0x73, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0a, 0x2e, 0x75,
-	0x73, 0x65, 0x72, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x04, 0x75, 0x73, 0x65, 0x72, 0x12, 0x2a,
-	0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b,
-	0x32, 0x0e, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
-	0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x09, 0x0a, 0x07, 0x4e, 0x6f,
-	0x74, 0x68, 0x69, 0x6e, 0x67, 0x32, 0xd4, 0x01, 0x0a, 0x09, 0x55, 0x73, 0x65, 0x72, 0x42, 0x6c,
-	0x6f, 0x63, 0x6b, 0x12, 0x22, 0x0a, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x0a, 0x2e,
-	0x75, 0x73, 0x65, 0x72, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x1a, 0x0a, 0x2e, 0x75, 0x73, 0x65, 0x72,
-	0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x12, 0x27, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x42, 0x79,
-	0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x0b, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x45, 0x6d, 0x61,
-	0x69, 0x6c, 0x1a, 0x0a, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00,
-	0x12, 0x21, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x42, 0x79, 0x49, 0x44, 0x12, 0x08, 0x2e, 0x75, 0x73,
-	0x65, 0x72, 0x2e, 0x49, 0x44, 0x1a, 0x0a, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x55, 0x73, 0x65,
-	0x72, 0x22, 0x00, 0x12, 0x29, 0x0a, 0x0d, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x72, 0x6f,
-	0x66, 0x69, 0x6c, 0x65, 0x12, 0x0a, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x55, 0x73, 0x65, 0x72,
-	0x1a, 0x0a, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x12, 0x2c,
-	0x0a, 0x0c, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72, 0x12, 0x0e,
-	0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x49, 0x64, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72, 0x1a, 0x0a,
-	0x2e, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+var file_user_proto_rawDesc = []byte{
+	0x0a, 0x0a, 0x75, 0x73, 0x65, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x04, 0x67, 0x72,
+	0x70, 0x63, 0x22, 0x90, 0x01, 0x0a, 0x04, 0x55, 0x73, 0x65, 0x72, 0x12, 0x0e, 0x0a, 0x02, 0x49,
+	0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x02, 0x49, 0x44, 0x12, 0x1a, 0x0a, 0x08, 0x4e,
+	0x69, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x4e,
+	0x69, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x45, 0x6d, 0x61, 0x69, 0x6c,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x1a, 0x0a,
+	0x08, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x08, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x16, 0x0a, 0x06, 0x41, 0x76, 0x61,
+	0x74, 0x61, 0x72, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x41, 0x76, 0x61, 0x74, 0x61,
+	0x72, 0x12, 0x12, 0x0a, 0x04, 0x52, 0x6f, 0x6c, 0x65, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x04, 0x52, 0x6f, 0x6c, 0x65, 0x22, 0x20, 0x0a, 0x06, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72, 0x12,
+	0x16, 0x0a, 0x06, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x06, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x22, 0x4a, 0x0a, 0x08, 0x49, 0x64, 0x41, 0x76, 0x61,
+	0x74, 0x61, 0x72, 0x12, 0x18, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x08, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x49, 0x44, 0x52, 0x02, 0x69, 0x64, 0x12, 0x24, 0x0a,
+	0x06, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0c, 0x2e,
+	0x67, 0x72, 0x70, 0x63, 0x2e, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72, 0x52, 0x06, 0x61, 0x76, 0x61,
+	0x74, 0x61, 0x72, 0x22, 0x1d, 0x0a, 0x05, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x14, 0x0a, 0x05,
+	0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x6d, 0x61,
+	0x69, 0x6c, 0x22, 0x14, 0x0a, 0x02, 0x49, 0x44, 0x12, 0x0e, 0x0a, 0x02, 0x49, 0x44, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x04, 0x52, 0x02, 0x49, 0x44, 0x22, 0x26, 0x0a, 0x08, 0x50, 0x61, 0x73, 0x73,
+	0x77, 0x6f, 0x72, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
+	0x22, 0x5a, 0x0a, 0x0c, 0x55, 0x73, 0x65, 0x72, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
+	0x12, 0x1e, 0x0a, 0x04, 0x75, 0x73, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0a,
+	0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x04, 0x75, 0x73, 0x65, 0x72,
+	0x12, 0x2a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f,
+	0x72, 0x64, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x09, 0x0a, 0x07,
+	0x4e, 0x6f, 0x74, 0x68, 0x69, 0x6e, 0x67, 0x32, 0xd4, 0x01, 0x0a, 0x09, 0x55, 0x73, 0x65, 0x72,
+	0x42, 0x6c, 0x6f, 0x63, 0x6b, 0x12, 0x22, 0x0a, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12,
+	0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x1a, 0x0a, 0x2e, 0x67, 0x72,
+	0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x12, 0x27, 0x0a, 0x0a, 0x47, 0x65, 0x74,
+	0x42, 0x79, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x0b, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x45,
+	0x6d, 0x61, 0x69, 0x6c, 0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72,
+	0x22, 0x00, 0x12, 0x21, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x42, 0x79, 0x49, 0x44, 0x12, 0x08, 0x2e,
+	0x67, 0x72, 0x70, 0x63, 0x2e, 0x49, 0x44, 0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55,
+	0x73, 0x65, 0x72, 0x22, 0x00, 0x12, 0x29, 0x0a, 0x0d, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50,
+	0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65, 0x12, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73,
+	0x65, 0x72, 0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00,
+	0x12, 0x2c, 0x0a, 0x0c, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72,
+	0x12, 0x0e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x49, 0x64, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72,
+	0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
-	file_internal_user_user_proto_rawDescOnce sync.Once
-	file_internal_user_user_proto_rawDescData = file_internal_user_user_proto_rawDesc
+	file_user_proto_rawDescOnce sync.Once
+	file_user_proto_rawDescData = file_user_proto_rawDesc
 )
 
-func file_internal_user_user_proto_rawDescGZIP() []byte {
-	file_internal_user_user_proto_rawDescOnce.Do(func() {
-		file_internal_user_user_proto_rawDescData = protoimpl.X.CompressGZIP(file_internal_user_user_proto_rawDescData)
+func file_user_proto_rawDescGZIP() []byte {
+	file_user_proto_rawDescOnce.Do(func() {
+		file_user_proto_rawDescData = protoimpl.X.CompressGZIP(file_user_proto_rawDescData)
 	})
-	return file_internal_user_user_proto_rawDescData
+	return file_user_proto_rawDescData
 }
 
-var file_internal_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_internal_user_user_proto_goTypes = []interface{}{
-	(*User)(nil),         // 0: user.User
-	(*Avatar)(nil),       // 1: user.Avatar
-	(*IdAvatar)(nil),     // 2: user.IdAvatar
-	(*Email)(nil),        // 3: user.Email
-	(*ID)(nil),           // 4: user.ID
-	(*Password)(nil),     // 5: user.Password
-	(*UserPassword)(nil), // 6: user.UserPassword
-	(*Nothing)(nil),      // 7: user.Nothing
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_user_proto_goTypes = []interface{}{
+	(*User)(nil),         // 0: grpc.User
+	(*Avatar)(nil),       // 1: grpc.Avatar
+	(*IdAvatar)(nil),     // 2: grpc.IdAvatar
+	(*Email)(nil),        // 3: grpc.Email
+	(*ID)(nil),           // 4: grpc.ID
+	(*Password)(nil),     // 5: grpc.Password
+	(*UserPassword)(nil), // 6: grpc.UserPassword
+	(*Nothing)(nil),      // 7: grpc.Nothing
 }
-var file_internal_user_user_proto_depIdxs = []int32{
-	4, // 0: user.IdAvatar.id:type_name -> user.ID
-	1, // 1: user.IdAvatar.avatar:type_name -> user.Avatar
-	0, // 2: user.UserPassword.user:type_name -> user.User
-	5, // 3: user.UserPassword.password:type_name -> user.Password
-	0, // 4: user.UserBlock.Create:input_type -> user.User
-	3, // 5: user.UserBlock.GetByEmail:input_type -> user.Email
-	4, // 6: user.UserBlock.GetByID:input_type -> user.ID
-	0, // 7: user.UserBlock.UpdateProfile:input_type -> user.User
-	2, // 8: user.UserBlock.UpdateAvatar:input_type -> user.IdAvatar
-	0, // 9: user.UserBlock.Create:output_type -> user.User
-	0, // 10: user.UserBlock.GetByEmail:output_type -> user.User
-	0, // 11: user.UserBlock.GetByID:output_type -> user.User
-	0, // 12: user.UserBlock.UpdateProfile:output_type -> user.User
-	0, // 13: user.UserBlock.UpdateAvatar:output_type -> user.User
+var file_user_proto_depIdxs = []int32{
+	4, // 0: grpc.IdAvatar.id:type_name -> grpc.ID
+	1, // 1: grpc.IdAvatar.avatar:type_name -> grpc.Avatar
+	0, // 2: grpc.UserPassword.user:type_name -> grpc.User
+	5, // 3: grpc.UserPassword.password:type_name -> grpc.Password
+	0, // 4: grpc.UserBlock.Create:input_type -> grpc.User
+	3, // 5: grpc.UserBlock.GetByEmail:input_type -> grpc.Email
+	4, // 6: grpc.UserBlock.GetByID:input_type -> grpc.ID
+	0, // 7: grpc.UserBlock.UpdateProfile:input_type -> grpc.User
+	2, // 8: grpc.UserBlock.UpdateAvatar:input_type -> grpc.IdAvatar
+	0, // 9: grpc.UserBlock.Create:output_type -> grpc.User
+	0, // 10: grpc.UserBlock.GetByEmail:output_type -> grpc.User
+	0, // 11: grpc.UserBlock.GetByID:output_type -> grpc.User
+	0, // 12: grpc.UserBlock.UpdateProfile:output_type -> grpc.User
+	0, // 13: grpc.UserBlock.UpdateAvatar:output_type -> grpc.User
 	9, // [9:14] is the sub-list for method output_type
 	4, // [4:9] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name
@@ -547,13 +546,13 @@ var file_internal_user_user_proto_depIdxs = []int32{
 	0, // [0:4] is the sub-list for field type_name
 }
 
-func init() { file_internal_user_user_proto_init() }
-func file_internal_user_user_proto_init() {
-	if File_internal_user_user_proto != nil {
+func init() { file_user_proto_init() }
+func file_user_proto_init() {
+	if File_user_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_internal_user_user_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_user_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*User); i {
 			case 0:
 				return &v.state
@@ -565,7 +564,7 @@ func file_internal_user_user_proto_init() {
 				return nil
 			}
 		}
-		file_internal_user_user_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_user_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Avatar); i {
 			case 0:
 				return &v.state
@@ -577,7 +576,7 @@ func file_internal_user_user_proto_init() {
 				return nil
 			}
 		}
-		file_internal_user_user_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_user_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*IdAvatar); i {
 			case 0:
 				return &v.state
@@ -589,7 +588,7 @@ func file_internal_user_user_proto_init() {
 				return nil
 			}
 		}
-		file_internal_user_user_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_user_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Email); i {
 			case 0:
 				return &v.state
@@ -601,7 +600,7 @@ func file_internal_user_user_proto_init() {
 				return nil
 			}
 		}
-		file_internal_user_user_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_user_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ID); i {
 			case 0:
 				return &v.state
@@ -613,7 +612,7 @@ func file_internal_user_user_proto_init() {
 				return nil
 			}
 		}
-		file_internal_user_user_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_user_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Password); i {
 			case 0:
 				return &v.state
@@ -625,7 +624,7 @@ func file_internal_user_user_proto_init() {
 				return nil
 			}
 		}
-		file_internal_user_user_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_user_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UserPassword); i {
 			case 0:
 				return &v.state
@@ -637,7 +636,7 @@ func file_internal_user_user_proto_init() {
 				return nil
 			}
 		}
-		file_internal_user_user_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_user_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Nothing); i {
 			case 0:
 				return &v.state
@@ -654,20 +653,20 @@ func file_internal_user_user_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_internal_user_user_proto_rawDesc,
+			RawDescriptor: file_user_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_internal_user_user_proto_goTypes,
-		DependencyIndexes: file_internal_user_user_proto_depIdxs,
-		MessageInfos:      file_internal_user_user_proto_msgTypes,
+		GoTypes:           file_user_proto_goTypes,
+		DependencyIndexes: file_user_proto_depIdxs,
+		MessageInfos:      file_user_proto_msgTypes,
 	}.Build()
-	File_internal_user_user_proto = out.File
-	file_internal_user_user_proto_rawDesc = nil
-	file_internal_user_user_proto_goTypes = nil
-	file_internal_user_user_proto_depIdxs = nil
+	File_user_proto = out.File
+	file_user_proto_rawDesc = nil
+	file_user_proto_goTypes = nil
+	file_user_proto_depIdxs = nil
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -699,7 +698,7 @@ func NewUserBlockClient(cc grpc.ClientConnInterface) UserBlockClient {
 
 func (c *userBlockClient) Create(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, "/user.UserBlock/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/grpc.UserBlock/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -708,7 +707,7 @@ func (c *userBlockClient) Create(ctx context.Context, in *User, opts ...grpc.Cal
 
 func (c *userBlockClient) GetByEmail(ctx context.Context, in *Email, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, "/user.UserBlock/GetByEmail", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/grpc.UserBlock/GetByEmail", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -717,7 +716,7 @@ func (c *userBlockClient) GetByEmail(ctx context.Context, in *Email, opts ...grp
 
 func (c *userBlockClient) GetByID(ctx context.Context, in *ID, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, "/user.UserBlock/GetByID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/grpc.UserBlock/GetByID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -726,7 +725,7 @@ func (c *userBlockClient) GetByID(ctx context.Context, in *ID, opts ...grpc.Call
 
 func (c *userBlockClient) UpdateProfile(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, "/user.UserBlock/UpdateProfile", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/grpc.UserBlock/UpdateProfile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -735,7 +734,7 @@ func (c *userBlockClient) UpdateProfile(ctx context.Context, in *User, opts ...g
 
 func (c *userBlockClient) UpdateAvatar(ctx context.Context, in *IdAvatar, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, "/user.UserBlock/UpdateAvatar", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/grpc.UserBlock/UpdateAvatar", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -785,7 +784,7 @@ func _UserBlock_Create_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.UserBlock/Create",
+		FullMethod: "/grpc.UserBlock/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserBlockServer).Create(ctx, req.(*User))
@@ -803,7 +802,7 @@ func _UserBlock_GetByEmail_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.UserBlock/GetByEmail",
+		FullMethod: "/grpc.UserBlock/GetByEmail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserBlockServer).GetByEmail(ctx, req.(*Email))
@@ -821,7 +820,7 @@ func _UserBlock_GetByID_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.UserBlock/GetByID",
+		FullMethod: "/grpc.UserBlock/GetByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserBlockServer).GetByID(ctx, req.(*ID))
@@ -839,7 +838,7 @@ func _UserBlock_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.UserBlock/UpdateProfile",
+		FullMethod: "/grpc.UserBlock/UpdateProfile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserBlockServer).UpdateProfile(ctx, req.(*User))
@@ -857,7 +856,7 @@ func _UserBlock_UpdateAvatar_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.UserBlock/UpdateAvatar",
+		FullMethod: "/grpc.UserBlock/UpdateAvatar",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserBlockServer).UpdateAvatar(ctx, req.(*IdAvatar))
@@ -866,7 +865,7 @@ func _UserBlock_UpdateAvatar_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 var _UserBlock_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "user.UserBlock",
+	ServiceName: "grpc.UserBlock",
 	HandlerType: (*UserBlockServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -891,5 +890,5 @@ var _UserBlock_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/user/user.proto",
+	Metadata: "user.proto",
 }

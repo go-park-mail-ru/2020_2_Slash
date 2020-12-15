@@ -1,6 +1,8 @@
-package user
+package grpc
 
-import "github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+import (
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+)
 
 func GrpcUserToModel(grpcUser *User) *models.User {
 	return &models.User{

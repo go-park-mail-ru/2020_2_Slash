@@ -29,6 +29,10 @@ func NewSearchUsecase(actorsRep actor.ActorRepository,
 
 func (uc SearchUsecase) Search(curUserID uint64, query string,
 	pagination *models.Pagination) (*models.SearchResult, *errors.Error) {
+	if query == "" {
+		return &models.SearchResult{}, nil
+	}
+
 	movies, err := uc.moviesRep.SelectWhereNameLike(curUserID, query, pagination.Count, pagination.From)
 	if err == sql.ErrNoRows || (err == nil && movies == nil) {
 		movies = []*models.Movie{}

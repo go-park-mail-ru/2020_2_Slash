@@ -14,32 +14,57 @@ var logLevelsCode = map[string]int{
 	"FATAL": 50,
 }
 
-type Config struct {
-	Database struct {
-		User     string `json:"user"`
-		Password string `json:"password"`
-		Name     string `json:"name"`
-		Host     string `json:"host"`
-		Port     int    `json:"port"`
-	} `json:"database"`
-	Server struct {
-		Host string `json:"host"`
-		Port int    `json:"port"`
-	} `json:"server"`
-	AvatarsDir string `json:"avatars"`
-	PostersDir string `json:"posters"`
-	VideosDir  string `json:"videos"`
-	LoggerFile string `json:"logger"`
-	LogLevel   string `json:"log_level"`
+type Database struct {
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
 }
 
-func (c *Config) GetDbConnString() string {
+type Server struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
+}
+
+type Config struct {
+	Database              Database `json:"database"`
+	TestDatabase          Database `json:"test_database"`
+	Server                Server   `json:"server"`
+	UserblockMicroservice Server   `json:"userblock_microservice"`
+	AuthMicroservice      Server   `json:"auth_microservice"`
+	AvatarsDir            string   `json:"avatars"`
+	PostersDir            string   `json:"posters"`
+	VideosDir             string   `json:"videos"`
+	LoggerFile            string   `json:"logger"`
+	LogLevel              string   `json:"log_level"`
+}
+
+func getDbConnString(database Database) string {
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		c.Database.Host, c.Database.Port, c.Database.User, c.Database.Password, c.Database.Name)
+		database.Host, database.Port, database.User, database.Password, database.Name)
+}
+
+func (c *Config) GetProdDbConnString() string {
+	return getDbConnString(c.Database)
+}
+
+func (c *Config) GetTestDbConnString() string {
+	return getDbConnString(c.TestDatabase)
 }
 
 func (c *Config) GetServerConnString() string {
 	return fmt.Sprintf("%s:%d", c.Server.Host, c.Server.Port)
+}
+
+func (c *Config) GetUserblockMSConnString() string {
+	return fmt.Sprintf("%s:%d", c.UserblockMicroservice.Host,
+		c.UserblockMicroservice.Port)
+}
+
+func (c *Config) GetAuthMSConnString() string {
+	return fmt.Sprintf("%s:%d", c.AuthMicroservice.Host,
+		c.AuthMicroservice.Port)
 }
 
 func (c *Config) GetAvatarsPath() string {

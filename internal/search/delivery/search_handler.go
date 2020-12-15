@@ -26,7 +26,7 @@ func (sh *SearchHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 
 func (sh *SearchHandler) SearchHandler() echo.HandlerFunc {
 	type Request struct {
-		Query string `query:"q"`
+		Query string `query:"q" validate:"required"`
 		models.Pagination
 	}
 

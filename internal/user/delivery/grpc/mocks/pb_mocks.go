@@ -6,7 +6,7 @@ package mocks
 
 import (
 	context "context"
-	user "github.com/go-park-mail-ru/2020_2_Slash/internal/user"
+	grpc2 "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
 	gomock "github.com/golang/mock/gomock"
 	grpc "google.golang.org/grpc"
 	reflect "reflect"
@@ -36,14 +36,14 @@ func (m *MockUserBlockClient) EXPECT() *MockUserBlockClientMockRecorder {
 }
 
 // Create mocks base method
-func (m *MockUserBlockClient) Create(ctx context.Context, in *user.User, opts ...grpc.CallOption) (*user.User, error) {
+func (m *MockUserBlockClient) Create(ctx context.Context, in *grpc2.User, opts ...grpc.CallOption) (*grpc2.User, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Create", varargs...)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*grpc2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -56,14 +56,14 @@ func (mr *MockUserBlockClientMockRecorder) Create(ctx, in interface{}, opts ...i
 }
 
 // GetByEmail mocks base method
-func (m *MockUserBlockClient) GetByEmail(ctx context.Context, in *user.Email, opts ...grpc.CallOption) (*user.User, error) {
+func (m *MockUserBlockClient) GetByEmail(ctx context.Context, in *grpc2.Email, opts ...grpc.CallOption) (*grpc2.User, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "GetByEmail", varargs...)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*grpc2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -76,14 +76,14 @@ func (mr *MockUserBlockClientMockRecorder) GetByEmail(ctx, in interface{}, opts 
 }
 
 // GetByID mocks base method
-func (m *MockUserBlockClient) GetByID(ctx context.Context, in *user.ID, opts ...grpc.CallOption) (*user.User, error) {
+func (m *MockUserBlockClient) GetByID(ctx context.Context, in *grpc2.ID, opts ...grpc.CallOption) (*grpc2.User, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "GetByID", varargs...)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*grpc2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -96,14 +96,14 @@ func (mr *MockUserBlockClientMockRecorder) GetByID(ctx, in interface{}, opts ...
 }
 
 // UpdateProfile mocks base method
-func (m *MockUserBlockClient) UpdateProfile(ctx context.Context, in *user.User, opts ...grpc.CallOption) (*user.User, error) {
+func (m *MockUserBlockClient) UpdateProfile(ctx context.Context, in *grpc2.User, opts ...grpc.CallOption) (*grpc2.User, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "UpdateProfile", varargs...)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*grpc2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -116,14 +116,14 @@ func (mr *MockUserBlockClientMockRecorder) UpdateProfile(ctx, in interface{}, op
 }
 
 // UpdateAvatar mocks base method
-func (m *MockUserBlockClient) UpdateAvatar(ctx context.Context, in *user.IdAvatar, opts ...grpc.CallOption) (*user.User, error) {
+func (m *MockUserBlockClient) UpdateAvatar(ctx context.Context, in *grpc2.IdAvatar, opts ...grpc.CallOption) (*grpc2.User, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "UpdateAvatar", varargs...)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*grpc2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -159,10 +159,10 @@ func (m *MockUserBlockServer) EXPECT() *MockUserBlockServerMockRecorder {
 }
 
 // Create mocks base method
-func (m *MockUserBlockServer) Create(arg0 context.Context, arg1 *user.User) (*user.User, error) {
+func (m *MockUserBlockServer) Create(arg0 context.Context, arg1 *grpc2.User) (*grpc2.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*grpc2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -174,10 +174,10 @@ func (mr *MockUserBlockServerMockRecorder) Create(arg0, arg1 interface{}) *gomoc
 }
 
 // GetByEmail mocks base method
-func (m *MockUserBlockServer) GetByEmail(arg0 context.Context, arg1 *user.Email) (*user.User, error) {
+func (m *MockUserBlockServer) GetByEmail(arg0 context.Context, arg1 *grpc2.Email) (*grpc2.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByEmail", arg0, arg1)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*grpc2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -189,10 +189,10 @@ func (mr *MockUserBlockServerMockRecorder) GetByEmail(arg0, arg1 interface{}) *g
 }
 
 // GetByID mocks base method
-func (m *MockUserBlockServer) GetByID(arg0 context.Context, arg1 *user.ID) (*user.User, error) {
+func (m *MockUserBlockServer) GetByID(arg0 context.Context, arg1 *grpc2.ID) (*grpc2.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByID", arg0, arg1)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*grpc2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -204,10 +204,10 @@ func (mr *MockUserBlockServerMockRecorder) GetByID(arg0, arg1 interface{}) *gomo
 }
 
 // UpdateProfile mocks base method
-func (m *MockUserBlockServer) UpdateProfile(arg0 context.Context, arg1 *user.User) (*user.User, error) {
+func (m *MockUserBlockServer) UpdateProfile(arg0 context.Context, arg1 *grpc2.User) (*grpc2.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateProfile", arg0, arg1)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*grpc2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -219,10 +219,10 @@ func (mr *MockUserBlockServerMockRecorder) UpdateProfile(arg0, arg1 interface{})
 }
 
 // UpdateAvatar mocks base method
-func (m *MockUserBlockServer) UpdateAvatar(arg0 context.Context, arg1 *user.IdAvatar) (*user.User, error) {
+func (m *MockUserBlockServer) UpdateAvatar(arg0 context.Context, arg1 *grpc2.IdAvatar) (*grpc2.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAvatar", arg0, arg1)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*grpc2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

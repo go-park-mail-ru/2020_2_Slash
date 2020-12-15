@@ -2,11 +2,9 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/go-park-mail-ru/2020_2_Slash/config"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/user"
-	mygrpc "github.com/go-park-mail-ru/2020_2_Slash/internal/user/grpc"
+	userGRPC "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
 	userRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/user/repository"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	_ "github.com/lib/pq"
@@ -35,7 +33,7 @@ func main() {
 	helpers.InitStorage(videosPath)
 
 	// Database
-	dbConnection, err := sql.Open("postgres", config.GetDbConnString())
+	dbConnection, err := sql.Open("postgres", config.GetProdDbConnString())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,17 +43,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	lis, err := net.Listen("tcp", ":8081")
+	userblockAddress := config.GetUserblockMSConnString()
+	lis, err := net.Listen("tcp", userblockAddress)
 	if err != nil {
-		log.Fatalln("Can't listen port :8081", err)
+		log.Fatalln("Can't listen userblock microservice port", err)
 	}
 	defer lis.Close()
 
 	userRepo := userRepo.NewUserPgRepository(dbConnection)
 
 	server := grpc.NewServer()
-	user.RegisterUserBlockServer(server, mygrpc.NewUserblockMicroservice(userRepo))
+	userGRPC.RegisterUserBlockServer(server, userGRPC.NewUserblockMicroservice(userRepo))
 
-	fmt.Println("Starting server at :8081")
+	logger.Println("Starting server at", userblockAddress)
 	server.Serve(lis)
 }
