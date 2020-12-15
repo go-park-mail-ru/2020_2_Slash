@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/rating"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 )
 
 type RatingPgRepository struct {
@@ -26,7 +27,9 @@ func (rep *RatingPgRepository) Insert(rating *models.Rating) error {
 		VALUES ($1, $2, $3)`,
 		rating.UserID, rating.ContentID, rating.Likes)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -64,7 +67,9 @@ func (rep *RatingPgRepository) Update(rating *models.Rating) error {
 		WHERE user_id=$2 AND content_id=$3`,
 		rating.Likes, rating.UserID, rating.ContentID)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -113,7 +118,9 @@ func (rep *RatingPgRepository) Delete(rating *models.Rating) error {
 		WHERE user_id=$1 AND content_id=$2`,
 		rating.UserID, rating.ContentID)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 

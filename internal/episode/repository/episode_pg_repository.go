@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/episode"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
@@ -29,7 +30,9 @@ func (rep *EpisodeRepository) Insert(episode *models.Episode) error {
 		episode.Number, episode.Name, episode.Video,
 		episode.Description, episode.Poster, episode.SeasonID).Scan(&episode.ID)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr)
+		}
 		return err
 	}
 
@@ -89,7 +92,9 @@ func (rep *EpisodeRepository) Update(newEpisode *models.Episode) error {
 		WHERE id=$7`, newEpisode.Number, newEpisode.Name, newEpisode.Video,
 		newEpisode.Description, newEpisode.Poster, newEpisode.SeasonID, newEpisode.ID)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr)
+		}
 		return err
 	}
 
@@ -109,7 +114,9 @@ func (rep *EpisodeRepository) DeleteByID(id uint64) error {
 		DELETE FROM episodes
 		WHERE id=$1`, id)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr)
+		}
 		return err
 	}
 
@@ -130,7 +137,9 @@ func (rep *EpisodeRepository) UpdatePoster(episode *models.Episode) error {
 		SET poster=$1
 		WHERE id=$2`, episode.Poster, episode.ID)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr)
+		}
 		return err
 	}
 
@@ -151,7 +160,9 @@ func (rep *EpisodeRepository) UpdateVideo(episode *models.Episode) error {
 		SET video=$1
 		WHERE id=$2`, episode.Video, episode.ID)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr)
+		}
 		return err
 	}
 

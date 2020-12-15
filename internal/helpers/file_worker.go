@@ -4,12 +4,14 @@ import (
 	"errors"
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	cstm_errors "github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	uuid "github.com/satori/go.uuid"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -32,14 +34,17 @@ func StoreFile(fileHeader *multipart.FileHeader, absFilePath string) *cstm_error
 
 	// Save file to storage
 	fileMode := int(0777)
-	newFile, err := os.OpenFile(absFilePath, os.O_WRONLY|os.O_CREATE, os.FileMode(fileMode))
+	newFile, err := os.OpenFile(filepath.Clean(absFilePath), os.O_WRONLY|os.O_CREATE, os.FileMode(fileMode))
 	if err != nil {
 		return cstm_errors.New(CodeInternalError, err)
 	}
 	defer newFile.Close()
 
 	if _, err := io.Copy(newFile, file); err != nil {
-		_ = os.Remove(absFilePath)
+		removeErr := os.Remove(absFilePath)
+		if removeErr != nil {
+			logger.Error(removeErr)
+		}
 		return cstm_errors.New(CodeInternalError, err)
 	}
 	return nil
@@ -73,12 +78,16 @@ func GetUniqFileName(userID uint64, fileExtension string) string {
 
 func InitStorage(path string) {
 	mode := int(0777)
-	os.Mkdir(path, os.FileMode(mode))
+	if err := os.Mkdir(path, os.FileMode(mode)); err != nil {
+		logger.Error(err)
+	}
 }
 
 func InitTree(path string) {
 	mode := int(0777)
-	os.MkdirAll(path, os.FileMode(mode))
+	if err := os.MkdirAll(path, os.FileMode(mode)); err != nil {
+		logger.Error(err)
+	}
 }
 
 func checkFileContentType(file *multipart.FileHeader, allowedContentTypes map[string]string) *cstm_errors.Error {

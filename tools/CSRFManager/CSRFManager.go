@@ -1,6 +1,7 @@
 package CSRFManager
 
 import (
+	// #nosec
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
@@ -51,7 +52,7 @@ func ValidateToken(sess *models.Session, actualToken string) *errors.Error {
 
 func hashSessData(sess *models.Session) (string, *errors.Error) {
 	data := fmt.Sprintf("%d:%s", sess.UserID, sess.Value)
-
+	// #nosec
 	hasher := sha1.New()
 	_, err := hasher.Write([]byte(data))
 	if err != nil {

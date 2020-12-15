@@ -44,7 +44,9 @@ func main() {
 	}
 
 	userblockAddress := config.GetUserblockMSConnString()
+	// nolint: gosec
 	lis, err := net.Listen("tcp", userblockAddress)
+
 	if err != nil {
 		log.Fatalln("Can't listen userblock microservice port", err)
 	}
@@ -56,5 +58,7 @@ func main() {
 	userGRPC.RegisterUserBlockServer(server, userGRPC.NewUserblockMicroservice(userRepo))
 
 	logger.Println("Starting server at", userblockAddress)
+
+	// nolint: errcheck, gosec
 	server.Serve(lis)
 }

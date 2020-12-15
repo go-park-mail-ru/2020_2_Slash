@@ -141,7 +141,7 @@ func TestGenreHandler_UpdateGenreHandler(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("gid")
 	c.SetParamValues(strId)
 
 	genreHandler := NewGenreHandler(genreUseCase)
@@ -198,7 +198,7 @@ func TestGenreHandler_UpdateGenreHandler_NameAlreadyExists(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("gid")
 	c.SetParamValues(strId)
 
 	genreHandler := NewGenreHandler(genreUseCase)
@@ -246,7 +246,7 @@ func TestGenreHandler_DeleteGenreHandler(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("gid")
 	c.SetParamValues(strId)
 
 	genreHandler := NewGenreHandler(genreUseCase)
@@ -292,7 +292,7 @@ func TestGenreHandler_DeleteGenreHandler_NoGenre(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("gid")
 	c.SetParamValues(strId)
 
 	genreHandler := NewGenreHandler(genreUseCase)

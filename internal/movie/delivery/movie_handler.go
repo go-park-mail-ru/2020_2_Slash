@@ -191,7 +191,13 @@ func (mh *MovieHandler) UpdateMovieHandler() echo.HandlerFunc {
 			Directors:        directors,
 		}
 
-		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		movieID, parseErr := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		movie, err := mh.movieUcase.GetByID(movieID)
 		if err != nil {
 			logger.Error(err.Message)
@@ -215,7 +221,12 @@ func (mh *MovieHandler) UpdateMovieHandler() echo.HandlerFunc {
 
 func (mh *MovieHandler) DeleteMovieHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		movieID, parseErr := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 
 		movie, err := mh.movieUcase.GetByID(movieID)
 		if err != nil {
@@ -242,9 +253,16 @@ func (mh *MovieHandler) DeleteMovieHandler() echo.HandlerFunc {
 
 func (mh *MovieHandler) GetMovieHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
-		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		movieID, parseErr := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 
+		// nolint: errcheck
 		userID, _ := cntx.Get("userID").(uint64)
+
 		movie, err := mh.movieUcase.GetFullByID(movieID, userID)
 		if err != nil {
 			logger.Error(err.Message)
@@ -284,8 +302,16 @@ func (mh *MovieHandler) UpdateMoviePostersHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		movieID, parseErr := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		// nolint: errcheck
 		userID, _ := cntx.Get("userID").(uint64)
+
 		movie, err := mh.movieUcase.GetFullByID(movieID, userID)
 		if err != nil {
 			logger.Error(err.Message)
@@ -310,7 +336,10 @@ func (mh *MovieHandler) UpdateMoviePostersHandler() echo.HandlerFunc {
 			smallPosterPath := filepath.Join(postersDirPath, smallPosterName)
 			if err := helpers.StoreFile(smallImage, smallPosterPath); err != nil {
 				if movie.Content.Images == "" {
-					os.RemoveAll(postersDirPath)
+					removeErr := os.RemoveAll(postersDirPath)
+					if removeErr != nil {
+						logger.Error(removeErr)
+					}
 				}
 				logger.Error(err.Message)
 				return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -322,7 +351,10 @@ func (mh *MovieHandler) UpdateMoviePostersHandler() echo.HandlerFunc {
 			largePosterPath := filepath.Join(postersDirPath, largePosterName)
 			if err := helpers.StoreFile(largeImage, largePosterPath); err != nil {
 				if movie.Content.Images == "" {
-					os.RemoveAll(postersDirPath)
+					removeErr := os.RemoveAll(postersDirPath)
+					if removeErr != nil {
+						logger.Error(removeErr)
+					}
 				}
 				logger.Error(err.Message)
 				return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -332,7 +364,10 @@ func (mh *MovieHandler) UpdateMoviePostersHandler() echo.HandlerFunc {
 		// Update content
 		if err := mh.contentUcase.UpdatePosters(&movie.Content, postersDir); err != nil {
 			if movie.Content.Images == "" {
-				os.RemoveAll(postersDirPath)
+				removeErr := os.RemoveAll(postersDirPath)
+				if removeErr != nil {
+					logger.Error(removeErr)
+				}
 			}
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -357,8 +392,16 @@ func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
+		// nolint: errcheck
 		userID, _ := cntx.Get("userID").(uint64)
-		movieID, _ := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+
+		movieID, parseErr := strconv.ParseUint(cntx.Param("mid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
 		movie, err := mh.movieUcase.GetFullByID(movieID, userID)
 		if err != nil {
 			logger.Error(err.Message)
@@ -382,7 +425,10 @@ func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 		absVideoPath := filepath.Join(videosDirPath, videoName)
 		if err := helpers.StoreFile(video, absVideoPath); err != nil {
 			if movie.Video == "" {
-				os.RemoveAll(videosDirPath)
+				removeErr := os.RemoveAll(videosDirPath)
+				if removeErr != nil {
+					logger.Error(removeErr)
+				}
 			}
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -392,7 +438,10 @@ func (mh *MovieHandler) UpdateMovieVideoHandler() echo.HandlerFunc {
 		rltVideoPath := filepath.Join(videosDir, videoName)
 		if err := mh.movieUcase.UpdateVideo(movie, rltVideoPath); err != nil {
 			if movie.Video == "" {
-				os.RemoveAll(videosDirPath)
+				removeErr := os.RemoveAll(videosDirPath)
+				if removeErr != nil {
+					logger.Error(removeErr)
+				}
 			}
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
@@ -419,7 +468,9 @@ func (mh *MovieHandler) GetMoviesHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
+		// nolint: errcheck
 		userID, _ := cntx.Get("userID").(uint64)
+
 		movies, err := mh.movieUcase.ListByParams(&req.ContentFilter,
 			&req.Pagination, userID)
 		if err != nil {
@@ -447,7 +498,9 @@ func (mh *MovieHandler) GetLatestMoviesHandler() echo.HandlerFunc {
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
+		// nolint: errcheck
 		userID, _ := cntx.Get("userID").(uint64)
+
 		movies, err := mh.movieUcase.ListLatest(&req.Pagination, userID)
 		if err != nil {
 			logger.Error(err.Message)
@@ -474,7 +527,9 @@ func (mh *MovieHandler) GetTopMovieListHandler() echo.HandlerFunc {
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
+		// nolint: errcheck
 		userID, _ := cntx.Get("userID").(uint64)
+
 		movies, err := mh.movieUcase.ListByRating(&req.Pagination, userID)
 		if err != nil {
 			logger.Error(err.Message)

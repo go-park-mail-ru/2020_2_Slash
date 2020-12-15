@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	"strings"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/favourite"
@@ -29,7 +30,9 @@ func (rep *FavouritePgRepository) Insert(favourite *models.Favourite) error {
 		INSERT INTO favourites(user_id, content_id, created)
 		VALUES ($1, $2, $3)`, favourite.UserID, favourite.ContentID, favourite.Created)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -100,6 +103,9 @@ func (rep *FavouritePgRepository) SelectFavouriteMovies(userID uint64,
 		movie.Content = *cnt
 		favouriteMovies = append(favouriteMovies, movie)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 
 	return favouriteMovies, nil
 }
@@ -152,6 +158,9 @@ func (rep *FavouritePgRepository) SelectFavouriteTVShows(userID uint64,
 		tvshow.Content = *cnt
 		favouriteTvShows = append(favouriteTvShows, tvshow)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 
 	return favouriteTvShows, nil
 }
@@ -167,7 +176,9 @@ func (rep *FavouritePgRepository) Delete(favourite *models.Favourite) error {
 		WHERE user_id=$1 AND content_id=$2`,
 		favourite.UserID, favourite.ContentID)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 

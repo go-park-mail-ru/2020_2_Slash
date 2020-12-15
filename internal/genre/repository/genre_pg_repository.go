@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/genre"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
@@ -32,7 +33,9 @@ func (gr *GenrePgRepository) Insert(genre *models.Genre) error {
 
 	err = row.Scan(&genre.ID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -54,7 +57,9 @@ func (gr *GenrePgRepository) Update(genre *models.Genre) error {
 		WHERE id = $1;`,
 		genre.ID, genre.Name)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -75,7 +80,9 @@ func (gr *GenrePgRepository) DeleteByID(genreID uint64) error {
 		WHERE id=$1`,
 		genreID)
 	if err != nil {
-		tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 

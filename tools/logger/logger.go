@@ -28,11 +28,11 @@ func InitLogger(filename string, logLevel int) {
 	}
 
 	// Open log file with creating dirs if necessary
-	err := os.MkdirAll(filepath.Dir(filename), 0777)
+	err := os.MkdirAll(filepath.Dir(filename), 0750)
 	if err != nil {
 		log.Fatal(err)
 	}
-	logFileDesc, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
+	logFileDesc, err = os.OpenFile(filepath.Clean(filename), os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -90,6 +90,9 @@ func Println(args ...interface{}) {
 
 func closeLogFile() {
 	if logFileDesc != nil {
-		logFileDesc.Close()
+		err := logFileDesc.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }

@@ -209,7 +209,7 @@ func TestTVShowHandler_DeleteTVShowHandler(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("tid")
 	c.SetParamValues(strId)
 
 	tvshowHandler := NewTVShowHandler(tvshowUseCase, contentUseCase,
@@ -280,7 +280,7 @@ func TestTVShowHandler_GetTVShowHandler(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("mid")
+	c.SetParamNames("tid")
 	c.SetParamValues(strId)
 
 	tvshowHandler := NewTVShowHandler(tvshowUseCase, contentUseCase,

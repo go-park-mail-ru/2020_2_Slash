@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/session"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 )
 
 type SessionPgRepository struct {
@@ -28,7 +29,9 @@ func (sr *SessionPgRepository) Insert(session *models.Session) error {
 		VALUES ($1, $2, $3) RETURNING id`,
 		session.Value, session.ExpiresAt, session.UserID).Scan(&session.ID)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -62,7 +65,9 @@ func (sr *SessionPgRepository) DeleteByValue(sessionValue string) error {
 		`DELETE FROM sessions
 		WHERE value=$1`, sessionValue)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 

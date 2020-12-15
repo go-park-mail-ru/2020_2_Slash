@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/season"
@@ -28,7 +29,9 @@ func (rep *SeasonPgRepository) Insert(season *models.Season) error {
 		RETURNING id`, season.Number, season.EpisodesNumber, season.TVShowID)
 	err = row.Scan(&season.ID)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -53,7 +56,9 @@ func (rep *SeasonPgRepository) Update(season *models.Season) error {
 		WHERE id=$4`, season.Number, season.EpisodesNumber,
 		season.TVShowID, season.ID)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 
@@ -88,7 +93,9 @@ func (rep *SeasonPgRepository) Delete(id uint64) error {
 		FROM seasons
 		WHERE id=$1`, id)
 	if err != nil {
-		_ = tx.Rollback()
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logger.Error(rollbackErr.Error())
+		}
 		return err
 	}
 

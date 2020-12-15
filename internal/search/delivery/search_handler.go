@@ -37,7 +37,9 @@ func (sh *SearchHandler) SearchHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
+		// nolint: errcheck
 		userID, _ := cntx.Get("userID").(uint64)
+
 		result, customErr := sh.searchUsecase.Search(userID, req.Query, &req.Pagination)
 		if customErr != nil {
 			logger.Error(customErr.Message)

@@ -35,7 +35,9 @@ func main() {
 	}
 
 	authMsAdress := config.GetAuthMSConnString()
+	// nolint: gosec
 	lis, err := net.Listen("tcp", authMsAdress)
+
 	if err != nil {
 		log.Fatalln("Can't listen session microservice port", err)
 	}
@@ -47,5 +49,7 @@ func main() {
 	grpcSess.RegisterSessionBlockServer(server, grpcSess.NewSessionBlockMicroservice(sessRepo))
 
 	logger.Println("Starting server at", authMsAdress)
+
+	// nolint: gosec
 	server.Serve(lis)
 }

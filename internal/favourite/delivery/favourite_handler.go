@@ -1,8 +1,10 @@
 package delivery
 
 import (
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/favourite"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
@@ -50,7 +52,12 @@ func (fh *FavouriteHandler) CreateHandler() echo.HandlerFunc {
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
-		userID := cntx.Get("userID").(uint64)
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(consts.CodeGetFromContextError)
+			logger.Error(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 
 		newFavourite := &models.Favourite{
 			UserID:    userID,
@@ -84,7 +91,12 @@ func (fh *FavouriteHandler) DeleteHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		userID := cntx.Get("userID").(uint64)
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(consts.CodeGetFromContextError)
+			logger.Error(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 
 		newFavourite := &models.Favourite{
 			UserID:    userID,
@@ -113,7 +125,12 @@ func (fh *FavouriteHandler) GetFavouritesHandler() echo.HandlerFunc {
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
 
-		userID := cntx.Get("userID").(uint64)
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(consts.CodeGetFromContextError)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
 
 		favourites, customErr := fh.favouriteUseCase.GetUserFavourites(userID, &req.Pagination)
 		if customErr != nil {

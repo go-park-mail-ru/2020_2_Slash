@@ -141,7 +141,7 @@ func TestCountryHandler_UpdateCountryHandler(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("cid")
 	c.SetParamValues(strId)
 
 	countryHandler := NewCountryHandler(countryUseCase)
@@ -198,7 +198,7 @@ func TestCountryHandler_UpdateCountryHandler_NameAlreadyExists(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("cid")
 	c.SetParamValues(strId)
 
 	countryHandler := NewCountryHandler(countryUseCase)
@@ -246,7 +246,7 @@ func TestCountryHandler_DeleteCountryHandler(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("cid")
 	c.SetParamValues(strId)
 
 	countryHandler := NewCountryHandler(countryUseCase)
@@ -292,7 +292,7 @@ func TestCountryHandler_DeleteCountryHandler_NoCountry(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("cid")
 	c.SetParamValues(strId)
 
 	countryHandler := NewCountryHandler(countryUseCase)

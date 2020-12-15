@@ -40,4 +40,5 @@ const (
 	CodeSeasonAlreadyExist
 	CodeEpisodeDoesNotExist
 	CodeEpisodeAlreadyExist
+	CodeGetFromContextError
 )

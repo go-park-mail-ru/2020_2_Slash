@@ -39,6 +39,7 @@ func (rr *RequestReader) ReadUser(request interface{}) *errors.Error {
 	}
 
 	if err := rr.validator.Struct(request); err != nil {
+		// nolint: errcheck, errorlint
 		for _, err := range err.(validator.ValidationErrors) {
 			switch err.Field() {
 			case "Nickname":

@@ -2,10 +2,11 @@ package usecases
 
 import (
 	"database/sql"
+	"errors"
 
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
+	customErrors "github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/tvshow"
 )
@@ -23,9 +24,9 @@ func NewTVShowUsecase(repo tvshow.TVShowRepository,
 	}
 }
 
-func (tu *TVShowUsecase) Create(tvshow *models.TVShow) *errors.Error {
+func (tu *TVShowUsecase) Create(tvshow *models.TVShow) *customErrors.Error {
 	if err := tu.checkByContentID(tvshow.ContentID); err == nil {
-		return errors.Get(CodeTVShowContentAlreadyExists)
+		return customErrors.Get(CodeTVShowContentAlreadyExists)
 	}
 
 	if err := tu.contentUcase.Create(&tvshow.Content); err != nil {
@@ -33,40 +34,40 @@ func (tu *TVShowUsecase) Create(tvshow *models.TVShow) *errors.Error {
 	}
 
 	if err := tu.tvshowRepo.Insert(tvshow); err != nil {
-		return errors.New(CodeInternalError, err)
+		return customErrors.New(CodeInternalError, err)
 	}
 	return nil
 }
 
-func (tu *TVShowUsecase) GetByID(tvshowID uint64) (*models.TVShow, *errors.Error) {
+func (tu *TVShowUsecase) GetByID(tvshowID uint64) (*models.TVShow, *customErrors.Error) {
 	tvshow, err := tu.tvshowRepo.SelectByID(tvshowID)
 	switch {
-	case err == sql.ErrNoRows:
-		return nil, errors.Get(CodeTVShowDoesNotExist)
+	case errors.Is(err, sql.ErrNoRows):
+		return nil, customErrors.Get(CodeTVShowDoesNotExist)
 	case err != nil:
-		return nil, errors.New(CodeInternalError, err)
+		return nil, customErrors.New(CodeInternalError, err)
 	}
 	return tvshow, nil
 }
 
-func (tu *TVShowUsecase) GetShortByID(tvshowID uint64) (*models.TVShow, *errors.Error) {
+func (tu *TVShowUsecase) GetShortByID(tvshowID uint64) (*models.TVShow, *customErrors.Error) {
 	tvshow, err := tu.tvshowRepo.SelectShortByID(tvshowID)
 	switch {
-	case err == sql.ErrNoRows:
-		return nil, errors.Get(CodeTVShowDoesNotExist)
+	case errors.Is(err, sql.ErrNoRows):
+		return nil, customErrors.Get(CodeTVShowDoesNotExist)
 	case err != nil:
-		return nil, errors.New(CodeInternalError, err)
+		return nil, customErrors.New(CodeInternalError, err)
 	}
 	return tvshow, nil
 }
 
-func (tu *TVShowUsecase) GetFullByID(tvshowID uint64, curUserID uint64) (*models.TVShow, *errors.Error) {
+func (tu *TVShowUsecase) GetFullByID(tvshowID uint64, curUserID uint64) (*models.TVShow, *customErrors.Error) {
 	tvshow, err := tu.tvshowRepo.SelectFullByID(tvshowID, curUserID)
 	switch {
-	case err == sql.ErrNoRows:
-		return nil, errors.Get(CodeTVShowDoesNotExist)
+	case errors.Is(err, sql.ErrNoRows):
+		return nil, customErrors.Get(CodeTVShowDoesNotExist)
 	case err != nil:
-		return nil, errors.New(CodeInternalError, err)
+		return nil, customErrors.New(CodeInternalError, err)
 	}
 	customErr := tu.contentUcase.FillContent(&tvshow.Content)
 	if customErr != nil {
@@ -75,23 +76,23 @@ func (tu *TVShowUsecase) GetFullByID(tvshowID uint64, curUserID uint64) (*models
 	return tvshow, nil
 }
 
-func (tu *TVShowUsecase) GetByContentID(contentID uint64) (*models.TVShow, *errors.Error) {
+func (tu *TVShowUsecase) GetByContentID(contentID uint64) (*models.TVShow, *customErrors.Error) {
 	tvshow, err := tu.tvshowRepo.SelectByContentID(contentID)
 	switch {
-	case err == sql.ErrNoRows:
-		return nil, errors.Get(CodeTVShowDoesNotExist)
+	case errors.Is(err, sql.ErrNoRows):
+		return nil, customErrors.Get(CodeTVShowDoesNotExist)
 	case err != nil:
-		return nil, errors.New(CodeInternalError, err)
+		return nil, customErrors.New(CodeInternalError, err)
 	}
 	return tvshow, nil
 }
 
 func (tu *TVShowUsecase) ListByParams(params *models.ContentFilter, pgnt *models.Pagination,
-	curUserID uint64) ([]*models.TVShow, *errors.Error) {
+	curUserID uint64) ([]*models.TVShow, *customErrors.Error) {
 
 	tvshows, err := tu.tvshowRepo.SelectByParams(params, pgnt, curUserID)
 	if err != nil {
-		return nil, errors.New(CodeInternalError, err)
+		return nil, customErrors.New(CodeInternalError, err)
 	}
 	if len(tvshows) == 0 {
 		return []*models.TVShow{}, nil
@@ -99,10 +100,10 @@ func (tu *TVShowUsecase) ListByParams(params *models.ContentFilter, pgnt *models
 	return tvshows, nil
 }
 
-func (tu *TVShowUsecase) ListLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error) {
+func (tu *TVShowUsecase) ListLatest(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *customErrors.Error) {
 	tvshows, err := tu.tvshowRepo.SelectLatest(pgnt, curUserID)
 	if err != nil {
-		return nil, errors.New(CodeInternalError, err)
+		return nil, customErrors.New(CodeInternalError, err)
 	}
 	if len(tvshows) == 0 {
 		return []*models.TVShow{}, nil
@@ -110,10 +111,10 @@ func (tu *TVShowUsecase) ListLatest(pgnt *models.Pagination, curUserID uint64) (
 	return tvshows, nil
 }
 
-func (tu *TVShowUsecase) ListByRating(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *errors.Error) {
+func (tu *TVShowUsecase) ListByRating(pgnt *models.Pagination, curUserID uint64) ([]*models.TVShow, *customErrors.Error) {
 	tvshows, err := tu.tvshowRepo.SelectByRating(pgnt, curUserID)
 	if err != nil {
-		return nil, errors.New(CodeInternalError, err)
+		return nil, customErrors.New(CodeInternalError, err)
 	}
 
 	if len(tvshows) == 0 {
@@ -123,7 +124,7 @@ func (tu *TVShowUsecase) ListByRating(pgnt *models.Pagination, curUserID uint64)
 	return tvshows, nil
 }
 
-func (tu *TVShowUsecase) checkByContentID(contentID uint64) *errors.Error {
+func (tu *TVShowUsecase) checkByContentID(contentID uint64) *customErrors.Error {
 	_, err := tu.GetByContentID(contentID)
 	return err
 }

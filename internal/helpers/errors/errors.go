@@ -270,4 +270,10 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "episode does not exist in db",
 		UserMessage: "Такой серии не существует",
 	},
+	CodeGetFromContextError: {
+		Code:        CodeGetFromContextError,
+		HTTPCode:    http.StatusInternalServerError,
+		Message:     "error in context.Get()",
+		UserMessage: "Что-то пошло не так",
+	},
 }

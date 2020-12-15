@@ -127,6 +127,7 @@ func TestMovieHandler_CreateMovieHandler(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	c.Set("userID", 3)
 
 	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
 		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
@@ -231,8 +232,9 @@ func TestMovieHandler_UpdateMovieHandler(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("mid")
 	c.SetParamValues(strId)
+	c.Set("userID", 3)
 
 	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
 		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
@@ -320,8 +322,9 @@ func TestMovieHandler_DeleteMovieHandler(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("mid")
 	c.SetParamValues(strId)
+	c.Set("userID", 3)
 
 	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
 		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
@@ -395,8 +398,9 @@ func TestMovieHandler_DeleteMovieHandler_NoMovie(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("mid")
 	c.SetParamValues(strId)
+	c.Set("userID", 3)
 
 	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
 		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
@@ -462,6 +466,7 @@ func TestMovieHandler_GetMovieHandler(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetParamNames("mid")
 	c.SetParamValues(strId)
+	c.Set("userID", 3)
 
 	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
 		countryUseCase, genreUseCase, actorUseCase, directorUseCase)
@@ -509,7 +514,7 @@ func TestMovieHandler_UpdateMovieVideoHandler(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("mid")
 	c.SetParamValues(strId)
 
 	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
@@ -559,8 +564,9 @@ func TestMovieHandler_UpdateMoviePostersHandler(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetParamNames("id")
+	c.SetParamNames("mid")
 	c.SetParamValues(strId)
+	c.Set("userID", 3)
 
 	movieHandler := NewMovieHandler(movieUseCase, contentUseCase,
 		countryUseCase, genreUseCase, actorUseCase, directorUseCase)

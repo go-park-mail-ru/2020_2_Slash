@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 var logLevelsCode = map[string]int{
@@ -88,9 +89,7 @@ func (c *Config) GetLogLevel() int {
 }
 
 func LoadConfig(name string) (*Config, error) {
-	file, err := os.Open(name)
-
-	defer file.Close()
+	file, err := os.Open(filepath.Clean(name))
 
 	if err != nil {
 		return nil, err
@@ -98,6 +97,10 @@ func LoadConfig(name string) (*Config, error) {
 
 	config := &Config{}
 	if err := json.NewDecoder(file).Decode(config); err != nil {
+		return nil, err
+	}
+
+	if err := file.Close(); err != nil {
 		return nil, err
 	}
 
