@@ -13,8 +13,8 @@ import (
 	countryMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/country/mocks"
 	directorMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/director/mocks"
 	genreMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/genre/mocks"
-	seasonMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/season/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+	seasonMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/season/mocks"
 	tvshowMocks "github.com/go-park-mail-ru/2020_2_Slash/internal/tvshow/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/pkg/converter"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/response"
@@ -63,6 +63,7 @@ type Request struct {
 	Description      string   `json:"description" validate:"required"`
 	ShortDescription string   `json:"short_description" validate:"required"`
 	Year             int      `json:"year" validate:"required"`
+	IsFree           *bool    `json:"is_free" validate:"required"`
 	CountriesID      []uint64 `json:"countries" validate:"required"`
 	GenresID         []uint64 `json:"genres" validate:"required"`
 	ActorsID         []uint64 `json:"actors" validate:"required"`
@@ -82,12 +83,14 @@ func TestTVShowHandler_CreateTVShowHandler(t *testing.T) {
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
 	seasonUseCase := seasonMocks.NewMockSeasonUsecase(ctrl)
 
+	isFree := true
 	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
 		OriginalName:     "Shrek",
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
 		ShortDescription: "Полная сюрпризов сказка об ужасном болотном огре",
 		Year:             2001,
+		IsFree:           &isFree,
 		Countries:        countries,
 		Genres:           genres,
 		Actors:           actors,
@@ -106,6 +109,7 @@ func TestTVShowHandler_CreateTVShowHandler(t *testing.T) {
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
 		ShortDescription: "Полная сюрпризов сказка об ужасном болотном огре",
 		Year:             2001,
+		IsFree:           &isFree,
 		CountriesID:      countriesID,
 		GenresID:         genresID,
 		ActorsID:         actorsID,

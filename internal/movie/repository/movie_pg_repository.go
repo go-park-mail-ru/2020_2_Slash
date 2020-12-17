@@ -3,8 +3,10 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
+	"fmt"
 	"strings"
+
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	queryBuilder "github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/query_builder"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
@@ -115,7 +117,7 @@ func (mr *MoviePgRepository) SelectFullByID(movieID uint64, curUserID uint64) (*
 
 	row := mr.dbConn.QueryRow(
 		`SELECT m.id, m.video, c.id, c.name, c.original_name, c.description, c.short_description,
-		c.year, c.images, c.type, r.likes,
+		c.year, c.images, c.type, c.is_free, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content AS c
 		JOIN movies as m ON m.content_id=c.id AND m.id=$1
@@ -125,7 +127,7 @@ func (mr *MoviePgRepository) SelectFullByID(movieID uint64, curUserID uint64) (*
 
 	err := row.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
 		&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
-		&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
+		&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsFree, &cnt.IsLiked, &cnt.IsFavourite)
 
 	if err != nil {
 		return nil, err
@@ -154,14 +156,13 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 
 	selectQuery := `
 		SELECT m.id, m.video, c.id, c.name, c.original_name, c.description,
-		c.short_description, c.rating, c.year, c.images, c.type, r.likes,
+		c.short_description, c.rating, c.year, c.images, c.type, c.is_free, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content as c`
 
 	var values []interface{}
 
-	joinMovieQuery := `
-		JOIN movies as m ON m.content_id=c.id
+	joinUserQuery := `
 		LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
 		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id`
 	values = append(values, curUserID)
@@ -172,6 +173,13 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 		values = append(values, pgnt.Count, pgnt.From)
 	}
 
+	joinMovieQuery := "JOIN movies as m ON m.content_id=c.id"
+	if params.IsFree != nil {
+		ind := len(values) + 1
+		joinMovieQuery = fmt.Sprintf("%s AND c.is_free=$%d", joinMovieQuery, ind)
+		values = append(values, params.IsFree)
+	}
+
 	filtersJoinQuery, values := queryBuilder.GetContentJoinFiltersByParams(values, params)
 	filtersWhereQuery, values := queryBuilder.GetContentWhereQueryByParams(values, params)
 
@@ -179,6 +187,7 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 		selectQuery,
 		filtersJoinQuery,
 		joinMovieQuery,
+		joinUserQuery,
 		filtersWhereQuery,
 		pgntQuery,
 	}, " ")
@@ -196,7 +205,7 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 
 		err := rows.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
 			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription, &cnt.Rating,
-			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
+			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsFree, &cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err
 		}
@@ -217,7 +226,7 @@ func (mr *MoviePgRepository) SelectLatest(pgnt *models.Pagination, curUserID uin
 	selectQuery := `
 		SELECT m.id, m.video, c.id, c.name, c.original_name,
 		c.description, c.short_description, c.rating,
-		c.year, c.images, c.type, r.likes,
+		c.year, c.images, c.type, c.is_free, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content AS c
 		JOIN movies as m ON m.content_id=c.id
@@ -251,7 +260,7 @@ func (mr *MoviePgRepository) SelectLatest(pgnt *models.Pagination, curUserID uin
 
 		err := rows.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
 			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription, &cnt.Rating,
-			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
+			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsFree, &cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err
 		}
@@ -272,7 +281,7 @@ func (mr *MoviePgRepository) SelectByRating(pgnt *models.Pagination, curUserID u
 	selectQuery := `
 		SELECT m.id, m.video, c.id, c.name, c.original_name,
 		c.description, c.short_description,
-		c.rating, c.year, c.images, c.type, r.likes,
+		c.rating, c.year, c.images, c.type, c.is_free, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content AS c
 		JOIN movies as m ON m.content_id=c.id
@@ -306,7 +315,7 @@ func (mr *MoviePgRepository) SelectByRating(pgnt *models.Pagination, curUserID u
 
 		err := rows.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
 			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
-			&cnt.Rating, &cnt.Year, &cnt.Images, &cnt.Type,
+			&cnt.Rating, &cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsFree,
 			&cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err
@@ -324,7 +333,7 @@ func (mr *MoviePgRepository) SelectWhereNameLike(curUserID uint64, name string, 
 	selectQuery := `
 		SELECT m.id, m.video, c.id, c.name, c.original_name,
 		c.description, c.short_description,
-		c.rating, c.year, c.images, c.type, r.likes,
+		c.rating, c.year, c.images, c.type, c.is_free, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content AS c
 		JOIN movies as m ON m.content_id=c.id
@@ -362,7 +371,7 @@ func (mr *MoviePgRepository) SelectWhereNameLike(curUserID uint64, name string, 
 
 		err := rows.Scan(&movie.ID, &movie.Video, &cnt.ContentID, &cnt.Name,
 			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
-			&cnt.Rating, &cnt.Year, &cnt.Images, &cnt.Type,
+			&cnt.Rating, &cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsFree,
 			&cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err

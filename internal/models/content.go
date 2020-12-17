@@ -10,6 +10,7 @@ type Content struct {
 	Year             int         `json:"year"`
 	Images           string      `json:"images"`
 	Type             string      `json:"type"`
+	IsFree           *bool       `json:"is_free"`
 	Countries        []*Country  `json:"countries"`
 	Genres           []*Genre    `json:"genres"`
 	Actors           []*Actor    `json:"actors"`
@@ -39,6 +40,9 @@ func (c *Content) ReplaceBy(other *Content) {
 	}
 	if other.Type == "movie" || other.Type == "tv_show" {
 		c.Type = other.Type
+	}
+	if other.IsFree != nil {
+		c.IsFree = other.IsFree
 	}
 	if len(other.Countries) > 0 {
 		c.Countries = other.Countries

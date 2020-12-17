@@ -64,10 +64,10 @@ func MockMovieRepoSelectFullByIDReturnRows(mock sqlmock.Sqlmock, id uint64, curU
 
 	rows := sqlmock.NewRows([]string{"m.id", "m.video", "c.id", "c.name",
 		"c.original_name", "c.description", "c.short_description",
-		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+		"c.year", "c.is_free", "c.images", "c.type", "r.likes", "is_favourite"})
 	rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name,
 		movie.OriginalName, movie.Description, movie.ShortDescription,
-		movie.Year, movie.Images, movie.Type, movie.IsLiked, movie.IsFavourite)
+		movie.Year, movie.Images, movie.Type, movie.IsFree, movie.IsLiked, movie.IsFavourite)
 	mock.ExpectQuery(`SELECT m.id, m.video, c.id, c.name`).WithArgs(id, curUserID).WillReturnRows(rows)
 }
 
@@ -96,11 +96,11 @@ func MockMovieRepoSelectByParamsReturnRows(mock sqlmock.Sqlmock, params *models.
 
 	rows := sqlmock.NewRows([]string{"m.id", "m.video", "c.id", "c.name",
 		"c.original_name", "c.description", "c.short_description", "c.rating",
-		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+		"c.year", "c.is_free", "c.images", "c.type", "r.likes", "is_favourite"})
 	for _, movie := range movies {
 		rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name,
 			movie.OriginalName, movie.Description, movie.ShortDescription, movie.Rating,
-			movie.Year, movie.Images, movie.Type, movie.IsLiked, movie.IsFavourite)
+			movie.Year, movie.Images, movie.Type, movie.IsFree, movie.IsLiked, movie.IsFavourite)
 	}
 	query := `
 		SELECT m.id, m.video, c.id, c.name`
@@ -114,11 +114,11 @@ func MockMovieRepoSelectLatestReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pagi
 
 	rows := sqlmock.NewRows([]string{"m.id", "m.video", "c.id", "c.name",
 		"c.original_name", "c.description", "c.short_description", "c.rating",
-		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+		"c.year", "c.is_free", "c.images", "c.type", "r.likes", "is_favourite"})
 	for _, movie := range movies {
 		rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name,
 			movie.OriginalName, movie.Description, movie.ShortDescription, movie.Rating,
-			movie.Year, movie.Images, movie.Type, movie.IsLiked, movie.IsFavourite)
+			movie.Year, movie.Images, movie.Type, movie.IsFree, movie.IsLiked, movie.IsFavourite)
 	}
 	query := `
 		SELECT m.id, m.video, c.id, c.name`
@@ -131,11 +131,11 @@ func MockMovieRepoSelectByRatingReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pa
 
 	rows := sqlmock.NewRows([]string{"m.id", "m.video", "c.id", "c.name",
 		"c.original_name", "c.description", "c.short_description", "c.rating",
-		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+		"c.year", "c.is_free", "c.images", "c.type", "r.likes", "is_favourite"})
 	for _, movie := range movies {
 		rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name,
 			movie.OriginalName, movie.Description, movie.ShortDescription, movie.Rating,
-			movie.Year, movie.Images, movie.Type, movie.IsLiked, movie.IsFavourite)
+			movie.Year, movie.Images, movie.Type, movie.IsFree, movie.IsLiked, movie.IsFavourite)
 	}
 	query := `
 		SELECT m.id, m.video, c.id, c.name`
@@ -148,11 +148,11 @@ func MockMovieRepoSelectWhereNameLikeReturnRows(mock sqlmock.Sqlmock, pgnt *mode
 
 	rows := sqlmock.NewRows([]string{"m.id", "m.video", "c.id", "c.name",
 		"c.original_name", "c.description", "c.short_description", "c.rating",
-		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+		"c.year", "c.is_free", "c.images", "c.type", "r.likes", "is_favourite"})
 	for _, movie := range movies {
 		rows.AddRow(movie.ID, movie.Video, movie.ContentID, movie.Name,
 			movie.OriginalName, movie.Description, movie.ShortDescription, movie.Rating,
-			movie.Year, movie.Images, movie.Type, movie.IsLiked, movie.IsFavourite)
+			movie.Year, movie.Images, movie.Type, movie.IsFree, movie.IsLiked, movie.IsFavourite)
 	}
 	query := `
 		SELECT m.id, m.video, c.id, c.name`

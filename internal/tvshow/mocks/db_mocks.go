@@ -40,10 +40,10 @@ func MockTVShowRepoSelectFullByIDReturnRows(mock sqlmock.Sqlmock, id uint64, cur
 
 	rows := sqlmock.NewRows([]string{"tv.id", "tv.seasons", "c.id", "c.name",
 		"c.original_name", "c.description", "c.short_description",
-		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+		"c.year", "c.images", "c.type", "c.is_free", "r.likes", "is_favourite"})
 	rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name,
 		tvshow.OriginalName, tvshow.Description, tvshow.ShortDescription,
-		tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsLiked, tvshow.IsFavourite)
+		tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsFree, tvshow.IsLiked, tvshow.IsFavourite)
 	mock.ExpectQuery(`SELECT tv.id, tv.seasons, c.id, c.name`).WithArgs(id, curUserID).WillReturnRows(rows)
 }
 
@@ -72,11 +72,11 @@ func MockTVShowRepoSelectByParamsReturnRows(mock sqlmock.Sqlmock, params *models
 
 	rows := sqlmock.NewRows([]string{"tv.id", "tv.seasons", "c.id", "c.name",
 		"c.original_name", "c.description", "c.short_description", "c.rating",
-		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+		"c.year", "c.images", "c.type", "c.is_free", "r.likes", "is_favourite"})
 	for _, tvshow := range tv_shows {
 		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name,
 			tvshow.OriginalName, tvshow.Description, tvshow.ShortDescription, tvshow.Rating,
-			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsLiked, tvshow.IsFavourite)
+			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsFree, tvshow.IsLiked, tvshow.IsFavourite)
 	}
 	query := `
 		SELECT tv.id, tv.seasons, c.id, c.name`
@@ -90,11 +90,11 @@ func MockTVShowRepoSelectLatestReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pag
 
 	rows := sqlmock.NewRows([]string{"tv.id", "tv.seasons", "c.id", "c.name",
 		"c.original_name", "c.description", "c.short_description", "c.rating",
-		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+		"c.year", "c.images", "c.type", "c.is_free", "r.likes", "is_favourite"})
 	for _, tvshow := range tv_shows {
 		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name,
 			tvshow.OriginalName, tvshow.Description, tvshow.ShortDescription, tvshow.Rating,
-			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsLiked, tvshow.IsFavourite)
+			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsFree, tvshow.IsLiked, tvshow.IsFavourite)
 	}
 	query := `
 		SELECT tv.id, tv.seasons, c.id, c.name`
@@ -107,11 +107,11 @@ func MockTVShowRepoSelectByRatingReturnRows(mock sqlmock.Sqlmock, pgnt *models.P
 
 	rows := sqlmock.NewRows([]string{"tv.id", "tv.seasons", "c.id", "c.name",
 		"c.original_name", "c.description", "c.short_description", "c.rating",
-		"c.year", "c.images", "c.type", "r.likes", "is_favourite"})
+		"c.year", "c.images", "c.type", "c.is_free", "r.likes", "is_favourite"})
 	for _, tvshow := range tv_shows {
 		rows.AddRow(tvshow.ID, tvshow.Seasons, tvshow.ContentID, tvshow.Name,
 			tvshow.OriginalName, tvshow.Description, tvshow.ShortDescription, tvshow.Rating,
-			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsLiked, tvshow.IsFavourite)
+			tvshow.Year, tvshow.Images, tvshow.Type, tvshow.IsFree, tvshow.IsLiked, tvshow.IsFavourite)
 	}
 	query := `
 		SELECT tv.id, tv.seasons, c.id, c.name`

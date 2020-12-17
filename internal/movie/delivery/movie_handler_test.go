@@ -65,6 +65,7 @@ type Request struct {
 	Description      string   `json:"description" validate:"required"`
 	ShortDescription string   `json:"short_description" validate:"required"`
 	Year             int      `json:"year" validate:"required"`
+	IsFree           *bool    `json:"is_free" validate:"required"`
 	CountriesID      []uint64 `json:"countries" validate:"required"`
 	GenresID         []uint64 `json:"genres" validate:"required"`
 	ActorsID         []uint64 `json:"actors" validate:"required"`
@@ -83,12 +84,14 @@ func TestMovieHandler_CreateMovieHandler(t *testing.T) {
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
 
+	isFree := true
 	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
 		OriginalName:     "Shrek",
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
 		ShortDescription: "Полная сюрпризов сказка об ужасном болотном огре",
 		Year:             2001,
+		IsFree:           &isFree,
 		Countries:        countries,
 		Genres:           genres,
 		Actors:           actors,
@@ -107,6 +110,7 @@ func TestMovieHandler_CreateMovieHandler(t *testing.T) {
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
 		ShortDescription: "Полная сюрпризов сказка об ужасном болотном огре",
 		Year:             2001,
+		IsFree:           &isFree,
 		CountriesID:      countriesID,
 		GenresID:         genresID,
 		ActorsID:         actorsID,
@@ -188,12 +192,14 @@ func TestMovieHandler_UpdateMovieHandler(t *testing.T) {
 	actorUseCase := actorMocks.NewMockActorUseCase(ctrl)
 	directorUseCase := directorMocks.NewMockDirectorUseCase(ctrl)
 
+	isFree := true
 	var contentInst *models.Content = &models.Content{
 		Name:             "Шрек",
 		OriginalName:     "Shrek",
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
 		ShortDescription: "Полная сюрпризов сказка об ужасном болотном огре",
 		Year:             2001,
+		IsFree:           &isFree,
 		Countries:        countries,
 		Genres:           genres,
 		Actors:           actors,
@@ -211,6 +217,7 @@ func TestMovieHandler_UpdateMovieHandler(t *testing.T) {
 		Description:      "Полная сюрпризов сказка об ужасном болотном огре, который ненароком наводит порядок в Сказочной стране",
 		ShortDescription: "Полная сюрпризов сказка об ужасном болотном огре",
 		Year:             2001,
+		IsFree:           &isFree,
 		CountriesID:      countriesID,
 		GenresID:         genresID,
 		ActorsID:         actorsID,

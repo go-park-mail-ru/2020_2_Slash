@@ -3,8 +3,10 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
+	"fmt"
 	"strings"
+
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	queryBuilder "github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/query_builder"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
@@ -87,7 +89,7 @@ func (tr *TVShowPgRepository) SelectFullByID(tvshowID uint64, curUserID uint64) 
 
 	row := tr.dbConn.QueryRow(
 		`SELECT tv.id, tv.seasons, c.id, c.name, c.original_name, c.description, c.short_description,
-		c.year, c.images, c.type, r.likes,
+		c.year, c.images, c.type, c.is_free, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content AS c
 		JOIN tv_shows as tv ON tv.content_id=c.id AND tv.id=$1
@@ -97,7 +99,7 @@ func (tr *TVShowPgRepository) SelectFullByID(tvshowID uint64, curUserID uint64) 
 
 	err := row.Scan(&tvshow.ID, &tvshow.Seasons, &cnt.ContentID, &cnt.Name,
 		&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
-		&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
+		&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsFree, &cnt.IsLiked, &cnt.IsFavourite)
 
 	if err != nil {
 		return nil, err
@@ -128,7 +130,7 @@ func (tr *TVShowPgRepository) SelectWhereNameLike(name string,
 	selectQuery := `
 		SELECT tv.id, tv.seasons, c.id, c.name, c.original_name,
 		c.description, c.short_description, c.rating,
-		c.year, c.images, c.type, r.likes,
+		c.year, c.images, c.type, c.is_free, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content AS c
 		JOIN tv_shows as tv ON tv.content_id=c.id
@@ -164,7 +166,7 @@ func (tr *TVShowPgRepository) SelectWhereNameLike(name string,
 
 		err := rows.Scan(&tvshow.ID, &tvshow.Seasons, &cnt.ContentID, &cnt.Name,
 			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription, &cnt.Rating,
-			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
+			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsFree, &cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err
 		}
@@ -184,14 +186,13 @@ func (tr *TVShowPgRepository) SelectByParams(params *models.ContentFilter,
 
 	selectQuery := `
 		SELECT tv.id, tv.seasons, c.id, c.name, c.original_name, c.description,
-		c.short_description, c.rating, c.year, c.images, c.type, r.likes,
+		c.short_description, c.rating, c.year, c.images, c.type, c.is_free, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content as c`
 
 	var values []interface{}
 
-	joinTVShowQuery := `
-		JOIN tv_shows as tv ON tv.content_id=c.id
+	joinUserQuery := `
 		LEFT OUTER JOIN rates as r ON r.user_id=$1 AND r.content_id=c.id
 		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id`
 	values = append(values, curUserID)
@@ -202,6 +203,13 @@ func (tr *TVShowPgRepository) SelectByParams(params *models.ContentFilter,
 		values = append(values, pgnt.Count, pgnt.From)
 	}
 
+	joinTVShowQuery := "JOIN tv_shows as tv ON tv.content_id=c.id"
+	if params.IsFree != nil {
+		ind := len(values) + 1
+		joinTVShowQuery = fmt.Sprintf("%s AND c.is_free=$%d", joinTVShowQuery, ind)
+		values = append(values, params.IsFree)
+	}
+
 	filtersJoinQuery, values := queryBuilder.GetContentJoinFiltersByParams(values, params)
 	filtersWhereQuery, values := queryBuilder.GetContentWhereQueryByParams(values, params)
 
@@ -209,6 +217,7 @@ func (tr *TVShowPgRepository) SelectByParams(params *models.ContentFilter,
 		selectQuery,
 		filtersJoinQuery,
 		joinTVShowQuery,
+		joinUserQuery,
 		filtersWhereQuery,
 		pgntQuery,
 	}, " ")
@@ -226,7 +235,7 @@ func (tr *TVShowPgRepository) SelectByParams(params *models.ContentFilter,
 
 		err := rows.Scan(&tvshow.ID, &tvshow.Seasons, &cnt.ContentID, &cnt.Name,
 			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription, &cnt.Rating,
-			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
+			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsFree, &cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err
 		}
@@ -247,7 +256,7 @@ func (tr *TVShowPgRepository) SelectLatest(pgnt *models.Pagination, curUserID ui
 	selectQuery := `
 		SELECT tv.id, tv.seasons, c.id, c.name, c.original_name,
 		c.description, c.short_description, c.rating,
-		c.year, c.images, c.type, r.likes,
+		c.year, c.images, c.type, c.is_free, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content AS c
 		JOIN tv_shows as tv ON tv.content_id=c.id
@@ -281,7 +290,7 @@ func (tr *TVShowPgRepository) SelectLatest(pgnt *models.Pagination, curUserID ui
 
 		err := rows.Scan(&tvshow.ID, &tvshow.Seasons, &cnt.ContentID, &cnt.Name,
 			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription, &cnt.Rating,
-			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsLiked, &cnt.IsFavourite)
+			&cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsFree, &cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err
 		}
@@ -302,7 +311,7 @@ func (tr *TVShowPgRepository) SelectByRating(pgnt *models.Pagination, curUserID 
 	selectQuery := `
 		SELECT tv.id, tv.seasons, c.id, c.name, c.original_name,
 		c.description, c.short_description,
-		c.rating, c.year, c.images, c.type, r.likes,
+		c.rating, c.year, c.images, c.type, c.is_free, r.likes,
 		CASE WHEN f.content_id IS NULL THEN false ELSE true END AS is_favourite
 		FROM content AS c
 		JOIN tv_shows as tv ON tv.content_id=c.id
@@ -336,7 +345,7 @@ func (tr *TVShowPgRepository) SelectByRating(pgnt *models.Pagination, curUserID 
 
 		err := rows.Scan(&tvshow.ID, &tvshow.Seasons, &cnt.ContentID, &cnt.Name,
 			&cnt.OriginalName, &cnt.Description, &cnt.ShortDescription,
-			&cnt.Rating, &cnt.Year, &cnt.Images, &cnt.Type,
+			&cnt.Rating, &cnt.Year, &cnt.Images, &cnt.Type, &cnt.IsFree,
 			&cnt.IsLiked, &cnt.IsFavourite)
 		if err != nil {
 			return nil, err

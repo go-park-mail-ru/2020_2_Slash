@@ -1,10 +1,11 @@
 package delivery
 
 import (
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"net/http"
 	"strconv"
+
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
@@ -64,6 +65,7 @@ func (th *TVShowHandler) CreateTVShowHandler() echo.HandlerFunc {
 		Description      string   `json:"description" validate:"required"`
 		ShortDescription string   `json:"short_description" validate:"required"`
 		Year             int      `json:"year" validate:"required"`
+		IsFree           *bool    `json:"is_free" validate:"required"`
 		CountriesID      []uint64 `json:"countries" validate:"required"`
 		GenresID         []uint64 `json:"genres" validate:"required"`
 		ActorsID         []uint64 `json:"actors" validate:"required"`
@@ -108,6 +110,7 @@ func (th *TVShowHandler) CreateTVShowHandler() echo.HandlerFunc {
 			Description:      req.Description,
 			ShortDescription: req.ShortDescription,
 			Year:             req.Year,
+			IsFree:           req.IsFree,
 			Countries:        countries,
 			Genres:           genres,
 			Actors:           actors,
