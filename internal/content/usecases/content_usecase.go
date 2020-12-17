@@ -2,6 +2,9 @@ package usecases
 
 import (
 	"database/sql"
+	"os"
+	"path/filepath"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor"
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
@@ -10,8 +13,6 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/genre"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
-	"os"
-	"path/filepath"
 )
 
 type ContentUsecase struct {

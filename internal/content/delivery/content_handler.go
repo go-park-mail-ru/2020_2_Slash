@@ -10,7 +10,10 @@ import (
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/movie"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/mwares"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/tvshow"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
@@ -20,17 +23,62 @@ import (
 
 type ContentHandler struct {
 	contentUcase content.ContentUsecase
+	movieUcase   movie.MovieUsecase
+	tvshowUcase  tvshow.TVShowUsecase
 }
 
-func NewContentHandler(contentUcase content.ContentUsecase) *ContentHandler {
+func NewContentHandler(contentUcase content.ContentUsecase,
+	movieUcase movie.MovieUsecase, tvshowUcase tvshow.TVShowUsecase) *ContentHandler {
 	return &ContentHandler{
 		contentUcase: contentUcase,
+		movieUcase:   movieUcase,
+		tvshowUcase:  tvshowUcase,
 	}
 }
 
 func (ch *ContentHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
+	e.GET("/api/v1/content", ch.GetContentHandler())
 	e.PUT("/api/v1/content/:mid/poster", ch.UpdatePostersHandler(),
 		middleware.BodyLimit("10M"), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
+}
+
+func (ch *ContentHandler) GetContentHandler() echo.HandlerFunc {
+	type Request struct {
+		models.ContentFilter
+		models.Pagination
+	}
+
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		// nolint: errcheck
+		userID, _ := cntx.Get("userID").(uint64)
+
+		movies, err := ch.movieUcase.ListByParams(&req.ContentFilter,
+			&req.Pagination, userID)
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		tvshows, err := ch.tvshowUcase.ListByParams(&req.ContentFilter,
+			&req.Pagination, userID)
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"movies":  movies,
+				"tvshows": tvshows,
+			},
+		})
+	}
 }
 
 func (ch *ContentHandler) UpdatePostersHandler() echo.HandlerFunc {

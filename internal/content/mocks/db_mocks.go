@@ -17,9 +17,9 @@ func MockContentRepoDeleteReturnResultOk(mock sqlmock.Sqlmock, id uint64) {
 
 func MockContentRepoSelectByIDReturnRows(mock sqlmock.Sqlmock, id uint64, content *models.Content) {
 	rows := sqlmock.NewRows([]string{"id", "name", "original_name",
-		"description", "short_description", "year", "images", "type"})
+		"description", "short_description", "year", "images", "type", "is_free"})
 	rows.AddRow(content.ContentID, content.Name, content.OriginalName, content.Description,
-		content.ShortDescription, content.Year, content.Images, content.Type)
+		content.ShortDescription, content.Year, content.Images, content.Type, content.IsFree)
 	mock.ExpectQuery(`SELECT`).WithArgs(id).WillReturnRows(rows)
 }
 
@@ -65,7 +65,7 @@ func MockContentRepoInsertReturnResultOk(mock sqlmock.Sqlmock, content *models.C
 	rows := sqlmock.NewRows([]string{"id"}).AddRow(content.ContentID)
 	mock.ExpectQuery(`INSERT INTO content`).
 		WithArgs(content.Name, content.OriginalName, content.Description,
-			content.ShortDescription, content.Year, content.Images, content.Type).WillReturnRows(rows)
+			content.ShortDescription, content.Year, content.Images, content.Type, content.IsFree).WillReturnRows(rows)
 
 	mock.ExpectPrepare(``).ExpectExec().WithArgs(content.ContentID, country.ID).WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectExec(``).WithArgs().WillReturnResult(driver.ResultNoRows)
@@ -87,7 +87,7 @@ func MockContentRepoUpdateReturnResultOk(mock sqlmock.Sqlmock, content *models.C
 	mock.ExpectBegin()
 	mock.ExpectExec(`UPDATE`).
 		WithArgs(content.ContentID, content.Name, content.OriginalName, content.Description,
-			content.ShortDescription, content.Year, content.Images, content.Type).WillReturnResult(driver.ResultNoRows)
+			content.ShortDescription, content.Year, content.Images, content.Type, content.IsFree).WillReturnResult(driver.ResultNoRows)
 
 	mock.ExpectExec(`DELETE`).
 		WithArgs(content.ContentID).WillReturnResult(driver.ResultNoRows)
