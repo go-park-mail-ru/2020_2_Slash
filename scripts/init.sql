@@ -26,6 +26,15 @@ CREATE TABLE IF NOT EXISTS users (
     role role NOT NULL DEFAULT 'user'
 );
 
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id serial PRIMARY KEY,
+    owner int NOT NULL UNIQUE,
+    expires timestamptz NOT NULL,
+    active bool NOT NULL,
+
+    FOREIGN KEY (owner) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS sessions (
     id serial PRIMARY KEY,
     value varchar(64) UNIQUE NOT NULL,
