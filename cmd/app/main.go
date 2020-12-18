@@ -70,6 +70,10 @@ import (
 
 	searchHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/search/delivery"
 	searchUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/search/usecases"
+
+	subscriptionHandler "github.com/go-park-mail-ru/2020_2_Slash/internal/subscription/delivery"
+	subscriptionRepo "github.com/go-park-mail-ru/2020_2_Slash/internal/subscription/repository"
+	subscriptionUsecase "github.com/go-park-mail-ru/2020_2_Slash/internal/subscription/usecases"
 )
 
 func main() {
@@ -114,6 +118,7 @@ func main() {
 	favouriteRepo := favouriteRepo.NewFavouritePgRepository(dbConnection)
 	seasonRepo := seasonRepo.NewSeasonPgRepository(dbConnection)
 	episodeRepo := episodeRepo.NewEpisodeRepository(dbConnection)
+	subscriptionRepo := subscriptionRepo.NewSubscriptionPgRepository(dbConnection)
 
 	// Usecases
 	genreUcase := genreUsecase.NewGenreUsecase(genreRepo)
@@ -128,6 +133,7 @@ func main() {
 	seasonUcase := seasonUsecase.NewSeasonUsecase(seasonRepo, tvshowUcase)
 	episodeUcase := episodeUsecase.NewEpisodeUsecase(episodeRepo, seasonUcase)
 	searchUcase := searchUsecase.NewSearchUsecase(actorRepo, movieRepo, tvshowRepo)
+	subscriptionUsecase := subscriptionUsecase.NewSubscriptionUseCase(subscriptionRepo)
 
 	// Session microservice
 	sessionGrpcConn, err := grpc.Dial(consts.SessionblockAddress, grpc.WithInsecure())
@@ -174,6 +180,7 @@ func main() {
 	seasonHandler := seasonHandler.NewSeasonHandler(seasonUcase)
 	episodeHandler := episodeHandler.NewEpisodeHandler(episodeUcase)
 	searchHandler := searchHandler.NewSearchHandler(searchUcase)
+	subscriptionHandler := subscriptionHandler.NewSubscriptionHandler(subscriptionUsecase)
 
 	userHandler.Configure(e, mw)
 	sessionHandler.Configure(e, mw)
@@ -189,6 +196,7 @@ func main() {
 	seasonHandler.Configure(e, mw)
 	episodeHandler.Configure(e, mw)
 	searchHandler.Configure(e, mw)
+	subscriptionHandler.Configure(e, mw)
 
 	log.Fatal(e.Start(config.GetServerConnString()))
 }
