@@ -41,4 +41,6 @@ const (
 	CodeEpisodeDoesNotExist
 	CodeEpisodeAlreadyExist
 	CodeGetFromContextError
+	CodeSubscriptionAlreadyExist
+	CodeSubscriptionDoesNotExist
 )

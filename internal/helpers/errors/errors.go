@@ -276,4 +276,16 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "error in context.Get()",
 		UserMessage: "Что-то пошло не так",
 	},
+	CodeSubscriptionAlreadyExist: {
+		Code:        CodeSubscriptionAlreadyExist,
+		HTTPCode:    http.StatusConflict,
+		Message:     "subscription already exist",
+		UserMessage: "Подписка уже оформлена",
+	},
+	CodeSubscriptionDoesNotExist: {
+		Code:        CodeSubscriptionDoesNotExist,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "subscription does not exist in db",
+		UserMessage: "Подписка ещё не оформлена",
+	},
 }
