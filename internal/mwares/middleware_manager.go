@@ -30,7 +30,7 @@ func NewMiddlewareManager(sessUcase session.SessionUsecase,
 		sessUcase: sessUcase,
 		userUcase: userUcase,
 		mntng:     mntng,
-		origins:   []string{"http://www.flicksbox.ru"},
+		origins:   []string{"https://www.flicksbox.ru", "http://www.flicksbox.ru:3000"},
 	}
 }
 
@@ -61,6 +61,10 @@ func (m *MiddlewareManager) PanicRecovering(next echo.HandlerFunc) echo.HandlerF
 
 func (m *MiddlewareManager) AccessLog(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(cntx echo.Context) error {
+		if cntx.Request().URL.String() == "/metrics" {
+			return next(cntx)
+		}
+
 		logger.Info(cntx.Request().RemoteAddr, " ", cntx.Request().Method, " ", cntx.Request().URL)
 
 		start := time.Now()

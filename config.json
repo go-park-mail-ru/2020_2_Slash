@@ -14,8 +14,8 @@
     "port": 5432
   },
   "server": {
-    "host": "localhost",
-    "port": 8000
+    "host": "0.0.0.0",
+    "port": 8080
   },
   "userblock_microservice": {
     "host": "localhost",
