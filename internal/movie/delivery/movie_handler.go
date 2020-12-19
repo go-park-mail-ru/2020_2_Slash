@@ -66,6 +66,7 @@ func (mh *MovieHandler) CreateMovieHandler() echo.HandlerFunc {
 		Description      string   `json:"description" validate:"required"`
 		ShortDescription string   `json:"short_description" validate:"required"`
 		Year             int      `json:"year" validate:"required"`
+		IsFree           *bool    `json:"is_free" validate:"required"`
 		CountriesID      []uint64 `json:"countries" validate:"required"`
 		GenresID         []uint64 `json:"genres" validate:"required"`
 		ActorsID         []uint64 `json:"actors" validate:"required"`
@@ -110,6 +111,7 @@ func (mh *MovieHandler) CreateMovieHandler() echo.HandlerFunc {
 			Description:      req.Description,
 			ShortDescription: req.ShortDescription,
 			Year:             req.Year,
+			IsFree:           req.IsFree,
 			Countries:        countries,
 			Genres:           genres,
 			Actors:           actors,
@@ -141,6 +143,7 @@ func (mh *MovieHandler) UpdateMovieHandler() echo.HandlerFunc {
 		Description      string   `json:"description"`
 		ShortDescription string   `json:"short_description"`
 		Year             int      `json:"year"`
+		IsFree           *bool    `json:"is_free"`
 		CountriesID      []uint64 `json:"countries"`
 		GenresID         []uint64 `json:"genres"`
 		ActorsID         []uint64 `json:"actors"`
@@ -185,6 +188,7 @@ func (mh *MovieHandler) UpdateMovieHandler() echo.HandlerFunc {
 			Description:      req.Description,
 			ShortDescription: req.ShortDescription,
 			Year:             req.Year,
+			IsFree:           req.IsFree,
 			Countries:        countries,
 			Genres:           genres,
 			Actors:           actors,

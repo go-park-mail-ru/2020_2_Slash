@@ -2,10 +2,6 @@ package helpers
 
 import (
 	"errors"
-	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
-	cstm_errors "github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
-	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
-	uuid "github.com/satori/go.uuid"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -13,12 +9,18 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	cstm_errors "github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
+	uuid "github.com/satori/go.uuid"
 )
 
 var allowedImagesContentType = map[string]string{
 	"image/png":  "png",
 	"image/jpg":  "jpg",
 	"image/jpeg": "jpeg",
+	"image/webp": "webp",
 }
 
 var allowedVideoContentType = map[string]string{

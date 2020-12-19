@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
@@ -28,11 +29,11 @@ func (cr *ContentPgRepository) Insert(content *models.Content) error {
 
 	row := tx.QueryRow(
 		`INSERT INTO content(name, original_name, description, short_description,
-		year, images, type)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		year, images, type, is_free)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id`,
 		content.Name, content.OriginalName, content.Description,
-		content.ShortDescription, content.Year, content.Images, content.Type)
+		content.ShortDescription, content.Year, content.Images, content.Type, content.IsFree)
 
 	err = row.Scan(&content.ContentID)
 	if err != nil {
@@ -89,10 +90,10 @@ func (cr *ContentPgRepository) Update(content *models.Content) error {
 	_, err = tx.Exec(
 		`UPDATE content
 		SET name = $2, original_name = $3, description = $4,
-		short_description = $5, year = $6, images = $7, type = $8
+		short_description = $5, year = $6, images = $7, type = $8, is_free = $9
 		WHERE id = $1;`,
 		content.ContentID, content.Name, content.OriginalName, content.Description,
-		content.ShortDescription, content.Year, content.Images, content.Type)
+		content.ShortDescription, content.Year, content.Images, content.Type, content.IsFree)
 
 	if err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
@@ -192,13 +193,13 @@ func (cr *ContentPgRepository) SelectByID(contentID uint64) (*models.Content, er
 
 	row := cr.dbConn.QueryRow(
 		`SELECT id, name, original_name, description, short_description,
-		year, images, type
+		year, images, type, is_free
 		FROM content
 		WHERE id=$1`,
 		contentID)
 
 	err := row.Scan(&content.ContentID, &content.Name, &content.OriginalName, &content.Description,
-		&content.ShortDescription, &content.Year, &content.Images, &content.Type)
+		&content.ShortDescription, &content.Year, &content.Images, &content.Type, &content.IsFree)
 
 	if err != nil {
 		return nil, err

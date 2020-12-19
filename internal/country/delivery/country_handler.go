@@ -1,6 +1,9 @@
 package delivery
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/country"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
@@ -10,8 +13,6 @@ import (
 	reader "github.com/go-park-mail-ru/2020_2_Slash/tools/request_reader"
 	. "github.com/go-park-mail-ru/2020_2_Slash/tools/response"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strconv"
 )
 
 type CountryHandler struct {
@@ -28,7 +29,7 @@ func (ch *CountryHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) 
 	e.POST("/api/v1/countries", ch.CreateCountryHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.PUT("/api/v1/countries/:cid", ch.UpdateCountryHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.DELETE("/api/v1/countries/:cid", ch.DeleteCountryHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
-	e.GET("/api/v1/countries", ch.GetCountriesListHandler(), mw.CheckAuth)
+	e.GET("/api/v1/countries", ch.GetCountriesListHandler())
 }
 
 func (ch *CountryHandler) CreateCountryHandler() echo.HandlerFunc {

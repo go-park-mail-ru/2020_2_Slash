@@ -1,10 +1,12 @@
 package delivery
 
 import (
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"net/http"
 	"strconv"
+
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/content"
@@ -49,6 +51,7 @@ func NewTVShowHandler(tvshowUcase tvshow.TVShowUsecase, contentUcase content.Con
 
 func (th *TVShowHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/tvshows", th.CreateTVShowHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
+	e.PUT("/api/v1/tvshows/:tid", th.UpdateTVShowHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.DELETE("/api/v1/tvshows/:tid", th.DeleteTVShowHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.GET("/api/v1/tvshows/:tid", th.GetTVShowHandler(), mw.GetAuth)
 	e.GET("/api/v1/tvshows/:tid/episodes", th.GetTVShowSeasonsHandler())
@@ -64,6 +67,7 @@ func (th *TVShowHandler) CreateTVShowHandler() echo.HandlerFunc {
 		Description      string   `json:"description" validate:"required"`
 		ShortDescription string   `json:"short_description" validate:"required"`
 		Year             int      `json:"year" validate:"required"`
+		IsFree           *bool    `json:"is_free" validate:"required"`
 		CountriesID      []uint64 `json:"countries" validate:"required"`
 		GenresID         []uint64 `json:"genres" validate:"required"`
 		ActorsID         []uint64 `json:"actors" validate:"required"`
@@ -108,6 +112,7 @@ func (th *TVShowHandler) CreateTVShowHandler() echo.HandlerFunc {
 			Description:      req.Description,
 			ShortDescription: req.ShortDescription,
 			Year:             req.Year,
+			IsFree:           req.IsFree,
 			Countries:        countries,
 			Genres:           genres,
 			Actors:           actors,
@@ -125,6 +130,93 @@ func (th *TVShowHandler) CreateTVShowHandler() echo.HandlerFunc {
 		}
 
 		return cntx.JSON(http.StatusCreated, Response{
+			Body: &Body{
+				"tvshow": tvshow,
+			},
+		})
+	}
+}
+
+func (th *TVShowHandler) UpdateTVShowHandler() echo.HandlerFunc {
+	type Request struct {
+		Name             string   `json:"name" validate:"lte=128"`
+		OriginalName     string   `json:"original_name" validate:"lte=128"`
+		Description      string   `json:"description"`
+		ShortDescription string   `json:"short_description"`
+		Year             int      `json:"year"`
+		IsFree           *bool    `json:"is_free"`
+		CountriesID      []uint64 `json:"countries"`
+		GenresID         []uint64 `json:"genres"`
+		ActorsID         []uint64 `json:"actors"`
+		DirectorsID      []uint64 `json:"directors"`
+	}
+
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		// Get countries
+		countries, err := th.countryUcase.ListByID(uniq.RemoveDuplicates(req.CountriesID))
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+		// Get genres
+		genres, err := th.genreUcase.ListByID(uniq.RemoveDuplicates(req.GenresID))
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+		// Get actors
+		actors, err := th.actorUcase.ListByID(uniq.RemoveDuplicates(req.ActorsID))
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+		// Get directors
+		directors, err := th.directorUcase.ListByID(uniq.RemoveDuplicates(req.DirectorsID))
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		contentData := &models.Content{
+			Name:             req.Name,
+			OriginalName:     req.OriginalName,
+			Description:      req.Description,
+			ShortDescription: req.ShortDescription,
+			Year:             req.Year,
+			IsFree:           req.IsFree,
+			Countries:        countries,
+			Genres:           genres,
+			Actors:           actors,
+			Directors:        directors,
+		}
+
+		tvshowID, parseErr := strconv.ParseUint(cntx.Param("tid"), 10, 64)
+		if parseErr != nil {
+			customErr := errors.New(CodeInternalError, parseErr)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		tvshow, err := th.tvshowUcase.GetByID(tvshowID)
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		content, err := th.contentUcase.UpdateByID(tvshow.ContentID, contentData)
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		tvshow.Content = *content
+		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
 				"tvshow": tvshow,
 			},

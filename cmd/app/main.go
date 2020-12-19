@@ -2,10 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"log"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	userGRPC "github.com/go-park-mail-ru/2020_2_Slash/internal/user/delivery/grpc"
 	"google.golang.org/grpc"
-	"log"
 
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
@@ -165,7 +166,7 @@ func main() {
 	countryHandler := countryHandler.NewCountryHandler(countryUcase)
 	actorHandler := actorHandler.NewActorHandler(actorUcase)
 	directorHandler := directorHandler.NewDirectorHandler(directorUcase)
-	contentHandler := contentHandler.NewContentHandler(contentUcase)
+	contentHandler := contentHandler.NewContentHandler(contentUcase, movieUcase, tvshowUcase)
 	movieHandler := movieHandler.NewMovieHandler(movieUcase, contentUcase, countryUcase, genreUcase, actorUcase, directorUcase)
 	tvshowHandler := tvshowHandler.NewTVShowHandler(tvshowUcase, contentUcase, countryUcase, genreUcase, actorUcase, directorUcase, seasonUcase)
 	ratingHandler := ratingHandler.NewRatingHandler(ratingUcase)

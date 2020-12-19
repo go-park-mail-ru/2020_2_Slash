@@ -51,9 +51,8 @@ CREATE TABLE IF NOT EXISTS content (
     rating int DEFAULT 0, -- триггер на каждый лайк/дизлайк
     year smallint NOT NULL, -- если сериал, то год выхода 1 сезона
     images varchar(128) NOT NULL, -- путь к папке с постерами (/images/witcher), в которой лежит small.png и large.png
-    type content_type NOT NULL -- movie, tv_show
-
-    -- TODO трейлер позже решить
+    type content_type NOT NULL, -- movie, tv_show
+    is_free boolean NOT NULL DEFAULT TRUE
 );
 
 
