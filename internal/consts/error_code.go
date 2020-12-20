@@ -41,4 +41,14 @@ const (
 	CodeEpisodeDoesNotExist
 	CodeEpisodeAlreadyExist
 	CodeGetFromContextError
+	CodeSubscriptionAlreadyExist
+	CodeSubscriptionDoesNotExist
+	CodeEmptyLabelError
+	CodeParseUserIDError
+	CodeParseUnacceptedError
+	CodeUnacceptedPayment
+	CodeWrongPaymentHash
+	CodeReadKeyFileError
+	CodeParseCodeProError
+	CodeProtectedPayment
 )

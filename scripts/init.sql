@@ -7,7 +7,7 @@ DROP TRIGGER IF EXISTS rating_del on rates;
 DROP TABLE IF EXISTS
     users, sessions, content, directors, content_director, actors, content_actor,
     genres, content_genre, countries, content_country, movies, tv_shows, seasons,
-    episodes, rates, favourites
+    episodes, rates, favourites, subscriptions
     CASCADE;
 
 DO $$ BEGIN
@@ -24,6 +24,16 @@ CREATE TABLE IF NOT EXISTS users (
     password text NOT NULL,
     avatar varchar(64) NOT NULL DEFAULT '',
     role role NOT NULL DEFAULT 'user'
+);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id serial PRIMARY KEY,
+    owner int NOT NULL UNIQUE,
+    expires timestamptz NOT NULL,
+    is_paid bool NOT NULL,
+    is_canceled bool NOT NULL,
+
+    FOREIGN KEY (owner) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
