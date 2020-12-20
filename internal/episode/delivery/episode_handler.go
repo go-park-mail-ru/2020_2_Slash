@@ -187,7 +187,7 @@ func buildSeasonDirPath(seasonNumber int, content *models.Content) string {
 
 func (eh *EpisodeHandler) UpdatePosterHandler() echo.HandlerFunc {
 	const postersDirRoot = "/images/"
-	const format = ".png"
+	const format = ".webp"
 
 	return func(cntx echo.Context) error {
 		posterImage, customErr := reader.NewRequestReader(cntx).ReadNotRequiredImage("poster")
@@ -231,7 +231,7 @@ func (eh *EpisodeHandler) UpdatePosterHandler() echo.HandlerFunc {
 		// Store poster
 		posterName := strconv.Itoa(episode.Number) + format
 		absPosterPath := filepath.Join(postersDirAbsPath, posterName)
-		if err := helpers.StoreFile(posterImage, absPosterPath); err != nil {
+		if err := helpers.StoreSmallImage(posterImage, absPosterPath); err != nil {
 			if episode.Poster == "" {
 				removeErr := os.RemoveAll(postersDirAbsPath)
 				if removeErr != nil {
