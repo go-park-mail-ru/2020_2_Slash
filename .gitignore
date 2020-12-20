@@ -162,3 +162,6 @@ images/
 
 # Videos storage directory
 videos/
+
+# Directory that generating while compression
+vendor/webp/

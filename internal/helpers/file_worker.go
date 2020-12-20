@@ -2,6 +2,9 @@ package helpers
 
 import (
 	"errors"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -13,6 +16,8 @@ import (
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	cstm_errors "github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
+	"github.com/nfnt/resize"
+	"github.com/nickalie/go-webpbin"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -20,11 +25,49 @@ var allowedImagesContentType = map[string]string{
 	"image/png":  "png",
 	"image/jpg":  "jpg",
 	"image/jpeg": "jpeg",
-	"image/webp": "webp",
 }
 
 var allowedVideoContentType = map[string]string{
 	"video/mp4": "mp4",
+}
+
+func StoreFileWithCompression(fileHeader *multipart.FileHeader, absFilePath string, width, height uint) *cstm_errors.Error {
+	file, err := fileHeader.Open()
+	if err != nil {
+		return cstm_errors.New(CodeBadRequest, err)
+	}
+	defer file.Close()
+
+	// Get image
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return cstm_errors.New(CodeInternalError, err)
+	}
+
+	// Resize
+	resizedImage := resize.Resize(width, height, img, resize.Lanczos3)
+
+	// Create file to storage
+	fileMode := int(0777)
+	newFile, err := os.OpenFile(filepath.Clean(absFilePath), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.FileMode(fileMode))
+	if err != nil {
+		return cstm_errors.New(CodeInternalError, err)
+	}
+	defer newFile.Close()
+
+	// Compress
+	if err := webpbin.Encode(newFile, resizedImage); err != nil {
+		return cstm_errors.New(CodeInternalError, err)
+	}
+	return nil
+}
+
+func StoreSmallImage(fileHeader *multipart.FileHeader, absFilePath string) *cstm_errors.Error {
+	return StoreFileWithCompression(fileHeader, absFilePath, SmallImageWidth, 0)
+}
+
+func StoreLargeImage(fileHeader *multipart.FileHeader, absFilePath string) *cstm_errors.Error {
+	return StoreFileWithCompression(fileHeader, absFilePath, LargeImageWidth, 0)
 }
 
 func StoreFile(fileHeader *multipart.FileHeader, absFilePath string) *cstm_errors.Error {

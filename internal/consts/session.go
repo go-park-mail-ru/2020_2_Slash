@@ -4,5 +4,5 @@ import (
 	"time"
 )
 
-var ExpiresDuration = 10 * time.Hour
-var SessionName = "session_id"
+const ExpiresDuration = 10 * time.Hour
+const SessionName = "session_id"

@@ -83,8 +83,8 @@ func (ch *ContentHandler) GetContentHandler() echo.HandlerFunc {
 
 func (ch *ContentHandler) UpdatePostersHandler() echo.HandlerFunc {
 	const postersDirRoot = "/images/"
-	const smallPosterName = "small.png"
-	const largePosterName = "large.png"
+	const smallPosterName = "640"
+	const largePosterName = "1920"
 
 	return func(cntx echo.Context) error {
 		smallImage, err := reader.NewRequestReader(cntx).ReadNotRequiredImage("small_poster")
@@ -134,7 +134,7 @@ func (ch *ContentHandler) UpdatePostersHandler() echo.HandlerFunc {
 		// Store small poster
 		if smallImage != nil {
 			smallPosterPath := filepath.Join(postersDirPath, smallPosterName)
-			if err := helpers.StoreFile(smallImage, smallPosterPath); err != nil {
+			if err := helpers.StoreSmallImage(smallImage, smallPosterPath); err != nil {
 				if content.Images == "" {
 					removeErr := os.RemoveAll(postersDirPath)
 					if removeErr != nil {
@@ -149,7 +149,7 @@ func (ch *ContentHandler) UpdatePostersHandler() echo.HandlerFunc {
 		// Store large poster
 		if largeImage != nil {
 			largePosterPath := filepath.Join(postersDirPath, largePosterName)
-			if err := helpers.StoreFile(largeImage, largePosterPath); err != nil {
+			if err := helpers.StoreLargeImage(largeImage, largePosterPath); err != nil {
 				if content.Images == "" {
 					removeErr := os.RemoveAll(postersDirPath)
 					if removeErr != nil {
