@@ -288,4 +288,52 @@ var Errors = map[ErrorCode]*Error{
 		Message:     "subscription does not exist in db",
 		UserMessage: "Подписка ещё не оформлена",
 	},
+	CodeEmptyLabelError: {
+		Code:        CodeEmptyLabelError,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "label should contain user id",
+		UserMessage: "Что-то пошло не так",
+	},
+	CodeParseUserIDError: {
+		Code:        CodeParseUserIDError,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "unable to parse userID",
+		UserMessage: "Что-то пошло не так",
+	},
+	CodeParseUnacceptedError: {
+		Code:        CodeParseUnacceptedError,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "unable to parse unaccepted field",
+		UserMessage: "Что-то пошло не так",
+	},
+	CodeUnacceptedPayment: {
+		Code:        CodeUnacceptedPayment,
+		HTTPCode:    http.StatusProcessing,
+		Message:     "payment hasn't been accepted yet",
+		UserMessage: "Платёж обрабатывается",
+	},
+	CodeWrongPaymentHash: {
+		Code:        CodeWrongPaymentHash,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "user hash differs from system hash",
+		UserMessage: "Что-то пошло не так",
+	},
+	CodeReadKeyFileError: {
+		Code:        CodeReadKeyFileError,
+		HTTPCode:    http.StatusInternalServerError,
+		Message:     "Unable to read key file",
+		UserMessage: "Что-то пошло не так",
+	},
+	CodeParseCodeProError: {
+		Code:        CodeParseCodeProError,
+		HTTPCode:    http.StatusBadRequest,
+		Message:     "unable to parse codepro field",
+		UserMessage: "Что-то пошло не так",
+	},
+	CodeProtectedPayment: {
+		Code:        CodeUnacceptedPayment,
+		HTTPCode:    http.StatusProcessing,
+		Message:     "user should input protection code",
+		UserMessage: "Необходимо ввести код протекции",
+	},
 }

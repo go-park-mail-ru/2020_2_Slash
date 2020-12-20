@@ -6,7 +6,8 @@ import (
 )
 
 type SubscriptionUseCase interface {
-	Create(subscription *models.Subscription) *errors.Error
+	Create(subscription *models.Subscription) (*models.Subscription, *errors.Error)
+	RecoverSubscriptionByUserID(userID uint64) (*models.Subscription, *errors.Error)
 	GetByUserID(userID uint64) (*models.Subscription, *errors.Error)
-	DeleteByUserID(userID uint64) *errors.Error
+	DeleteByUserID(userID uint64) (*models.Subscription, *errors.Error)
 }

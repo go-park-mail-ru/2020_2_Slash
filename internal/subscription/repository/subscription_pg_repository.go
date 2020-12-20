@@ -23,10 +23,11 @@ func (rep *SubscriptionPgRepository) Insert(subscription *models.Subscription) e
 	}
 
 	err = tx.QueryRow(`
-		INSERT INTO subscriptions(owner, expires, active)
-		VALUES ($1, $2, $3)
+		INSERT INTO subscriptions(owner, expires, is_paid, is_canceled)
+		VALUES ($1, $2, $3, $4)
 		RETURNING id`,
-		subscription.UserID, subscription.Expires, subscription.Active).
+		subscription.UserID, subscription.Expires,
+		subscription.IsPaid, subscription.IsCanceled).
 		Scan(&subscription.ID)
 	if err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
@@ -50,9 +51,11 @@ func (rep *SubscriptionPgRepository) Update(subscription *models.Subscription) e
 	_, err = tx.Exec(`
 		UPDATE subscriptions
 		SET expires = $2,
-		    active = $3
+		    is_paid = $3,
+		    is_canceled = $4
 		WHERE id = $1`,
-		subscription.ID, subscription.Expires, subscription.Active)
+		subscription.ID, subscription.Expires,
+		subscription.IsPaid, subscription.IsCanceled)
 	if err != nil {
 		if rollbackErr := tx.Rollback(); rollbackErr != nil {
 			logger.Error(rollbackErr)
@@ -69,11 +72,12 @@ func (rep *SubscriptionPgRepository) Update(subscription *models.Subscription) e
 func (rep *SubscriptionPgRepository) SelectByUserID(userID uint64) (*models.Subscription, error) {
 	subscription := &models.Subscription{}
 	err := rep.db.QueryRow(`
-		SELECT id, owner, expires, active
+		SELECT id, owner, expires, is_paid, is_canceled
 		FROM subscriptions
 		WHERE owner=$1`, userID).
 		Scan(&subscription.ID, &subscription.UserID,
-			&subscription.Expires, &subscription.Active)
+			&subscription.Expires, &subscription.IsPaid,
+			&subscription.IsCanceled)
 	if err != nil {
 		return nil, err
 	}

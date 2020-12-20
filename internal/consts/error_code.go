@@ -43,4 +43,12 @@ const (
 	CodeGetFromContextError
 	CodeSubscriptionAlreadyExist
 	CodeSubscriptionDoesNotExist
+	CodeEmptyLabelError
+	CodeParseUserIDError
+	CodeParseUnacceptedError
+	CodeUnacceptedPayment
+	CodeWrongPaymentHash
+	CodeReadKeyFileError
+	CodeParseCodeProError
+	CodeProtectedPayment
 )
