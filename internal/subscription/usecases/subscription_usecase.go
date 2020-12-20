@@ -25,18 +25,19 @@ func (uc *SubscriptionUseCase) Create(subscription *models.Subscription) (*model
 	}
 
 	if dbSubscription != nil {
+		dbSubscription.IsPaid = true
+		dbSubscription.IsCanceled = false
 		if !isExpired(dbSubscription) {
-			return nil, errors.Get(consts.CodeSubscriptionAlreadyExist)
+			oldExpires := dbSubscription.Expires
+			dbSubscription.Expires = oldExpires.AddDate(0, 1, 0)
 		} else {
 			dbSubscription.Expires = subscription.Expires
-			dbSubscription.IsPaid = true
-			dbSubscription.IsCanceled = false
-			err := uc.rep.Update(dbSubscription)
-			if err != nil {
-				return nil, errors.New(consts.CodeInternalError, err)
-			}
-			return dbSubscription, nil
 		}
+		err := uc.rep.Update(dbSubscription)
+		if err != nil {
+			return nil, errors.New(consts.CodeInternalError, err)
+		}
+		return dbSubscription, nil
 	}
 
 	err := uc.rep.Insert(subscription)
@@ -65,7 +66,6 @@ func (uc *SubscriptionUseCase) RecoverSubscriptionByUserID(userID uint64) (*mode
 	}
 	return dbSubscription, nil
 }
-
 
 func isExpired(subscription *models.Subscription) bool {
 	return subscription.Expires.Before(time.Now())
