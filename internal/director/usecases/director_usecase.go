@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"database/sql"
+
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/director"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
@@ -68,6 +69,17 @@ func (du *DirectorUseCase) ListByID(directorsID []uint64) ([]*models.Director, *
 			return nil, err
 		}
 		directors = append(directors, director)
+	}
+	return directors, nil
+}
+
+func (du *DirectorUseCase) List(pgnt *models.Pagination) ([]*models.Director, *errors.Error) {
+	directors, err := du.directorRepo.SelectAll(pgnt)
+	if err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+	if len(directors) == 0 {
+		return []*models.Director{}, nil
 	}
 	return directors, nil
 }

@@ -2,13 +2,14 @@ package usecases
 
 import (
 	"database/sql"
+	"testing"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/director/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestDirectorUseCase_Create_OK(t *testing.T) {
@@ -158,6 +159,39 @@ func TestDirectorUseCase_ListByID_OK(t *testing.T) {
 		Return(directors[1], nil)
 
 	dbDirectors, err := directorUseCase.ListByID(directorsID)
+	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbDirectors, directors)
+}
+
+func TestDirectorUseCase_List_OK(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	directorRep := mocks.NewMockDirectorRepository(ctrl)
+	directorUseCase := NewDirectorUseCase(directorRep)
+
+	directors := []*models.Director{
+		&models.Director{
+			ID:   1,
+			Name: "Margo Robbie",
+		},
+		&models.Director{
+			ID:   2,
+			Name: "No Margo Robbie",
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+
+	directorRep.
+		EXPECT().
+		SelectAll(pgnt).
+		Return(directors, nil)
+
+	dbDirectors, err := directorUseCase.List(pgnt)
 	assert.Equal(t, err, (*errors.Error)(nil))
 	assert.Equal(t, dbDirectors, directors)
 }

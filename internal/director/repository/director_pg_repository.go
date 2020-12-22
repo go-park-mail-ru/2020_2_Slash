@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"strings"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/director"
@@ -101,4 +103,45 @@ func (dr *DirectorPgRepository) SelectById(id uint64) (*models.Director, error) 
 		return nil, err
 	}
 	return dbDirector, nil
+}
+
+func (dr *DirectorPgRepository) SelectAll(pgnt *models.Pagination) ([]*models.Director, error) {
+	var values []interface{}
+
+	selectQuery := `
+		SELECT id, name
+		FROM directors
+		ORDER BY name`
+
+	var pgntQuery string
+	if pgnt.Count != 0 {
+		pgntQuery = "LIMIT $1 OFFSET $2"
+		values = append(values, pgnt.Count, pgnt.From)
+	}
+
+	resultQuery := strings.Join([]string{
+		selectQuery,
+		pgntQuery,
+	}, " ")
+
+	rows, err := dr.dbConn.Query(resultQuery, values...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var directors []*models.Director
+	for rows.Next() {
+		director := &models.Director{}
+		err := rows.Scan(&director.ID, &director.Name)
+		if err != nil {
+			return nil, err
+		}
+		directors = append(directors, director)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return directors, nil
 }

@@ -7,4 +7,5 @@ type DirectorRepository interface {
 	Update(director *models.Director) error
 	DeleteById(id uint64) error
 	SelectById(id uint64) (*models.Director, error)
+	SelectAll(pgnt *models.Pagination) ([]*models.Director, error)
 }
