@@ -30,6 +30,7 @@ func (dh *DirectorHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager)
 	e.PUT("/api/v1/directors/:id", dh.ChangeDirectorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.GET("/api/v1/directors/:id", dh.GetDirectorHandler())
 	e.DELETE("/api/v1/directors/:id", dh.DeleteDirectorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
+	e.GET("/api/v1/directors", dh.GetDirectorsListHandler())
 }
 
 func (dh *DirectorHandler) CreateDirectorHandler() echo.HandlerFunc {
@@ -98,7 +99,7 @@ func (dh *DirectorHandler) ChangeDirectorHandler() echo.HandlerFunc {
 	}
 }
 
-func (ah *DirectorHandler) GetDirectorHandler() echo.HandlerFunc {
+func (dh *DirectorHandler) GetDirectorHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		id, err := strconv.ParseUint(cntx.Param("id"), 10, 64)
 		if err != nil {
@@ -107,7 +108,7 @@ func (ah *DirectorHandler) GetDirectorHandler() echo.HandlerFunc {
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
-		director, customErr := ah.directorUseCase.Get(id)
+		director, customErr := dh.directorUseCase.Get(id)
 		if customErr != nil {
 			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
@@ -121,7 +122,7 @@ func (ah *DirectorHandler) GetDirectorHandler() echo.HandlerFunc {
 	}
 }
 
-func (ah *DirectorHandler) DeleteDirectorHandler() echo.HandlerFunc {
+func (dh *DirectorHandler) DeleteDirectorHandler() echo.HandlerFunc {
 	return func(cntx echo.Context) error {
 		id, err := strconv.ParseUint(cntx.Param("id"), 10, 64)
 		if err != nil {
@@ -130,7 +131,7 @@ func (ah *DirectorHandler) DeleteDirectorHandler() echo.HandlerFunc {
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
 		}
 
-		customErr := ah.directorUseCase.DeleteById(id)
+		customErr := dh.directorUseCase.DeleteById(id)
 		if customErr != nil {
 			logger.Error(customErr.Message)
 			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
@@ -138,6 +139,32 @@ func (ah *DirectorHandler) DeleteDirectorHandler() echo.HandlerFunc {
 
 		return cntx.JSON(http.StatusOK, Response{
 			Message: "success",
+		})
+	}
+}
+
+func (dh *DirectorHandler) GetDirectorsListHandler() echo.HandlerFunc {
+	type Request struct {
+		models.Pagination
+	}
+
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if customErr := reader.NewRequestReader(cntx).Read(req); customErr != nil {
+			logger.Error(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		directors, err := dh.directorUseCase.List(&req.Pagination)
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"directors": directors,
+			},
 		})
 	}
 }

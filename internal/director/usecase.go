@@ -11,4 +11,5 @@ type DirectorUseCase interface {
 	Change(newDirector *models.Director) *errors.Error
 	DeleteById(id uint64) *errors.Error
 	ListByID(directorsID []uint64) ([]*models.Director, *errors.Error)
+	List(pgnt *models.Pagination) ([]*models.Director, *errors.Error)
 }

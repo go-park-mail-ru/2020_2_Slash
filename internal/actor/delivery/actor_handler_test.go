@@ -3,21 +3,23 @@ package delivery
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor/mocks"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
-	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
-	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
-	"github.com/go-park-mail-ru/2020_2_Slash/tools/response"
-	"github.com/golang/mock/gomock"
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor/mocks"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
+	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
+	"github.com/go-park-mail-ru/2020_2_Slash/pkg/converter"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
+	"github.com/go-park-mail-ru/2020_2_Slash/tools/response"
+	"github.com/golang/mock/gomock"
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
 )
 
 func AnyToBytesBuffer(i interface{}) (*bytes.Buffer, error) {
@@ -262,6 +264,66 @@ func TestActorHandler_DeleteActorHandler(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		expResBody, err := AnyToBytesBuffer(response)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		bytes, _ := ioutil.ReadAll(rec.Body)
+
+		assert.JSONEq(t, expResBody.String(), string(bytes))
+	}
+}
+
+func TestActorHandler_GetActorsListHandler(t *testing.T) {
+	t.Parallel()
+	// Setup
+	logger.DisableLogger()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	actorUseCase := mocks.NewMockActorUseCase(ctrl)
+
+	actors := []*models.Actor{
+		&models.Actor{
+			ID:   1,
+			Name: "Margo Robbie",
+		},
+		&models.Actor{
+			ID:   2,
+			Name: "No Margo Robbie",
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+
+	reqJSON, err := converter.AnyToBytesBuffer(pgnt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/actors/", strings.NewReader(reqJSON.String()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	actorHandler := NewActorHandler(actorUseCase)
+	handleFunc := actorHandler.GetActorsListHandler()
+	actorHandler.Configure(e, nil)
+
+	actorUseCase.
+		EXPECT().
+		List(pgnt).
+		Return(actors, nil)
+
+	response := &response.Response{Body: &response.Body{"actors": actors}}
+
+	// Assertions
+	if assert.NoError(t, handleFunc(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+
+		expResBody, err := converter.AnyToBytesBuffer(response)
 		if err != nil {
 			t.Error(err)
 			return

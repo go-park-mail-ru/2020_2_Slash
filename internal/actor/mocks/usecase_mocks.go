@@ -105,3 +105,18 @@ func (mr *MockActorUseCaseMockRecorder) ListByID(actorsID interface{}) *gomock.C
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByID", reflect.TypeOf((*MockActorUseCase)(nil).ListByID), actorsID)
 }
+
+// List mocks base method
+func (m *MockActorUseCase) List(pgnt *models.Pagination) ([]*models.Actor, *errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "List", pgnt)
+	ret0, _ := ret[0].([]*models.Actor)
+	ret1, _ := ret[1].(*errors.Error)
+	return ret0, ret1
+}
+
+// List indicates an expected call of List
+func (mr *MockActorUseCaseMockRecorder) List(pgnt interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockActorUseCase)(nil).List), pgnt)
+}

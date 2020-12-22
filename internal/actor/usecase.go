@@ -11,4 +11,5 @@ type ActorUseCase interface {
 	Change(newActor *models.Actor) *errors.Error
 	DeleteById(id uint64) *errors.Error
 	ListByID(actorsID []uint64) ([]*models.Actor, *errors.Error)
+	List(pgnt *models.Pagination) ([]*models.Actor, *errors.Error)
 }

@@ -105,3 +105,18 @@ func (mr *MockDirectorUseCaseMockRecorder) ListByID(directorsID interface{}) *go
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByID", reflect.TypeOf((*MockDirectorUseCase)(nil).ListByID), directorsID)
 }
+
+// List mocks base method
+func (m *MockDirectorUseCase) List(pgnt *models.Pagination) ([]*models.Director, *errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "List", pgnt)
+	ret0, _ := ret[0].([]*models.Director)
+	ret1, _ := ret[1].(*errors.Error)
+	return ret0, ret1
+}
+
+// List indicates an expected call of List
+func (mr *MockDirectorUseCaseMockRecorder) List(pgnt interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockDirectorUseCase)(nil).List), pgnt)
+}

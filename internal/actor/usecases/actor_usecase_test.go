@@ -2,13 +2,14 @@ package usecases
 
 import (
 	"database/sql"
+	"testing"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor/mocks"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestActorUseCase_Create_OK(t *testing.T) {
@@ -158,6 +159,39 @@ func TestActorUseCase_ListByID_OK(t *testing.T) {
 		Return(actors[1], nil)
 
 	dbActors, err := actorUseCase.ListByID(actorsID)
+	assert.Equal(t, err, (*errors.Error)(nil))
+	assert.Equal(t, dbActors, actors)
+}
+
+func TestActorUseCase_List_OK(t *testing.T) {
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	actorRep := mocks.NewMockActorRepository(ctrl)
+	actorUseCase := NewActorUseCase(actorRep)
+
+	actors := []*models.Actor{
+		&models.Actor{
+			ID:   1,
+			Name: "Margo Robbie",
+		},
+		&models.Actor{
+			ID:   2,
+			Name: "No Margo Robbie",
+		},
+	}
+
+	pgnt := &models.Pagination{
+		From:  0,
+		Count: 1,
+	}
+
+	actorRep.
+		EXPECT().
+		SelectAll(pgnt).
+		Return(actors, nil)
+
+	dbActors, err := actorUseCase.List(pgnt)
 	assert.Equal(t, err, (*errors.Error)(nil))
 	assert.Equal(t, dbActors, actors)
 }
