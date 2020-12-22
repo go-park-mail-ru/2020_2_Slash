@@ -3,11 +3,13 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/tools/logger"
+
+	"strings"
 
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/models"
-	"strings"
 )
 
 type ActorPgRepository struct {
@@ -148,5 +150,46 @@ func (rep *ActorPgRepository) SelectWhereNameLike(name string, limit, offset uin
 		return nil, err
 	}
 
+	return actors, nil
+}
+
+func (rep *ActorPgRepository) SelectAll(pgnt *models.Pagination) ([]*models.Actor, error) {
+	var values []interface{}
+
+	selectQuery := `
+		SELECT id, name
+		FROM actors
+		ORDER BY name`
+
+	var pgntQuery string
+	if pgnt.Count != 0 {
+		pgntQuery = "LIMIT $1 OFFSET $2"
+		values = append(values, pgnt.Count, pgnt.From)
+	}
+
+	resultQuery := strings.Join([]string{
+		selectQuery,
+		pgntQuery,
+	}, " ")
+
+	rows, err := rep.db.Query(resultQuery, values...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var actors []*models.Actor
+	for rows.Next() {
+		actor := &models.Actor{}
+		err := rows.Scan(&actor.ID, &actor.Name)
+		if err != nil {
+			return nil, err
+		}
+		actors = append(actors, actor)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return actors, nil
 }

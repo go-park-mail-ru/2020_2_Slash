@@ -30,6 +30,7 @@ func (ah *ActorHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.PUT("/api/v1/actors/:id", ah.ChangeActorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
 	e.GET("/api/v1/actors/:id", ah.GetActorHandler())
 	e.DELETE("/api/v1/actors/:id", ah.DeleteActorHandler(), mw.CheckAuth, mw.CheckAdmin, mw.CheckCSRF)
+	e.GET("/api/v1/actors", ah.GetActorsListHandler())
 }
 
 func (ah *ActorHandler) CreateActorHandler() echo.HandlerFunc {
@@ -138,6 +139,32 @@ func (ah *ActorHandler) DeleteActorHandler() echo.HandlerFunc {
 
 		return cntx.JSON(http.StatusOK, Response{
 			Message: "success",
+		})
+	}
+}
+
+func (ah *ActorHandler) GetActorsListHandler() echo.HandlerFunc {
+	type Request struct {
+		models.Pagination
+	}
+
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if customErr := reader.NewRequestReader(cntx).Read(req); customErr != nil {
+			logger.Error(customErr.Message)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		actors, err := ah.actorUseCase.List(&req.Pagination)
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"actors": actors,
+			},
 		})
 	}
 }

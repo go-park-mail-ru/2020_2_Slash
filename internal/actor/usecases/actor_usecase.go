@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"database/sql"
+
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/actor"
 	. "github.com/go-park-mail-ru/2020_2_Slash/internal/consts"
 	"github.com/go-park-mail-ru/2020_2_Slash/internal/helpers/errors"
@@ -68,6 +69,17 @@ func (au *ActorUseCase) ListByID(actorsID []uint64) ([]*models.Actor, *errors.Er
 			return nil, err
 		}
 		actors = append(actors, actor)
+	}
+	return actors, nil
+}
+
+func (au *ActorUseCase) List(pgnt *models.Pagination) ([]*models.Actor, *errors.Error) {
+	actors, err := au.actorRepo.SelectAll(pgnt)
+	if err != nil {
+		return nil, errors.New(CodeInternalError, err)
+	}
+	if len(actors) == 0 {
+		return []*models.Actor{}, nil
 	}
 	return actors, nil
 }

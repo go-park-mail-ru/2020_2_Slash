@@ -8,4 +8,5 @@ type ActorRepository interface {
 	DeleteById(id uint64) error
 	SelectById(id uint64) (*models.Actor, error)
 	SelectWhereNameLike(name string, limit, offset uint64) ([]*models.Actor, error)
+	SelectAll(pgnt *models.Pagination) ([]*models.Actor, error)
 }
