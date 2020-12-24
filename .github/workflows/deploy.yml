@@ -82,7 +82,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run linters
-        run: chmod 755 ./build/lint.sh
+        run: ./build/lint.sh
 
   deploy:
     runs-on: ubuntu-latest
