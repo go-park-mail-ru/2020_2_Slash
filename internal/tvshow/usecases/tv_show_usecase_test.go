@@ -189,11 +189,11 @@ func TestTVShowUseCase_ListByParams_OK(t *testing.T) {
 	var userID uint64 = 1
 
 	params := &models.ContentFilter{
-		Year:     2001,
-		Genre:    1,
-		Country:  1,
-		Actor:    1,
-		Director: 1,
+		Year:     []int{2001},
+		Genre:    []int{1},
+		Country:  []int{1},
+		Actor:    []int{1},
+		Director: []int{1},
 	}
 
 	tvshowRep.

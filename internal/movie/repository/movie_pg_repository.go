@@ -167,9 +167,9 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 		LEFT OUTER JOIN favourites as f ON f.user_id=$1 AND f.content_id=c.id`
 	values = append(values, curUserID)
 
-	var pgntQuery string
+	pgntQuery := "ORDER BY m.id"
 	if pgnt.Count != 0 {
-		pgntQuery = "ORDER BY m.id LIMIT $2 OFFSET $3"
+		pgntQuery += " LIMIT $2 OFFSET $3"
 		values = append(values, pgnt.Count, pgnt.From)
 	}
 
@@ -181,14 +181,12 @@ func (mr *MoviePgRepository) SelectByParams(params *models.ContentFilter,
 	}
 
 	filtersJoinQuery, values := queryBuilder.GetContentJoinFiltersByParams(values, params)
-	filtersWhereQuery, values := queryBuilder.GetContentWhereQueryByParams(values, params)
 
 	resultQuery := strings.Join([]string{
 		selectQuery,
-		filtersJoinQuery,
 		joinMovieQuery,
+		filtersJoinQuery,
 		joinUserQuery,
-		filtersWhereQuery,
 		pgntQuery,
 	}, " ")
 
