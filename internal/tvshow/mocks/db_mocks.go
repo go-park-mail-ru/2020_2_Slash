@@ -81,8 +81,7 @@ func MockTVShowRepoSelectByParamsReturnRows(mock sqlmock.Sqlmock, params *models
 	query := `
 		SELECT tv.id, tv.seasons, c.id, c.name`
 
-	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From, params.Genre,
-		params.Country, params.Actor, params.Director, params.Year).WillReturnRows(rows)
+	mock.ExpectQuery(query).WithArgs(curUserID, pgnt.Count, pgnt.From, params.Year[0]).WillReturnRows(rows)
 }
 
 func MockTVShowRepoSelectLatestReturnRows(mock sqlmock.Sqlmock, pgnt *models.Pagination, curUserID uint64,

@@ -198,7 +198,5 @@ func main() {
 	searchHandler.Configure(e, mw)
 	subscriptionHandler.Configure(e, mw)
 
-	key := "/etc/letsencrypt/live/www.flicksbox.ru/privkey.pem"
-	cert := "/etc/letsencrypt/live/www.flicksbox.ru/fullchain.pem"
-	log.Fatal(e.StartTLS(config.GetServerConnString(), cert, key))
+	log.Fatal(e.Start(config.GetServerConnString()))
 }

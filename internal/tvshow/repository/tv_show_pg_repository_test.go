@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"log"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -201,15 +202,12 @@ func TestTVShowPgRepository_SelectByParams_OK(t *testing.T) {
 	var userID uint64 = 1
 
 	params := &models.ContentFilter{
-		Year:     2001,
-		Genre:    1,
-		Country:  1,
-		Actor:    1,
-		Director: 1,
+		Year: []int{2001},
 	}
 
 	mocks.MockTVShowRepoSelectByParamsReturnRows(mock, params, pgnt, userID, tvshows)
 	dbTVShows, err := tvshowPgRep.SelectByParams(params, pgnt, userID)
+	log.Println(dbTVShows)
 	assert.Equal(t, tvshows, dbTVShows)
 	assert.NoError(t, err)
 

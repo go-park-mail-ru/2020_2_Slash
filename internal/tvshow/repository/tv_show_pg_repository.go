@@ -211,14 +211,12 @@ func (tr *TVShowPgRepository) SelectByParams(params *models.ContentFilter,
 	}
 
 	filtersJoinQuery, values := queryBuilder.GetContentJoinFiltersByParams(values, params)
-	filtersWhereQuery, values := queryBuilder.GetContentWhereQueryByParams(values, params)
 
 	resultQuery := strings.Join([]string{
 		selectQuery,
-		filtersJoinQuery,
 		joinTVShowQuery,
+		filtersJoinQuery,
 		joinUserQuery,
-		filtersWhereQuery,
 		pgntQuery,
 	}, " ")
 
