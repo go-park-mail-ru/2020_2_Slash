@@ -106,6 +106,37 @@ func (uu *UserblockMicroservice) UpdateProfile(ctx context.Context, newUserData 
 	return dbUser, nil
 }
 
+func (uu *UserblockMicroservice) UpdatePassword(ctx context.Context, msg *UpdatePasswordMsg) (*User, error) {
+	sanitizer.Sanitize(msg)
+
+	if msg.NewPassword != msg.RepeatedNewPassword {
+		return nil, status.Error(codes.Code(consts.CodePasswordsDoesNotMatch), "")
+	}
+
+	dbUser, err := uu.GetByID(context.Background(), &ID{ID: msg.Id})
+	if err != nil {
+		return nil, err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(dbUser.Password),
+		[]byte(msg.OldPassword)); err != nil {
+		return nil, status.Error(codes.Code(consts.CodeWrongPassword), "")
+	}
+
+	if msg.NewPassword != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(msg.NewPassword), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, status.Error(codes.Code(consts.CodeInternalError), err.Error())
+		}
+		dbUser.Password = string(hashedPassword)
+	}
+
+	if err := uu.userRepo.Update(GrpcUserToModel(dbUser)); err != nil {
+		return nil, status.Error(codes.Code(consts.CodeInternalError), err.Error())
+	}
+	return dbUser, nil
+}
+
 func (uu *UserblockMicroservice) UpdateAvatar(ctx context.Context, idAvatar *IdAvatar) (*User, error) {
 	dbUser, err := uu.GetByID(context.Background(), &ID{ID: idAvatar.GetId().GetID()})
 	if err != nil {

@@ -2,7 +2,7 @@
   "database": {
     "user": "postgres",
     "password": "postgres",
-    "name": "slash",
+    "name": "slash_prod",
     "host": "localhost",
     "port": 5432
   },
