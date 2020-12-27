@@ -36,6 +36,23 @@ func (uu *UserUsecase) Create(modelUser *models.User) *errors.Error {
 	return nil
 }
 
+func (uu *UserUsecase) UpdatePassword(userID uint64, oldPassword, newPassword,
+	repeatedNewPassword string) (*models.User, *errors.Error) {
+	grpcUser, err := uu.userBlockClient.UpdatePassword(context.Background(),
+		&grpc.UpdatePasswordMsg{
+			Id:                  userID,
+			OldPassword:         oldPassword,
+			NewPassword:         newPassword,
+			RepeatedNewPassword: repeatedNewPassword,
+		})
+	if err != nil {
+		customErr := errors.GetCustomErrFromStatus(err)
+		return nil, customErr
+	}
+
+	return grpc.GrpcUserToModel(grpcUser), nil
+}
+
 func (uu *UserUsecase) GetByEmail(email string) (*models.User, *errors.Error) {
 	grpcUser, err := uu.userBlockClient.GetByEmail(context.Background(),
 		&grpc.Email{Email: email})

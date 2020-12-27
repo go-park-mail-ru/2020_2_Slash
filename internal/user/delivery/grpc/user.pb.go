@@ -414,6 +414,77 @@ func (x *UserPassword) GetPassword() *Password {
 	return nil
 }
 
+type UpdatePasswordMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id                  uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	OldPassword         string `protobuf:"bytes,2,opt,name=oldPassword,proto3" json:"oldPassword,omitempty"`
+	NewPassword         string `protobuf:"bytes,3,opt,name=newPassword,proto3" json:"newPassword,omitempty"`
+	RepeatedNewPassword string `protobuf:"bytes,4,opt,name=repeatedNewPassword,proto3" json:"repeatedNewPassword,omitempty"`
+}
+
+func (x *UpdatePasswordMsg) Reset() {
+	*x = UpdatePasswordMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_user_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdatePasswordMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePasswordMsg) ProtoMessage() {}
+
+func (x *UpdatePasswordMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePasswordMsg.ProtoReflect.Descriptor instead.
+func (*UpdatePasswordMsg) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdatePasswordMsg) GetId() uint64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *UpdatePasswordMsg) GetOldPassword() string {
+	if x != nil {
+		return x.OldPassword
+	}
+	return ""
+}
+
+func (x *UpdatePasswordMsg) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
+func (x *UpdatePasswordMsg) GetRepeatedNewPassword() string {
+	if x != nil {
+		return x.RepeatedNewPassword
+	}
+	return ""
+}
+
 type Nothing struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -423,7 +494,7 @@ type Nothing struct {
 func (x *Nothing) Reset() {
 	*x = Nothing{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_user_proto_msgTypes[7]
+		mi := &file_user_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -436,7 +507,7 @@ func (x *Nothing) String() string {
 func (*Nothing) ProtoMessage() {}
 
 func (x *Nothing) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[7]
+	mi := &file_user_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -449,7 +520,7 @@ func (x *Nothing) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Nothing.ProtoReflect.Descriptor instead.
 func (*Nothing) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{7}
+	return file_user_proto_rawDescGZIP(), []int{8}
 }
 
 var File_user_proto protoreflect.FileDescriptor
@@ -483,22 +554,35 @@ var file_user_proto_rawDesc = []byte{
 	0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x04, 0x75, 0x73, 0x65, 0x72,
 	0x12, 0x2a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x02, 0x20, 0x01,
 	0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f,
-	0x72, 0x64, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x09, 0x0a, 0x07,
-	0x4e, 0x6f, 0x74, 0x68, 0x69, 0x6e, 0x67, 0x32, 0xd4, 0x01, 0x0a, 0x09, 0x55, 0x73, 0x65, 0x72,
-	0x42, 0x6c, 0x6f, 0x63, 0x6b, 0x12, 0x22, 0x0a, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12,
-	0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x1a, 0x0a, 0x2e, 0x67, 0x72,
-	0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x12, 0x27, 0x0a, 0x0a, 0x47, 0x65, 0x74,
-	0x42, 0x79, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x0b, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x45,
-	0x6d, 0x61, 0x69, 0x6c, 0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72,
-	0x22, 0x00, 0x12, 0x21, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x42, 0x79, 0x49, 0x44, 0x12, 0x08, 0x2e,
-	0x67, 0x72, 0x70, 0x63, 0x2e, 0x49, 0x44, 0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55,
-	0x73, 0x65, 0x72, 0x22, 0x00, 0x12, 0x29, 0x0a, 0x0d, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50,
-	0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65, 0x12, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73,
-	0x65, 0x72, 0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00,
-	0x12, 0x2c, 0x0a, 0x0c, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72,
-	0x12, 0x0e, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x49, 0x64, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72,
-	0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x62, 0x06,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x72, 0x64, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x99, 0x01, 0x0a,
+	0x11, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x4d,
+	0x73, 0x67, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x02,
+	0x69, 0x64, 0x12, 0x20, 0x0a, 0x0b, 0x6f, 0x6c, 0x64, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72,
+	0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x6f, 0x6c, 0x64, 0x50, 0x61, 0x73, 0x73,
+	0x77, 0x6f, 0x72, 0x64, 0x12, 0x20, 0x0a, 0x0b, 0x6e, 0x65, 0x77, 0x50, 0x61, 0x73, 0x73, 0x77,
+	0x6f, 0x72, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x6e, 0x65, 0x77, 0x50, 0x61,
+	0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x30, 0x0a, 0x13, 0x72, 0x65, 0x70, 0x65, 0x61, 0x74,
+	0x65, 0x64, 0x4e, 0x65, 0x77, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x04, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x13, 0x72, 0x65, 0x70, 0x65, 0x61, 0x74, 0x65, 0x64, 0x4e, 0x65, 0x77,
+	0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x09, 0x0a, 0x07, 0x4e, 0x6f, 0x74, 0x68,
+	0x69, 0x6e, 0x67, 0x32, 0x8d, 0x02, 0x0a, 0x09, 0x55, 0x73, 0x65, 0x72, 0x42, 0x6c, 0x6f, 0x63,
+	0x6b, 0x12, 0x22, 0x0a, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x0a, 0x2e, 0x67, 0x72,
+	0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55,
+	0x73, 0x65, 0x72, 0x22, 0x00, 0x12, 0x27, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x42, 0x79, 0x45, 0x6d,
+	0x61, 0x69, 0x6c, 0x12, 0x0b, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x45, 0x6d, 0x61, 0x69, 0x6c,
+	0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x12, 0x21,
+	0x0a, 0x07, 0x47, 0x65, 0x74, 0x42, 0x79, 0x49, 0x44, 0x12, 0x08, 0x2e, 0x67, 0x72, 0x70, 0x63,
+	0x2e, 0x49, 0x44, 0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22,
+	0x00, 0x12, 0x29, 0x0a, 0x0d, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x72, 0x6f, 0x66, 0x69,
+	0x6c, 0x65, 0x12, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x1a, 0x0a,
+	0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x12, 0x2c, 0x0a, 0x0c,
+	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72, 0x12, 0x0e, 0x2e, 0x67,
+	0x72, 0x70, 0x63, 0x2e, 0x49, 0x64, 0x41, 0x76, 0x61, 0x74, 0x61, 0x72, 0x1a, 0x0a, 0x2e, 0x67,
+	0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x22, 0x00, 0x12, 0x37, 0x0a, 0x0e, 0x55, 0x70,
+	0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x17, 0x2e, 0x67,
+	0x72, 0x70, 0x63, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f,
+	0x72, 0x64, 0x4d, 0x73, 0x67, 0x1a, 0x0a, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x73, 0x65,
+	0x72, 0x22, 0x00, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -513,37 +597,40 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_user_proto_goTypes = []interface{}{
-	(*User)(nil),         // 0: grpc.User
-	(*Avatar)(nil),       // 1: grpc.Avatar
-	(*IdAvatar)(nil),     // 2: grpc.IdAvatar
-	(*Email)(nil),        // 3: grpc.Email
-	(*ID)(nil),           // 4: grpc.ID
-	(*Password)(nil),     // 5: grpc.Password
-	(*UserPassword)(nil), // 6: grpc.UserPassword
-	(*Nothing)(nil),      // 7: grpc.Nothing
+	(*User)(nil),              // 0: grpc.User
+	(*Avatar)(nil),            // 1: grpc.Avatar
+	(*IdAvatar)(nil),          // 2: grpc.IdAvatar
+	(*Email)(nil),             // 3: grpc.Email
+	(*ID)(nil),                // 4: grpc.ID
+	(*Password)(nil),          // 5: grpc.Password
+	(*UserPassword)(nil),      // 6: grpc.UserPassword
+	(*UpdatePasswordMsg)(nil), // 7: grpc.UpdatePasswordMsg
+	(*Nothing)(nil),           // 8: grpc.Nothing
 }
 var file_user_proto_depIdxs = []int32{
-	4, // 0: grpc.IdAvatar.id:type_name -> grpc.ID
-	1, // 1: grpc.IdAvatar.avatar:type_name -> grpc.Avatar
-	0, // 2: grpc.UserPassword.user:type_name -> grpc.User
-	5, // 3: grpc.UserPassword.password:type_name -> grpc.Password
-	0, // 4: grpc.UserBlock.Create:input_type -> grpc.User
-	3, // 5: grpc.UserBlock.GetByEmail:input_type -> grpc.Email
-	4, // 6: grpc.UserBlock.GetByID:input_type -> grpc.ID
-	0, // 7: grpc.UserBlock.UpdateProfile:input_type -> grpc.User
-	2, // 8: grpc.UserBlock.UpdateAvatar:input_type -> grpc.IdAvatar
-	0, // 9: grpc.UserBlock.Create:output_type -> grpc.User
-	0, // 10: grpc.UserBlock.GetByEmail:output_type -> grpc.User
-	0, // 11: grpc.UserBlock.GetByID:output_type -> grpc.User
-	0, // 12: grpc.UserBlock.UpdateProfile:output_type -> grpc.User
-	0, // 13: grpc.UserBlock.UpdateAvatar:output_type -> grpc.User
-	9, // [9:14] is the sub-list for method output_type
-	4, // [4:9] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	4,  // 0: grpc.IdAvatar.id:type_name -> grpc.ID
+	1,  // 1: grpc.IdAvatar.avatar:type_name -> grpc.Avatar
+	0,  // 2: grpc.UserPassword.user:type_name -> grpc.User
+	5,  // 3: grpc.UserPassword.password:type_name -> grpc.Password
+	0,  // 4: grpc.UserBlock.Create:input_type -> grpc.User
+	3,  // 5: grpc.UserBlock.GetByEmail:input_type -> grpc.Email
+	4,  // 6: grpc.UserBlock.GetByID:input_type -> grpc.ID
+	0,  // 7: grpc.UserBlock.UpdateProfile:input_type -> grpc.User
+	2,  // 8: grpc.UserBlock.UpdateAvatar:input_type -> grpc.IdAvatar
+	7,  // 9: grpc.UserBlock.UpdatePassword:input_type -> grpc.UpdatePasswordMsg
+	0,  // 10: grpc.UserBlock.Create:output_type -> grpc.User
+	0,  // 11: grpc.UserBlock.GetByEmail:output_type -> grpc.User
+	0,  // 12: grpc.UserBlock.GetByID:output_type -> grpc.User
+	0,  // 13: grpc.UserBlock.UpdateProfile:output_type -> grpc.User
+	0,  // 14: grpc.UserBlock.UpdateAvatar:output_type -> grpc.User
+	0,  // 15: grpc.UserBlock.UpdatePassword:output_type -> grpc.User
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_user_proto_init() }
@@ -637,6 +724,18 @@ func file_user_proto_init() {
 			}
 		}
 		file_user_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdatePasswordMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_user_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Nothing); i {
 			case 0:
 				return &v.state
@@ -655,7 +754,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_user_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -686,6 +785,7 @@ type UserBlockClient interface {
 	GetByID(ctx context.Context, in *ID, opts ...grpc.CallOption) (*User, error)
 	UpdateProfile(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error)
 	UpdateAvatar(ctx context.Context, in *IdAvatar, opts ...grpc.CallOption) (*User, error)
+	UpdatePassword(ctx context.Context, in *UpdatePasswordMsg, opts ...grpc.CallOption) (*User, error)
 }
 
 type userBlockClient struct {
@@ -741,6 +841,15 @@ func (c *userBlockClient) UpdateAvatar(ctx context.Context, in *IdAvatar, opts .
 	return out, nil
 }
 
+func (c *userBlockClient) UpdatePassword(ctx context.Context, in *UpdatePasswordMsg, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, "/grpc.UserBlock/UpdatePassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserBlockServer is the server API for UserBlock service.
 type UserBlockServer interface {
 	Create(context.Context, *User) (*User, error)
@@ -748,6 +857,7 @@ type UserBlockServer interface {
 	GetByID(context.Context, *ID) (*User, error)
 	UpdateProfile(context.Context, *User) (*User, error)
 	UpdateAvatar(context.Context, *IdAvatar) (*User, error)
+	UpdatePassword(context.Context, *UpdatePasswordMsg) (*User, error)
 }
 
 // UnimplementedUserBlockServer can be embedded to have forward compatible implementations.
@@ -768,6 +878,9 @@ func (*UnimplementedUserBlockServer) UpdateProfile(context.Context, *User) (*Use
 }
 func (*UnimplementedUserBlockServer) UpdateAvatar(context.Context, *IdAvatar) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateAvatar not implemented")
+}
+func (*UnimplementedUserBlockServer) UpdatePassword(context.Context, *UpdatePasswordMsg) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePassword not implemented")
 }
 
 func RegisterUserBlockServer(s *grpc.Server, srv UserBlockServer) {
@@ -864,6 +977,24 @@ func _UserBlock_UpdateAvatar_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserBlock_UpdatePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePasswordMsg)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserBlockServer).UpdatePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.UserBlock/UpdatePassword",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserBlockServer).UpdatePassword(ctx, req.(*UpdatePasswordMsg))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _UserBlock_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "grpc.UserBlock",
 	HandlerType: (*UserBlockServer)(nil),
@@ -887,6 +1018,10 @@ var _UserBlock_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateAvatar",
 			Handler:    _UserBlock_UpdateAvatar_Handler,
+		},
+		{
+			MethodName: "UpdatePassword",
+			Handler:    _UserBlock_UpdatePassword_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

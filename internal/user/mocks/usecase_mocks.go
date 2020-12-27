@@ -93,6 +93,21 @@ func (mr *MockUserUsecaseMockRecorder) UpdateProfile(newUserData interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateProfile", reflect.TypeOf((*MockUserUsecase)(nil).UpdateProfile), newUserData)
 }
 
+// UpdatePassword mocks base method
+func (m *MockUserUsecase) UpdatePassword(userID uint64, oldPassword, newPassword, repeatedNewPassword string) (*models.User, *errors.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePassword", userID, oldPassword, newPassword, repeatedNewPassword)
+	ret0, _ := ret[0].(*models.User)
+	ret1, _ := ret[1].(*errors.Error)
+	return ret0, ret1
+}
+
+// UpdatePassword indicates an expected call of UpdatePassword
+func (mr *MockUserUsecaseMockRecorder) UpdatePassword(userID, oldPassword, newPassword, repeatedNewPassword interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePassword", reflect.TypeOf((*MockUserUsecase)(nil).UpdatePassword), userID, oldPassword, newPassword, repeatedNewPassword)
+}
+
 // UpdateAvatar mocks base method
 func (m *MockUserUsecase) UpdateAvatar(userID uint64, newAvatar string) (*models.User, *errors.Error) {
 	m.ctrl.T.Helper()

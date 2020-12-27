@@ -37,6 +37,13 @@ message UserPassword {
   Password password = 2;
 }
 
+message UpdatePasswordMsg {
+  uint64 id = 1;
+  string oldPassword = 2;
+  string newPassword = 3;
+  string repeatedNewPassword = 4;
+}
+
 message Nothing {}
 
 // grpc-сервис пользовательского блока
@@ -46,4 +53,5 @@ service UserBlock {
   rpc GetByID (ID) returns (User) {}
   rpc UpdateProfile (User) returns (User) {}
   rpc UpdateAvatar (IdAvatar) returns (User) {}
+  rpc UpdatePassword (UpdatePasswordMsg) returns (User) {}
 }

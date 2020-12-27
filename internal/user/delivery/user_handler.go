@@ -38,6 +38,7 @@ func (uh *UserHandler) Configure(e *echo.Echo, mw *mwares.MiddlewareManager) {
 	e.POST("/api/v1/user/register", uh.RegisterUserHandler())
 	e.GET("/api/v1/user/profile", uh.GetUserProfileHandler(), mw.CheckAuth)
 	e.PUT("/api/v1/user/profile", uh.UpdateUserProfileHandler(), mw.CheckAuth, mw.CheckCSRF)
+	e.PUT("/api/v1/user/password", uh.UpdateUserPassword(), mw.CheckAuth, mw.CheckCSRF)
 	e.POST("/api/v1/user/avatar", uh.UpdateAvatarHandler(), mw.CheckAuth, middleware.BodyLimit("10M"), mw.CheckCSRF)
 }
 
@@ -147,6 +148,42 @@ func (uh *UserHandler) UpdateUserProfileHandler() echo.HandlerFunc {
 			logger.Error(err.Message)
 			return cntx.JSON(err.HTTPCode, Response{Error: err})
 		}
+		return cntx.JSON(http.StatusOK, Response{
+			Body: &Body{
+				"user": user,
+			},
+		})
+	}
+}
+
+func (uh *UserHandler) UpdateUserPassword() echo.HandlerFunc {
+	type Request struct {
+		OldPassword         string `json:"old_password" validate:"omitempty,gte=3,lte=32"`
+		NewPassword         string `json:"new_password" validate:"omitempty,gte=6,lte=32"`
+		RepeatedNewPassword string `json:"repeated_new_password" validate:"omitempty,gte=6,lte=32"`
+	}
+
+	return func(cntx echo.Context) error {
+		req := &Request{}
+		if err := reader.NewRequestReader(cntx).Read(req); err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
+		userID, ok := cntx.Get("userID").(uint64)
+		if !ok {
+			customErr := errors.Get(CodeGetFromContextError)
+			logger.Error(customErr)
+			return cntx.JSON(customErr.HTTPCode, Response{Error: customErr})
+		}
+
+		user, err := uh.userUcase.UpdatePassword(userID, req.OldPassword, req.NewPassword,
+			req.RepeatedNewPassword)
+		if err != nil {
+			logger.Error(err.Message)
+			return cntx.JSON(err.HTTPCode, Response{Error: err})
+		}
+
 		return cntx.JSON(http.StatusOK, Response{
 			Body: &Body{
 				"user": user,

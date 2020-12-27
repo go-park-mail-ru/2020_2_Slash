@@ -10,6 +10,8 @@ type UserUsecase interface {
 	GetByEmail(email string) (*models.User, *errors.Error)
 	GetByID(userID uint64) (*models.User, *errors.Error)
 	UpdateProfile(newUserData *models.User) (*models.User, *errors.Error)
+	UpdatePassword(userID uint64, oldPassword, newPassword,
+		repeatedNewPassword string) (*models.User, *errors.Error)
 	UpdateAvatar(userID uint64, newAvatar string) (*models.User, *errors.Error)
 	CheckPassword(user *models.User, password string) *errors.Error
 	IsAdmin(userID uint64) (bool, *errors.Error)
